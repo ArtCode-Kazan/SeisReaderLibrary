@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 
+
 namespace BinReader
 {
     public class FileHeader
@@ -31,6 +32,7 @@ namespace BinReader
             FileHeader.latitude = latitude;
         }
     }
+
     public class BinaryFileInfo
     {
         public static string path;
@@ -91,7 +93,23 @@ namespace BinReader
                 int minutes = (secs - days * 24 * 3600 - hours * 3600) / 60;
                 double seconds = BinaryFileInfo.DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
 
-                return Operations.FormatDuration(days, hours, minutes, seconds);
+                return FormatDuration(days, hours, minutes, seconds);
+            }
+        }
+        static public string FormatDuration(int days, int hours, int minutes, double seconds)
+        {
+            string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
+            string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
+            string secondsFmt = string.Format("{0:f3}", seconds); ; //THERE SHOULD BE f'{seconds:.3f}'
+            
+            if (days != 0)
+            {
+                return Convert.ToString(days) + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
+            }
+
+            else
+            {
+                return hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
             }
         }
     }
@@ -271,23 +289,7 @@ namespace BinReader
             {
                 return false;
             }
-        }
-        static public string FormatDuration(int days, int hours, int minutes, double seconds)
-        {
-            string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
-            string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
-            string secondsFmt = Convert.ToString(seconds).PadLeft(6, '0'); //THERE SHOULD BE f'{seconds:.3f}'
-
-            if (days != 0)
-            {
-                return Convert.ToString(days) + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
-            }
-
-            else
-            {
-                return hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
-            }
-        }
+        }        
     }
 
     public class BinarySeismicFile
