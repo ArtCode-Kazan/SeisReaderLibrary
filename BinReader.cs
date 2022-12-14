@@ -72,7 +72,7 @@ namespace BinReader
         {
             get
             {
-                return (path, formatType, frequency, timeStart, timeStop, longitude, latitude);
+                return (path, formatType, frequency, timeStart, timeStop, longitude, latitude);                
             }
         }
         static public double DurationInSeconds
@@ -100,7 +100,7 @@ namespace BinReader
         {
             string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
             string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
-            string secondsFmt = string.Format("{0:f3}", seconds); ; //THERE SHOULD BE f'{seconds:.3f}'
+            string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0'); ; //THERE SHOULD BE f'{seconds:.3f}'
             
             if (days != 0)
             {
@@ -304,15 +304,23 @@ namespace BinReader
         public DateTime __ReadDatetimeStart;
         public DateTime __ReadDatetimeStop;
 
+        string BAIKAL7_FMT = "Baikal7";
+        string BAIKAL8_FMT = "Baikal8";
+        string SIGMA_FMT = "Sigma";
+
+        string BAIKAL7_EXTENSION = "00";
+        string BAIKAL8_EXTENSION = "xx";
+        string SIGMA_EXTENSION = "bin";
+
         public Dictionary<string, string> BinaryFileFormats
         {
             get
             {
                 var indexes = new Dictionary<string, string>()
                     {
-                        {"BAIKAL7_FMT", "BAIKAL7_EXTENSION"},
-                        {"BAIKAL8_FMT", "BAIKAL8_EXTENSION"},
-                        {"SIGMA_FMT", "SIGMA_EXTENSION"}
+                        {BAIKAL7_FMT, BAIKAL7_EXTENSION},
+                        {BAIKAL8_FMT, BAIKAL8_EXTENSION},
+                        {SIGMA_FMT, SIGMA_EXTENSION}
                     };
                 return indexes;
             }
@@ -345,7 +353,7 @@ namespace BinReader
             __ReadDatetimeStop = new DateTime();
         }
 
-        private string Path
+        public string Path
         {
             get
             {
@@ -414,7 +422,7 @@ namespace BinReader
                 return null;
             }
         }
-        private DateTime originDatetimeStart
+        private DateTime OriginDatetimeStart
         {
             get
             {
