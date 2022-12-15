@@ -113,7 +113,7 @@ namespace BinReader
             }
         }
     }
-    public class Operations
+    public class BinarySeismicFile
     {
         public const string Baikal7Fmt = ".00";
         public const string Baikal8Fmt = ".xx";
@@ -121,6 +121,65 @@ namespace BinReader
 
         public const int SigmaSecondsOffset = 2;
         public static string ComponentsOrder = "ZXY";
+
+        public string __Path;
+        public int __ResampleFrequency;
+        public bool __IsUseAvgValues;
+
+        public FileHeader __FileHeader;
+        public bool __IsCorrectResampleFrequency;
+        public string __UniqueFileName;
+        public DateTime __ReadDatetimeStart;
+        public DateTime __ReadDatetimeStop;
+
+        string BAIKAL7_FMT = "Baikal7";
+        string BAIKAL8_FMT = "Baikal8";
+        string SIGMA_FMT = "Sigma";
+
+        string BAIKAL7_EXTENSION = "00";
+        string BAIKAL8_EXTENSION = "xx";
+        string SIGMA_EXTENSION = "bin";
+
+        public Dictionary<string, string> BinaryFileFormats
+        {
+            get
+            {
+                var indexes = new Dictionary<string, string>()
+                    {
+                        {BAIKAL7_FMT, BAIKAL7_EXTENSION},
+                        {BAIKAL8_FMT, BAIKAL8_EXTENSION},
+                        {SIGMA_FMT, SIGMA_EXTENSION}
+                    };
+                return indexes;
+            }
+        }
+        public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
+        {
+            bool isPathCorrect = IsBinaryFileAtPath(filePath);
+            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", __Path); }
+            // full file path
+            __Path = filePath;
+
+            // header file data
+            __FileHeader = GetFileHeader;
+
+            // boolean-parameter for subtraction average values
+            __IsUseAvgValues = isUseAvgValues;
+
+            // resample frequency
+            if (IsCorrectResampleFrequency(resampleFrequency) == true)
+            {
+                __ResampleFrequency = resampleFrequency;
+            }
+            else { throw new InvalidResampleFrequency(); }
+
+            //this.__unique_file_name = this.__create_unique_file_name()
+
+            // date and time for start signal reading
+            __ReadDatetimeStart = new DateTime();
+            // date and time for end signal reading
+            __ReadDatetimeStop = new DateTime();
+        }
 
         static public dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
         {
@@ -269,7 +328,7 @@ namespace BinReader
 
             return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
         }
-        public static bool IsBinaryFileAtPath(string path)
+        public bool IsBinaryFileAtPath(string path)
         {
             if (File.Exists(path) == true)
             {
@@ -289,71 +348,9 @@ namespace BinReader
             {
                 return false;
             }
-        }        
-    }
-
-    public class BinarySeismicFile
-    {
-        public string __Path;
-        public int __ResampleFrequency;
-        public bool __IsUseAvgValues;
-
-        public FileHeader __FileHeader;
-        public bool __IsCorrectResampleFrequency;
-        public string __UniqueFileName;
-        public DateTime __ReadDatetimeStart;
-        public DateTime __ReadDatetimeStop;
-
-        string BAIKAL7_FMT = "Baikal7";
-        string BAIKAL8_FMT = "Baikal8";
-        string SIGMA_FMT = "Sigma";
-
-        string BAIKAL7_EXTENSION = "00";
-        string BAIKAL8_EXTENSION = "xx";
-        string SIGMA_EXTENSION = "bin";
-
-        public Dictionary<string, string> BinaryFileFormats
-        {
-            get
-            {
-                var indexes = new Dictionary<string, string>()
-                    {
-                        {BAIKAL7_FMT, BAIKAL7_EXTENSION},
-                        {BAIKAL8_FMT, BAIKAL8_EXTENSION},
-                        {SIGMA_FMT, SIGMA_EXTENSION}
-                    };
-                return indexes;
-            }
-        }
-        public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
-        {
-            bool isPathCorrect = Operations.IsBinaryFileAtPath(filePath);
-            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", __Path); }
-            // full file path
-            __Path = filePath;
-
-            // header file data
-            __FileHeader = GetFileHeader;
-
-            // boolean-parameter for subtraction average values
-            __IsUseAvgValues = isUseAvgValues;
-
-            // resample frequency
-            if (IsCorrectResampleFrequency(resampleFrequency) == true)
-            {
-                __ResampleFrequency = resampleFrequency;
-            }
-            else { throw new InvalidResampleFrequency(); }
-
-            //this.__unique_file_name = this.__create_unique_file_name()
-
-            // date and time for start signal reading
-            __ReadDatetimeStart = new DateTime();
-            // date and time for end signal reading
-            __ReadDatetimeStop = new DateTime();
         }
 
-        public string Path
+        public virtual string GetPath
         {
             get
             {
@@ -393,11 +390,11 @@ namespace BinReader
                 return __ResampleFrequency;
             }
         }
-        private string FileExtension
+        public string FileExtension
         {
             get
             {
-                return System.IO.Path.GetExtension(Path);
+                return System.IO.Path.GetExtension(GetPath);
             }
         }
         private string UniqueFileName
@@ -472,7 +469,7 @@ namespace BinReader
         {
             get
             {
-                return originDatetimeStart.AddSeconds(SecondsDuration);
+                return OriginDatetimeStart.AddSeconds(SecondsDuration);
             }
         }
         public DateTime DatetimeStart
@@ -481,12 +478,12 @@ namespace BinReader
             {
                 if (FormatType == "SIGMA_FMT")
                 {
-                    return originDatetimeStart.AddSeconds(Operations.SigmaSecondsOffset);
+                    return OriginDatetimeStart.AddSeconds(SigmaSecondsOffset);
                 }
 
                 else
                 {
-                    return originDatetimeStart.AddSeconds(0);
+                    return OriginDatetimeStart.AddSeconds(0);
                 }
             }
         }
@@ -603,7 +600,7 @@ namespace BinReader
         {
             get
             {
-                return Operations.ComponentsOrder;
+                return ComponentsOrder;
             }
         }
         public Dictionary<string, int> ComponentsIndex
@@ -633,19 +630,19 @@ namespace BinReader
             {
                 string extension = System.IO.Path.GetExtension(__Path);
 
-                if (extension == Operations.Baikal7Fmt)
+                if (extension == Baikal7Fmt)
                 {
-                    return Operations.ReadBaikal7Header(__Path);
+                    return ReadBaikal7Header(__Path);
                 }
 
-                else if (extension == Operations.Baikal8Fmt)
+                else if (extension == Baikal8Fmt)
                 {
-                    return Operations.ReadBaikal8Header(__Path);
+                    return ReadBaikal8Header(__Path);
                 }
 
-                else if (extension == Operations.SigmaFmt)
+                else if (extension == SigmaFmt)
                 {
-                    return Operations.ReadSigmaHeader(__Path);
+                    return ReadSigmaHeader(__Path);
                 }
 
                 else
@@ -720,7 +717,7 @@ namespace BinReader
 
             //signal_array = np.ndarray(signal_size, buffer = mm, dtype = np.int32, offset = offset_size, strides = strides_size).copy()
 
-            FileStream fileStream = new FileStream(Path, FileMode.Open, FileAccess.Read);
+            FileStream fileStream = new FileStream(GetPath, FileMode.Open, FileAccess.Read);
             MemoryMappedFile memoryMappedFile = MemoryMappedFile.CreateFromFile(
                 fileStream: fileStream,
                 mapName: "mn",
