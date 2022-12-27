@@ -5,17 +5,17 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text;
 
 namespace BinReader
 {
     public class FileHeader
     {
-        public static int channelCount;
-        public static int frequency;
-        public static DateTime datetimeStart;
-        public static double longitude;
-        public static double latitude;
+        public int channelCount;
+        public int frequency;
+        public DateTime datetimeStart;
+        public double longitude;
+        public double latitude;
 
         public FileHeader(
             int channelCount,
@@ -25,11 +25,11 @@ namespace BinReader
             double latitude
             )
         {
-            FileHeader.channelCount = channelCount;
-            FileHeader.frequency = frequency;
-            FileHeader.datetimeStart = datetimeStart;
-            FileHeader.longitude = longitude;
-            FileHeader.latitude = latitude;
+            this.channelCount = channelCount;
+            this.frequency = frequency;
+            this.datetimeStart = datetimeStart;
+            this.longitude = longitude;
+            this.latitude = latitude;
         }
     }
 
@@ -72,7 +72,7 @@ namespace BinReader
         {
             get
             {
-                return (path, formatType, frequency, timeStart, timeStop, longitude, latitude);                
+                return (path, formatType, frequency, timeStart, timeStop, longitude, latitude);
             }
         }
         static public double DurationInSeconds
@@ -101,7 +101,7 @@ namespace BinReader
             string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
             string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
             string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0'); ; //THERE SHOULD BE f'{seconds:.3f}'
-            
+
             if (days != 0)
             {
                 return Convert.ToString(days) + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
@@ -113,6 +113,149 @@ namespace BinReader
             }
         }
     }
+
+    public class JsonFileBinary
+    {
+        public const string Sigma = ".bin";
+        public const string Baikal7 = ".00";
+        public const string Baikal8 = ".xx";
+        string order = "ZXY";
+
+        public string path;
+        public int[] signal;
+        public int channelCount;
+        public int frequency;
+        public int latitude;
+        public int longitude;
+        public DateTime dateTimeStart;
+
+
+        public JsonFileBinary(
+            string path,             
+            int[] signal, 
+            int channelCount, 
+            int frequency, 
+            int latitude, 
+            int longitude, 
+            DateTime dateTimeStart
+            )
+        {
+            this.path = path;
+            this.signal = signal;
+            this.channelCount = channelCount;
+            this.frequency = frequency;
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.dateTimeStart = dateTimeStart;
+        }
+
+        public void WriteBinaryFile(string path)
+        {
+            FileStream filestream = new FileStream("path", FileMode.Create);
+            BinaryWriter binaryWriter = new BinaryWriter(filestream);
+
+            if (FileExtension == ".bin")
+            {
+                binaryWriter.Seek(12, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt16(this.channelCount)));
+                binaryWriter.Seek(24, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt16(this.frequency)));
+                binaryWriter.Seek(40, SeekOrigin.Begin);
+                string latitudeString = Convert.ToString(this.latitude);
+                binaryWriter.Write(StringToBytesArray(latitudeString)); //string 8 digits
+                binaryWriter.Seek(48, SeekOrigin.Begin);
+                string longitudeString = Convert.ToString(this.latitude);
+                binaryWriter.Write(StringToBytesArray(longitudeString)); //string 8 digits
+                binaryWriter.Seek(60, SeekOrigin.Begin);
+                string date = Convert.ToString(this.dateTimeStart.Year).Substring(2, 4)
+                    + Convert.ToString(this.dateTimeStart.Month).PadLeft(2, '0')
+                + Convert.ToString(this.dateTimeStart.Day).PadLeft(2, '0');
+                string time = Convert.ToString(this.dateTimeStart.Hour).PadLeft(2, '0')
+                    + Convert.ToString(this.dateTimeStart.Minute).PadLeft(2, '0')
+                + Convert.ToString(this.dateTimeStart.Second).PadLeft(2, '0');
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt32(date)));
+                binaryWriter.Seek(64, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt32(time)));
+            }
+
+            else if (FileExtension == ".00")
+            {
+                binaryWriter.Seek(0, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt16(this.channelCount)));
+                binaryWriter.Seek(22, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt16(this.frequency)));
+                binaryWriter.Seek(80, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(this.longitude)));
+                binaryWriter.Seek(72, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(this.latitude)));
+                binaryWriter.Seek(104, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt64(this.dateTimeStart)));
+            }
+
+            else if (FileExtension == ".xx")
+            {
+                binaryWriter.Seek(0, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt16(this.channelCount)));
+                binaryWriter.Seek(6, SeekOrigin.Begin);
+                UInt16 day = Convert.ToUInt16(this.dateTimeStart.Day);
+                binaryWriter.Write(BitConverter.GetBytes(day));
+                binaryWriter.Seek(8, SeekOrigin.Begin);
+                UInt16 month = Convert.ToUInt16(this.dateTimeStart.Month);
+                binaryWriter.Write(BitConverter.GetBytes(month));
+                binaryWriter.Seek(10, SeekOrigin.Begin);
+                UInt16 year = Convert.ToUInt16(this.dateTimeStart.Year);
+                binaryWriter.Write(BitConverter.GetBytes(year));
+                binaryWriter.Seek(48, SeekOrigin.Begin);                
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(1 / this.frequency)));
+                binaryWriter.Seek(56, SeekOrigin.Begin);
+                double second = Convert.ToDouble(this.dateTimeStart.Second);
+                binaryWriter.Write(BitConverter.GetBytes(second));
+                binaryWriter.Seek(72, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(this.latitude)));
+                binaryWriter.Seek(80, SeekOrigin.Begin);
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(this.longitude)));
+            }
+
+            int headerMemorySize = 120 + 72 * channelCount;
+            int columnIndex = 1 * 4;
+            binaryWriter.Seek(headerMemorySize + columnIndex, 0);
+            for (int i = 0; i < signal.Length; i++)
+            {
+                binaryWriter.Write(BitConverter.GetBytes(signal[i]));
+                binaryWriter.Seek(4 * 2, SeekOrigin.Current);
+            }            
+            binaryWriter.Close();
+            filestream.Close();            
+        }                
+        public string FileExtension
+        {
+            get
+            {
+                return System.IO.Path.GetExtension(this.path);
+            }
+        }
+        byte[] StringToBytesArray(string str)
+        {
+            var bitsToPad = 8 - str.Length % 8;
+
+            if (bitsToPad != 8)
+            {
+                var neededLength = bitsToPad + str.Length;
+                str = str.PadLeft(neededLength, '0');
+            }
+
+            int size = str.Length / 8;
+            byte[] arr = new byte[size];
+
+            for (int a = 0; a < size; a++)
+            {
+                arr[a] = Convert.ToByte(str.Substring(a * 8, 8), 2);
+            }
+
+            return arr;
+        }        
+    }
+
     public class BinarySeismicFile
     {
         public const string Baikal7Fmt = ".00";
@@ -158,13 +301,13 @@ namespace BinReader
             bool isPathCorrect = IsBinaryFileAtPath(filePath);
             if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", __Path); }
             // full file path
-            __Path = filePath;
+            this.__Path = filePath;
 
             // header file data
-            __FileHeader = GetFileHeader;
+            this.__FileHeader = GetFileHeader();
 
             // boolean-parameter for subtraction average values
-            __IsUseAvgValues = isUseAvgValues;
+            this.__IsUseAvgValues = isUseAvgValues;
 
             // resample frequency
             if (IsCorrectResampleFrequency(resampleFrequency) == true)
@@ -328,7 +471,7 @@ namespace BinReader
 
             return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
         }
-        public bool IsBinaryFileAtPath(string path)
+        public virtual bool IsBinaryFileAtPath(string path)
         {
             if (File.Exists(path) == true)
             {
@@ -343,7 +486,6 @@ namespace BinReader
                     return false;
                 }
             }
-
             else
             {
                 return false;
@@ -354,21 +496,21 @@ namespace BinReader
         {
             get
             {
-                return __Path;
+                return this.__Path;
             }
         }
         private FileHeader FileHeader
         {
             get
             {
-                return FileHeader;
+                return this.FileHeader;
             }
         }
         private bool IsUseAvgValues
         {
             get
             {
-                return __IsUseAvgValues;
+                return this.__IsUseAvgValues;
             }
         }
         private int OriginFrequency
@@ -382,12 +524,12 @@ namespace BinReader
         {
             get
             {
-                if (__ResampleFrequency == 0)
+                if (this.__ResampleFrequency == 0)
                 {
-                    __ResampleFrequency = OriginFrequency;
+                    this.__ResampleFrequency = OriginFrequency;
                 }
 
-                return __ResampleFrequency;
+                return this.__ResampleFrequency;
             }
         }
         public string FileExtension
@@ -401,7 +543,7 @@ namespace BinReader
         {
             get
             {
-                return __UniqueFileName;
+                return this.__UniqueFileName;
             }
         }
         private string FormatType
@@ -446,7 +588,7 @@ namespace BinReader
         {
             get
             {
-                FileInfo file = new FileInfo(__Path);
+                FileInfo file = new FileInfo(this.__Path);
                 long fileSize = file.Length;
                 int discreteAmount = Convert.ToInt32((fileSize - HeaderMemorySize) / (FileHeader.channelCount * 4));
 
@@ -494,14 +636,14 @@ namespace BinReader
                 return DatetimeStart.AddSeconds(SecondsDuration);
             }
         }
-        private double Longitude
+        public double Longitude
         {
             get
             {
                 return Math.Round(FileHeader.longitude, 6);
             }
         }
-        private double Latitude
+        public double Latitude
         {
             get
             {
@@ -513,12 +655,12 @@ namespace BinReader
         {
             get
             {
-                if (__ReadDatetimeStart == new DateTime())
+                if (this.__ReadDatetimeStart == new DateTime())
                 {
-                    __ReadDatetimeStart = DatetimeStart;
+                    this.__ReadDatetimeStart = DatetimeStart;
                 }
 
-                return __ReadDatetimeStart;
+                return this.__ReadDatetimeStart;
             }
             set
             {
@@ -528,7 +670,7 @@ namespace BinReader
 
                 if (dt1 >= 0 & dt2 > 0)
                 {
-                    __ReadDatetimeStart = datetime;
+                    this.__ReadDatetimeStart = datetime;
                 }
 
                 else
@@ -542,12 +684,12 @@ namespace BinReader
         {
             get
             {
-                if (__ReadDatetimeStop == new DateTime())
+                if (this.__ReadDatetimeStop == new DateTime())
                 {
-                    __ReadDatetimeStop = DatetimeStop;
+                    this.__ReadDatetimeStop = DatetimeStop;
                 }
 
-                return __ReadDatetimeStop;
+                return this.__ReadDatetimeStop;
             }
             set
             {
@@ -557,7 +699,7 @@ namespace BinReader
 
                 if (dt1 > 0 & dt2 >= 0)
                 {
-                    __ReadDatetimeStop = datetime;
+                    this.__ReadDatetimeStop = datetime;
                 }
 
                 else
@@ -628,21 +770,21 @@ namespace BinReader
         {
             get
             {
-                string extension = System.IO.Path.GetExtension(__Path);
+                string extension = System.IO.Path.GetExtension(this.__Path);
 
                 if (extension == Baikal7Fmt)
                 {
-                    return ReadBaikal7Header(__Path);
+                    return ReadBaikal7Header(this.__Path);
                 }
 
                 else if (extension == Baikal8Fmt)
                 {
-                    return ReadBaikal8Header(__Path);
+                    return ReadBaikal8Header(this.__Path);
                 }
 
                 else if (extension == SigmaFmt)
                 {
-                    return ReadSigmaHeader(__Path);
+                    return ReadSigmaHeader(this.__Path);
                 }
 
                 else
