@@ -125,22 +125,22 @@ namespace BinReader
         public int[] signal;
         public int channelCount;
         public int frequency;
-        public int latitude;
-        public int longitude;
+        public double latitude;
+        public double longitude;
         public DateTime dateTimeStart;
 
 
         public JsonFileBinary(
-            string path,             
-            int[] signal, 
-            int channelCount, 
-            int frequency, 
-            int latitude, 
-            int longitude, 
-            DateTime dateTimeStart
+            string pathToSave,             
+            int[] signal,                
+            double latitude = 0, 
+            double longitude = 0, 
+            DateTime dateTimeStart = new DateTime(),
+            int channelCount = 3,
+            int frequency = 0
             )
         {
-            this.path = path;
+            this.path = pathToSave;
             this.signal = signal;
             this.channelCount = channelCount;
             this.frequency = frequency;
@@ -167,7 +167,7 @@ namespace BinReader
                 string longitudeString = Convert.ToString(this.latitude);
                 binaryWriter.Write(StringToBytesArray(longitudeString)); //string 8 digits
                 binaryWriter.Seek(60, SeekOrigin.Begin);
-                string date = Convert.ToString(this.dateTimeStart.Year).Substring(2, 4)
+                string date = Convert.ToString(this.dateTimeStart.Year).Substring(2, 2)
                     + Convert.ToString(this.dateTimeStart.Month).PadLeft(2, '0')
                 + Convert.ToString(this.dateTimeStart.Day).PadLeft(2, '0');
                 string time = Convert.ToString(this.dateTimeStart.Hour).PadLeft(2, '0')
@@ -189,7 +189,14 @@ namespace BinReader
                 binaryWriter.Seek(72, SeekOrigin.Begin);
                 binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(this.latitude)));
                 binaryWriter.Seek(104, SeekOrigin.Begin);
-                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt64(this.dateTimeStart)));
+                string date = Convert.ToString(this.dateTimeStart.Year).Substring(2, 2)
+                    + Convert.ToString(this.dateTimeStart.Month).PadLeft(2, '0')
+                + Convert.ToString(this.dateTimeStart.Day).PadLeft(2, '0');
+                string time = Convert.ToString(this.dateTimeStart.Hour).PadLeft(2, '0')
+                    + Convert.ToString(this.dateTimeStart.Minute).PadLeft(2, '0')
+                + Convert.ToString(this.dateTimeStart.Second).PadLeft(2, '0');
+                string datetime = date + time;
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt64(datetime)));
             }
 
             else if (FileExtension == ".xx")
