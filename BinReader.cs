@@ -137,7 +137,7 @@ namespace BinReader
             double longitude = 0, 
             DateTime dateTimeStart = new DateTime(),
             int channelCount = 3,
-            int frequency = 0
+            int frequency = 1000
             )
         {
             this.path = pathToSave;
@@ -151,7 +151,8 @@ namespace BinReader
 
         public void WriteBinaryFile(string path)
         {
-            FileStream filestream = new FileStream("path", FileMode.Create);
+            FileStream filestream = new FileStream(path, FileMode.Create);
+            //File binfile = File.Open(fileName, FileMode.Create)
             BinaryWriter binaryWriter = new BinaryWriter(filestream);
 
             if (FileExtension == ".bin")
@@ -162,10 +163,10 @@ namespace BinReader
                 binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt16(this.frequency)));
                 binaryWriter.Seek(40, SeekOrigin.Begin);
                 string latitudeString = Convert.ToString(this.latitude);
-                binaryWriter.Write(StringToBytesArray(latitudeString)); //string 8 digits
+                binaryWriter.Write(latitudeString); //string 8 digits
                 binaryWriter.Seek(48, SeekOrigin.Begin);
                 string longitudeString = Convert.ToString(this.latitude);
-                binaryWriter.Write(StringToBytesArray(longitudeString)); //string 8 digits
+                binaryWriter.Write(longitudeString); //string 8 digits
                 binaryWriter.Seek(60, SeekOrigin.Begin);
                 string date = Convert.ToString(this.dateTimeStart.Year).Substring(2, 2)
                     + Convert.ToString(this.dateTimeStart.Month).PadLeft(2, '0')
@@ -213,7 +214,7 @@ namespace BinReader
                 UInt16 year = Convert.ToUInt16(this.dateTimeStart.Year);
                 binaryWriter.Write(BitConverter.GetBytes(year));
                 binaryWriter.Seek(48, SeekOrigin.Begin);                
-                binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(1 / this.frequency)));
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(1) / this.frequency));
                 binaryWriter.Seek(56, SeekOrigin.Begin);
                 double second = Convert.ToDouble(this.dateTimeStart.Second);
                 binaryWriter.Write(BitConverter.GetBytes(second));
@@ -240,27 +241,7 @@ namespace BinReader
             {
                 return System.IO.Path.GetExtension(this.path);
             }
-        }
-        byte[] StringToBytesArray(string str)
-        {
-            var bitsToPad = 8 - str.Length % 8;
-
-            if (bitsToPad != 8)
-            {
-                var neededLength = bitsToPad + str.Length;
-                str = str.PadLeft(neededLength, '0');
-            }
-
-            int size = str.Length / 8;
-            byte[] arr = new byte[size];
-
-            for (int a = 0; a < size; a++)
-            {
-                arr[a] = Convert.ToByte(str.Substring(a * 8, 8), 2);
-            }
-
-            return arr;
-        }        
+        }               
     }
 
     public class BinarySeismicFile
@@ -311,7 +292,7 @@ namespace BinReader
             this.__Path = filePath;
 
             // header file data
-            this.__FileHeader = GetFileHeader();
+            this.__FileHeader = GetFileHeader;
 
             // boolean-parameter for subtraction average values
             this.__IsUseAvgValues = isUseAvgValues;
@@ -510,7 +491,7 @@ namespace BinReader
         {
             get
             {
-                return this.FileHeader;
+                return this.__FileHeader;
             }
         }
         private bool IsUseAvgValues
