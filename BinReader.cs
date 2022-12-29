@@ -167,24 +167,28 @@ namespace BinReader
         }
 
         static public dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
-        {
+        {   
+            // Open binary file, set size, byte array size
             FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
             int size = (int)stream.Length;
             byte[] data = new byte[size];
+            // Read 336 bytes from origin to data array
             stream.Read(data, 0, 336);
+            // Create memorystream and skip that amount of bytes that method take
             var memoryStream = new MemoryStream(data, 0, 336);
             memoryStream.Seek(SkippingBytes, SeekOrigin.Begin);
             var reader = new BinaryReader(memoryStream);
-
+            // Init and set values(c# requiers set values)
             int uInt16 = 0;
             uint uInt32 = 0;
             double dabl = 0;
             ulong uInt64 = 0;
             string stroke = "";
-
+            // And finally reading concrete value type from specified byte position 
             if (type == "uint16")
             {
                 uInt16 = reader.ReadUInt16();
+                return uInt16;
             }
             else if (type == "uint32")
             {
