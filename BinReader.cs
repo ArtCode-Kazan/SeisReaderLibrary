@@ -121,6 +121,19 @@ namespace BinReader
         public const string Baikal7Extension = "00";
         public const string Baikal8Extension = "xx";
         public const string SigmaExtension = "bin";
+        public static Dictionary<string, string> BinaryFileFormats
+        {
+            get
+            {
+                var indexes = new Dictionary<string, string>()
+                    {
+                        {Constants.Baikal7Fmt, Constants.Baikal7Extension},
+                        {Constants.Baikal8Fmt, Constants.Baikal8Extension},
+                        {Constants.SigmaFmt, Constants.SigmaExtension}
+                    };
+                return indexes;
+            }
+        }
     }
 
     public class BinarySeismicFile
@@ -134,20 +147,7 @@ namespace BinReader
         public string _UniqueFileName;
         public DateTime _ReadDatetimeStart;
         public DateTime _ReadDatetimeStop;
-
-        public Dictionary<string, string> BinaryFileFormats
-        {
-            get
-            {
-                var indexes = new Dictionary<string, string>()
-                    {
-                        {Constants.Baikal7Fmt, Constants.Baikal7Extension},
-                        {Constants.Baikal8Fmt, Constants.Baikal8Extension},
-                        {Constants.SigmaFmt, Constants.SigmaExtension}
-                    };
-                return indexes;
-            }
-        }
+        
         public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
         {
             bool isPathCorrect = IsBinaryFileAtPath(filePath);
@@ -377,7 +377,7 @@ namespace BinReader
         {
             get
             {
-                return System.IO.Path.GetExtension(GetPath);
+                return Path.GetExtension(GetPath);
             }
         }
         private string UniqueFileName
@@ -391,7 +391,7 @@ namespace BinReader
         {
             get
             {
-                foreach (var file in BinaryFileFormats)
+                foreach (var file in Constants.BinaryFileFormats)
                 {
                     if (file.Value == FileExtension)
                     {
