@@ -61,7 +61,7 @@ namespace BinReader
             BinaryFileInfo.longitude = longitude;
             BinaryFileInfo.latitude = latitude;
         }
-        static public string name
+        static public string Name
         {
             get
             {
