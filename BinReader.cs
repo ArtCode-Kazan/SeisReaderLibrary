@@ -141,12 +141,12 @@ namespace BinReader
         public readonly string _Path;
         public readonly bool _IsUseAvgValues;
         public readonly FileHeader _FileHeader;
+        public readonly DateTime _ReadDatetimeStart;
+        public readonly DateTime _ReadDatetimeStop;
 
         public int _ResampleFrequency;
         public bool _IsCorrectResampleFrequency;
-        public string _UniqueFileName;
-        public DateTime _ReadDatetimeStart;
-        public DateTime _ReadDatetimeStop;
+        public string _UniqueFileName;        
         
         public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
         {
@@ -162,8 +162,8 @@ namespace BinReader
             }
             else { throw new InvalidResampleFrequency(); }
            
-            _ReadDatetimeStart = new DateTime();
-            _ReadDatetimeStop = new DateTime();
+            _ReadDatetimeStart = DatetimeStart;
+            _ReadDatetimeStop = DatetimeStop;
         }
 
         static public dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
@@ -500,12 +500,7 @@ namespace BinReader
         private DateTime ReadDatetimeStart
         {
             get
-            {
-                if (this._ReadDatetimeStart == new DateTime())
-                {
-                    this._ReadDatetimeStart = DatetimeStart;
-                }
-
+            {                
                 return this._ReadDatetimeStart;
             }
             set
@@ -530,11 +525,6 @@ namespace BinReader
         {
             get
             {
-                if (this._ReadDatetimeStop == new DateTime())
-                {
-                    this._ReadDatetimeStop = DatetimeStop;
-                }
-
                 return this._ReadDatetimeStop;
             }
             set
