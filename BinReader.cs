@@ -11,11 +11,11 @@ namespace BinReader
 {
     public class FileHeader
     {
-        public int channelCount;
-        public int frequency;
-        public DateTime datetimeStart;
-        public double longitude;
-        public double latitude;
+        public readonly int channelCount;
+        public readonly int frequency;
+        public readonly DateTime datetimeStart;
+        public readonly double longitude;
+        public readonly double latitude;
 
         public FileHeader(
             int channelCount,
