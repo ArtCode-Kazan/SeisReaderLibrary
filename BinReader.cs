@@ -249,7 +249,7 @@ namespace BinReader
 
             return constDatetime.AddSeconds(seconds);
         }
-        static public object ReadBaikal7Header(string path)
+        static public FileHeader ReadBaikal7Header(string path)
         {
             int channelCount = BinaryRead(path, "uint16", 1, 0);
             int frequency = BinaryRead(path, "uint16", 1, 22);
@@ -260,7 +260,7 @@ namespace BinReader
 
             return new FileHeader(channelCount, frequency, datetime, longitude, latitude);
         }
-        static public object ReadBaikal8Header(string path)
+        static public FileHeader ReadBaikal8Header(string path)
         {
             int channelCount = BinaryRead(path, "uint16", 1, 0);
             int day = BinaryRead(path, "uint16", 1, 6);
@@ -275,7 +275,7 @@ namespace BinReader
 
             return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
         }
-        static public object ReadSigmaHeader(string path)
+        static public FileHeader ReadSigmaHeader(string path)
         {
             DateTime datetimeStart = new DateTime(1999, 1, 1);
             double longitude = 0;
