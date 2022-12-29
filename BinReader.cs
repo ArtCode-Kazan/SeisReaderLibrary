@@ -680,10 +680,8 @@ namespace BinReader
             }
 
             return ResampleSignal;
-        }
-        //def __create_unique_file_name(self) -> str:
-        //return '{}.{}'.format(uuid.uuid4().hex, self.file_extension)
-        public dynamic GetComponentSignal(string componentName = "Y")
+        }       
+        public dynamic GetComponentSignal(string componentName)
         {
             int columnIndex;
 
@@ -701,9 +699,7 @@ namespace BinReader
             int skipDataSize = 4 * ChannelsCount * StartMoment;
             int offsetSize = HeaderMemorySize + skipDataSize + columnIndex * 4;
             int stridesSize = 4 * ChannelsCount;
-            int signalSize = EndMoment - StartMoment;
-
-            //signal_array = np.ndarray(signal_size, buffer = mm, dtype = np.int32, offset = offset_size, strides = strides_size).copy()
+            int signalSize = EndMoment - StartMoment;            
 
             FileStream fileStream = new FileStream(GetPath, FileMode.Open, FileAccess.Read);
             MemoryMappedFile memoryMappedFile = MemoryMappedFile.CreateFromFile(
