@@ -187,7 +187,6 @@ namespace BinReader
             double dabl = 0;
             ulong uInt64 = 0;
             string stroke = "";
-            bool booling = false;
 
             if (type == "uint16")
             {
@@ -211,7 +210,7 @@ namespace BinReader
             }
             else
             {
-                booling = false;
+                return null;
             }
 
             stream.Close();
@@ -240,7 +239,7 @@ namespace BinReader
             }
             else
             {
-                return booling;
+                return null;
             }
         }
         static public DateTime GetDatetimeStartBaikal7(ulong timeBegin)
