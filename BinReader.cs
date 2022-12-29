@@ -93,25 +93,20 @@ namespace BinReader
                 int minutes = (secs - days * 24 * 3600 - hours * 3600) / 60;
                 double seconds = BinaryFileInfo.DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
 
-                return FormatDuration(days, hours, minutes, seconds);
-            }
-        }
-        static public string FormatDuration(int days, int hours, int minutes, double seconds)
-        {
-            string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
-            string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
-            string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
+                string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
+                string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
+                string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
 
-            if (days != 0)
-            {
-                return Convert.ToString(days) + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
+                if (days != 0)
+                {
+                    return Convert.ToString(days) + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
+                }
+                else
+                {
+                    return hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
+                }                
             }
-
-            else
-            {
-                return hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
-            }
-        }
+        }       
     }    
 
     public class BinarySeismicFile
