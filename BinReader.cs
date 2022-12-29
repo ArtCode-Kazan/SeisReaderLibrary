@@ -297,7 +297,7 @@ namespace BinReader
             }
             catch (Exception e)
             {
-
+                throw new InvalidDateTimeValue("Invalid start reading datetime");
             }
 
             try
@@ -307,7 +307,7 @@ namespace BinReader
             }
             catch (Exception e)
             {
-
+                throw new InvalidCoordinates("Invalid coordinates");
             }
 
             return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
@@ -770,6 +770,26 @@ namespace BinReader
             }
 
             return AveragedSignalArray;
+        }
+    }
+
+    [Serializable]
+    internal class InvalidCoordinates : Exception
+    {
+        public InvalidCoordinates()
+        {
+        }
+
+        public InvalidCoordinates(string message) : base(message)
+        {
+        }
+
+        public InvalidCoordinates(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected InvalidCoordinates(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 
