@@ -571,7 +571,7 @@ namespace BinReader
                 double dt = ReadDatetimeStop.Subtract(DatetimeStart).TotalSeconds;
                 int discreetIndex = Convert.ToInt32(Math.Round(dt * OriginFrequency));
                 int signalLength = discreetIndex - StartMoment;
-                signalLength = signalLength - (signalLength % ResampleParameter);
+                signalLength -= (signalLength % ResampleParameter);
                 discreetIndex = StartMoment + signalLength;
                 return discreetIndex;
             }
