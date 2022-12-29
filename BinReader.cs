@@ -100,7 +100,7 @@ namespace BinReader
         {
             string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
             string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
-            string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0'); ; //THERE SHOULD BE f'{seconds:.3f}'
+            string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
 
             if (days != 0)
             {
