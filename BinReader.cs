@@ -575,13 +575,12 @@ namespace BinReader
                 discreetIndex = StartMoment + signalLength;
                 return discreetIndex;
             }
-        }
-        //THERE MAY BE A PROBLEM WITH TYPE ADDUCTION
+        }        
         private int ResampleParameter
         {
             get
             {
-                double division = OriginFrequency / ResampleFrequency;
+                double division = Convert.ToDouble(OriginFrequency / ResampleFrequency);
                 return Convert.ToInt32(Math.Floor(division));
             }
         }
