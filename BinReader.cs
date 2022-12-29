@@ -180,32 +180,32 @@ namespace BinReader
             // Create binaryreader object for memorystream
             var reader = new BinaryReader(memoryStream);
             // Init and set values(c# requiers set values)
-            int uInt16 = 0;
-            uint uInt32 = 0;
-            double dabl = 0;
-            ulong uInt64 = 0;
-            string stroke = "";
+            int valueuInt16 = 0;
+            uint valueuInt32 = 0;
+            double valueDouble = 0;
+            ulong valueuInt64 = 0;
+            string valueString = "";
             // And finally reading concrete value type from specified byte position 
             if (type == "uint16")
             {
-                uInt16 = reader.ReadUInt16();
-                return uInt16;
+                valueuInt16 = reader.ReadUInt16();
+                return valueuInt16;
             }
             else if (type == "uint32")
             {
-                uInt32 = reader.ReadUInt32();
+                valueuInt32 = reader.ReadUInt32();
             }
             else if (type == "double")
             {
-                dabl = reader.ReadDouble();
+                valueDouble = reader.ReadDouble();
             }
             else if (type == "long")
             {
-                uInt64 = reader.ReadUInt64();
+                valueuInt64 = reader.ReadUInt64();
             }
             else if (type == "string")
             {
-                stroke = new string(reader.ReadChars(count));
+                valueString = new string(reader.ReadChars(count));
             }
             else
             {
@@ -218,23 +218,23 @@ namespace BinReader
 
             if (type == "uint16")
             {
-                return uInt16;
+                return valueuInt16;
             }
             else if (type == "uint32")
             {
-                return uInt32;
+                return valueuInt32;
             }
             else if (type == "double")
             {
-                return dabl;
+                return valueDouble;
             }
             else if (type == "long")
             {
-                return uInt64;
+                return valueuInt64;
             }
             else if (type == "string")
             {
-                return stroke;
+                return valueString;
             }
             else
             {
