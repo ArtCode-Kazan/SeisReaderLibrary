@@ -497,7 +497,7 @@ namespace BinReader
                 return Math.Round(FileHeader.latitude, 6);
             }
         }
-        //WARNING! there are a datetime that need to be ...
+        
         private DateTime ReadDatetimeStart
         {
             get
@@ -526,7 +526,7 @@ namespace BinReader
                 }
             }
         }
-        //WARNING! there are a datetime that need to be ...
+        
         private DateTime ReadDatetimeStop
         {
             get
