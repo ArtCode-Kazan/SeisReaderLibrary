@@ -175,8 +175,7 @@ namespace BinReader
             // Read 336 bytes from origin and write into data array
             stream.Read(data, 0, 336);
             // Create memorystream and skip that amount of bytes that method take
-            var memoryStream = new MemoryStream(data, 0, 336);
-            memoryStream.Seek(SkippingBytes, SeekOrigin.Begin);
+            var memoryStream = new MemoryStream(data, SkippingBytes, 8);            
             // Create binaryreader object for memorystream
             var reader = new BinaryReader(memoryStream);
             // Init and set values(c# requiers set values)
