@@ -321,7 +321,7 @@ namespace BinReader
         {
             if (File.Exists(path) == true)
             {
-                string extension = Path.GetExtension(path).Replace(".", "");
+                string extension = Path.GetExtension(path).Substring(1);
 
                 if (extension == Constants.Baikal7Extension | extension == Constants.Baikal8Fmt | extension == Constants.SigmaFmt)
                 {
@@ -605,7 +605,7 @@ namespace BinReader
         {
             get
             {
-                string extension = Path.GetExtension(this._Path).Replace(".", "");
+                string extension = Path.GetExtension(this._Path).Substring(1);
 
                 if (extension == Constants.Baikal7Extension)
                 {
