@@ -699,8 +699,9 @@ namespace BinReader
             int offsetSize = HeaderMemorySize + skipDataSize + columnIndex * 4;
             int stridesSize = 4 * ChannelsCount;
             int signalSize = EndMoment - StartMoment;            
-
+            // Open file with filestream
             FileStream fileStream = new FileStream(GetPath, FileMode.Open, FileAccess.Read);
+            // Create memorymapped file, like mmap in python
             MemoryMappedFile memoryMappedFile = MemoryMappedFile.CreateFromFile(
                 fileStream: fileStream,
                 mapName: "mn",
@@ -709,19 +710,14 @@ namespace BinReader
                 inheritability: HandleInheritability.None,
                 leaveOpen: false
                 );
-
+            // Init and define byte array, byte array of component, and finish array that contains integer
             byte[] byteArray = new byte[signalSize];
             byte[] byteArrayClip = new byte[signalSize / stridesSize];
-            Int32[] intArray = new int[byteArrayClip.Length / 4];
-
-            if (offsetSize < 0)
-            {
-                return intArray;
-            }
-
+            Int32[] intArray = new int[byteArrayClip.Length / 4];            
+            // Create memorymappedview stream, like byte stream, with specific offset from memorymappedfile
             MemoryMappedViewStream memoryMappedViewStream = memoryMappedFile.CreateViewStream(offsetSize, signalSize, MemoryMappedFileAccess.Read);
             memoryMappedViewStream.Read(byteArray, 0, signalSize);
-
+            // There are a cycle which fill byte array(contains 4 bytes = 1 signal value) with offset that define component (Z,X,Y)
             for (int i = 0; i < (signalSize / stridesSize / 4); i++)
             {
                 byteArrayClip[i * 4] = byteArray[i * stridesSize];
@@ -729,13 +725,13 @@ namespace BinReader
                 byteArrayClip[i * 4 + 2] = byteArray[i * stridesSize + 2];
                 byteArrayClip[i * 4 + 3] = byteArray[i * stridesSize + 3];
             }
-
+            // Now were filling final integer array of signal, from byteArrayClip(with 4 bytes for each value) we take that 4 bytes and convert them to integer value
             for (int i = 0; i < intArray.Length / 4; i++)
             {
                 Int32 currentSignal = BitConverter.ToInt32(byteArrayClip, i * 4);
                 intArray[i] = currentSignal;
             }
-
+            // Closing all streams and return final array
             fileStream.Close();
             memoryMappedViewStream.Close();
             memoryMappedFile.Dispose();
