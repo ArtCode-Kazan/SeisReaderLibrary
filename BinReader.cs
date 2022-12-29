@@ -302,7 +302,7 @@ namespace BinReader
             }
             catch (Exception e)
             {
-                throw new InvalidDateTimeValue("Invalid start reading datetime");
+                throw new InvalidDateTimeValue("Invalid start reading datetime: " + Convert.ToString(e));
             }
 
             try
@@ -312,7 +312,7 @@ namespace BinReader
             }
             catch (Exception e)
             {
-                throw new InvalidCoordinates("Invalid coordinates");
+                throw new InvalidCoordinates("Invalid coordinates: " + Convert.ToString(e));
             }
 
             return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
