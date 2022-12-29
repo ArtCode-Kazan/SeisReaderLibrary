@@ -157,28 +157,18 @@ namespace BinReader
         public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
         {
             bool isPathCorrect = IsBinaryFileAtPath(filePath);
-            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", __Path); }
-            // full file path
+            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", __Path); }            
             this.__Path = filePath;
-
-            // header file data
-            this.__FileHeader = GetFileHeader;
-
-            // boolean-parameter for subtraction average values
+            this.__FileHeader = GetFileHeader;            
             this.__IsUseAvgValues = isUseAvgValues;
-
-            // resample frequency
+            
             if (IsCorrectResampleFrequency(resampleFrequency) == true)
             {
                 __ResampleFrequency = resampleFrequency;
             }
             else { throw new InvalidResampleFrequency(); }
-
-            //this.__unique_file_name = this.__create_unique_file_name()
-
-            // date and time for start signal reading
+           
             __ReadDatetimeStart = new DateTime();
-            // date and time for end signal reading
             __ReadDatetimeStop = new DateTime();
         }
 
