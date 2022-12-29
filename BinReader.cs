@@ -111,9 +111,9 @@ namespace BinReader
 
     public class BinarySeismicFile
     {
-        public const string Baikal7Fmt = ".00";
-        public const string Baikal8Fmt = ".xx";
-        public const string SigmaFmt = ".bin";
+        public const string Baikal7Fmt = "00";
+        public const string Baikal8Fmt = "xx";
+        public const string SigmaFmt = "bin";
 
         public const int SigmaSecondsOffset = 2;
         public static string ComponentsOrder = "ZXY";
@@ -317,7 +317,7 @@ namespace BinReader
         {
             if (File.Exists(path) == true)
             {
-                string extension = Path.GetExtension(path);
+                string extension = Path.GetExtension(path).Replace(".", "");
 
                 if (extension == Baikal7Fmt | extension == Baikal8Fmt | extension == SigmaFmt)
                 {
@@ -611,7 +611,7 @@ namespace BinReader
         {
             get
             {
-                string extension = System.IO.Path.GetExtension(this.__Path);
+                string extension = Path.GetExtension(this.__Path).Replace(".", "");
 
                 if (extension == Baikal7Fmt)
                 {
