@@ -9,6 +9,33 @@ using System.Text;
 
 namespace BinReader
 {
+    public class Constants
+    {
+        public static string ComponentsOrder = "ZXY";
+        public const int SigmaSecondsOffset = 2;
+
+        public const string Baikal7Fmt = "Baikal7";
+        public const string Baikal8Fmt = "Baikal8";
+        public const string SigmaFmt = "Sigma";
+
+        public const string Baikal7Extension = "00";
+        public const string Baikal8Extension = "xx";
+        public const string SigmaExtension = "bin";
+        public static Dictionary<string, string> BinaryFileFormats
+        {
+            get
+            {
+                var indexes = new Dictionary<string, string>()
+                    {
+                        {Constants.Baikal7Fmt, Constants.Baikal7Extension},
+                        {Constants.Baikal8Fmt, Constants.Baikal8Extension},
+                        {Constants.SigmaFmt, Constants.SigmaExtension}
+                    };
+                return indexes;
+            }
+        }
+    }
+
     public class FileHeader
     {
         public readonly int channelCount;
@@ -108,34 +135,7 @@ namespace BinReader
             }
         }       
     }
-
-    public class Constants
-    {
-        public static string ComponentsOrder = "ZXY";
-        public const int SigmaSecondsOffset = 2;
-
-        public const string Baikal7Fmt = "Baikal7";
-        public const string Baikal8Fmt = "Baikal8";
-        public const string SigmaFmt = "Sigma";
-
-        public const string Baikal7Extension = "00";
-        public const string Baikal8Extension = "xx";
-        public const string SigmaExtension = "bin";
-        public static Dictionary<string, string> BinaryFileFormats
-        {
-            get
-            {
-                var indexes = new Dictionary<string, string>()
-                    {
-                        {Constants.Baikal7Fmt, Constants.Baikal7Extension},
-                        {Constants.Baikal8Fmt, Constants.Baikal8Extension},
-                        {Constants.SigmaFmt, Constants.SigmaExtension}
-                    };
-                return indexes;
-            }
-        }
-    }
-
+   
     public class BinarySeismicFile
     {            
         public readonly string _Path;
