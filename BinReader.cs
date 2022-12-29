@@ -131,13 +131,13 @@ namespace BinReader
                 else
                 {
                     return hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
-                }                
+                }
             }
-        }       
+        }
     }
-   
+
     public class BinarySeismicFile
-    {            
+    {
         public readonly string _Path;
         public readonly bool _IsUseAvgValues;
         public readonly FileHeader _FileHeader;
@@ -146,99 +146,65 @@ namespace BinReader
 
         public int _ResampleFrequency;
         public bool _IsCorrectResampleFrequency;
-        public string _UniqueFileName;        
-        
+        public string _UniqueFileName;
+
         public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
         {
             bool isPathCorrect = IsBinaryFileAtPath(filePath);
-            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", _Path); }            
+            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", _Path); }
             this._Path = filePath;
-            this._FileHeader = GetFileHeader;            
+            this._FileHeader = GetFileHeader;
             this._IsUseAvgValues = isUseAvgValues;
-            
+
             if (IsCorrectResampleFrequency(resampleFrequency) == true)
             {
                 _ResampleFrequency = resampleFrequency;
             }
             else { throw new InvalidResampleFrequency(); }
-           
+
             _ReadDatetimeStart = DatetimeStart;
             _ReadDatetimeStop = DatetimeStop;
         }
 
         static public dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
-        {   
-            // Open binary file, set size, init byte array of data with that size
-            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            int size = (int)stream.Length;
-            byte[] data = new byte[size];
-            // Read 336 bytes from origin and write into data array
-            stream.Read(data, 0, 336);
-            // Create memorystream and skip that amount of bytes that method take
-            var memoryStream = new MemoryStream(data, SkippingBytes, 8);            
-            // Create binaryreader object for memorystream
-            var reader = new BinaryReader(memoryStream);
-            // Init and set values(c# requiers set values)
-            int valueuInt16 = 0;
-            uint valueuInt32 = 0;
-            double valueDouble = 0;
-            ulong valueuInt64 = 0;
-            string valueString = "";
-            // And finally reading concrete value type from specified byte position 
-            if (type == "uint16")
+        {
+            dynamic returnedValue;
+
+            using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                valueuInt16 = reader.ReadUInt16();
-                return valueuInt16;
-            }
-            else if (type == "uint32")
-            {
-                valueuInt32 = reader.ReadUInt32();
-            }
-            else if (type == "double")
-            {
-                valueDouble = reader.ReadDouble();
-            }
-            else if (type == "long")
-            {
-                valueuInt64 = reader.ReadUInt64();
-            }
-            else if (type == "string")
-            {
-                valueString = new string(reader.ReadChars(count));
-            }
-            else
-            {
-                return null;
+                fileStream.Position = SkippingBytes;
+
+                using (BinaryReader binreader = new BinaryReader(fileStream))
+                {
+                    switch (type)
+                    {
+                        case "uint16":
+                            returnedValue = binreader.ReadUInt16();
+                            break;
+
+                        case "uint32":
+                            returnedValue = binreader.ReadUInt32();
+                            break;
+
+                        case "double":
+                            returnedValue = binreader.ReadDouble();
+                            break;
+
+                        case "long":
+                            returnedValue = binreader.ReadUInt64();
+                            break;
+
+                        case "string":
+                            returnedValue = new string(binreader.ReadChars(count));
+                            break;
+
+                        default:
+                            return null;
+                    }
+                }
             }
 
-            stream.Close();
-            memoryStream.Close();
-            reader.Close();
-
-            if (type == "uint16")
-            {
-                return valueuInt16;
-            }
-            else if (type == "uint32")
-            {
-                return valueuInt32;
-            }
-            else if (type == "double")
-            {
-                return valueDouble;
-            }
-            else if (type == "long")
-            {
-                return valueuInt64;
-            }
-            else if (type == "string")
-            {
-                return valueString;
-            }
-            else
-            {
-                return null;
-            }
+            return returnedValue;
         }
         static public DateTime GetDatetimeStartBaikal7(ulong timeBegin)
         {
@@ -495,11 +461,11 @@ namespace BinReader
                 return Math.Round(FileHeader.latitude, 6);
             }
         }
-        
+
         private DateTime ReadDatetimeStart
         {
             get
-            {                
+            {
                 return this._ReadDatetimeStart;
             }
             set
@@ -519,7 +485,7 @@ namespace BinReader
                 }
             }
         }
-        
+
         private DateTime ReadDatetimeStop
         {
             get
@@ -563,7 +529,7 @@ namespace BinReader
                 discreetIndex = StartMoment + signalLength;
                 return discreetIndex;
             }
-        }        
+        }
         private int ResampleParameter
         {
             get
@@ -668,7 +634,7 @@ namespace BinReader
             }
 
             return ResampleSignal;
-        }       
+        }
         public dynamic GetComponentSignal(string componentName)
         {
             int columnIndex;
@@ -687,7 +653,7 @@ namespace BinReader
             int skipDataSize = 4 * ChannelsCount * StartMoment;
             int offsetSize = HeaderMemorySize + skipDataSize + columnIndex * 4;
             int stridesSize = 4 * ChannelsCount;
-            int signalSize = EndMoment - StartMoment;            
+            int signalSize = EndMoment - StartMoment;
             // Open file with filestream
             FileStream fileStream = new FileStream(GetPath, FileMode.Open, FileAccess.Read);
             // Create memorymapped file, like mmap in python
@@ -702,7 +668,7 @@ namespace BinReader
             // Init and define byte array, byte array of component, and finish array that contains integer
             byte[] byteArray = new byte[signalSize];
             byte[] byteArrayClip = new byte[signalSize / stridesSize];
-            Int32[] intArray = new int[byteArrayClip.Length / 4];            
+            Int32[] intArray = new int[byteArrayClip.Length / 4];
             // Create memorymappedview stream, like byte stream, with specific offset from memorymappedfile
             MemoryMappedViewStream memoryMappedViewStream = memoryMappedFile.CreateViewStream(offsetSize, signalSize, MemoryMappedFileAccess.Read);
             memoryMappedViewStream.Read(byteArray, 0, signalSize);
