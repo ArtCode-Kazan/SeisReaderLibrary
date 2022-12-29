@@ -25,13 +25,13 @@ namespace BinReader
         {
             get
             {
-                var indexes = new Dictionary<string, string>()
+                var sensorExtension = new Dictionary<string, string>()
                     {
                         {Constants.Baikal7Fmt, Constants.Baikal7Extension},
                         {Constants.Baikal8Fmt, Constants.Baikal8Extension},
                         {Constants.SigmaFmt, Constants.SigmaExtension}
                     };
-                return indexes;
+                return sensorExtension;
             }
         }
     }
@@ -594,14 +594,14 @@ namespace BinReader
         {
             get
             {
-                var indexes = new Dictionary<string, int>()
+                var componentOffset = new Dictionary<string, int>()
                     {
                         {RecordType.Substring(0,1), 1},
                         {RecordType.Substring(1,1), 2},
                         {RecordType.Substring(2,1), 3}
                     };
 
-                return indexes;
+                return componentOffset;
             }
         }
         public object ShortFileInfo
