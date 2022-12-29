@@ -111,6 +111,9 @@ namespace BinReader
 
     public class Constants
     {
+        public static string ComponentsOrder = "ZXY";
+        public const int SigmaSecondsOffset = 2;
+
         public const string Baikal7Fmt = "Baikal7";
         public const string Baikal8Fmt = "Baikal8";
         public const string SigmaFmt = "Sigma";
@@ -118,23 +121,19 @@ namespace BinReader
         public const string Baikal7Extension = "00";
         public const string Baikal8Extension = "xx";
         public const string SigmaExtension = "bin";
-
     }
 
     public class BinarySeismicFile
-    {        
-        public const int SigmaSecondsOffset = 2;
-        public static string ComponentsOrder = "ZXY";
+    {            
+        public readonly string _Path;
+        public readonly bool _IsUseAvgValues;
+        public readonly FileHeader _FileHeader;
 
-        public string __Path;
-        public int __ResampleFrequency;
-        public bool __IsUseAvgValues;
-
-        public FileHeader __FileHeader;
-        public bool __IsCorrectResampleFrequency;
-        public string __UniqueFileName;
-        public DateTime __ReadDatetimeStart;
-        public DateTime __ReadDatetimeStop;       
+        public int _ResampleFrequency;
+        public bool _IsCorrectResampleFrequency;
+        public string _UniqueFileName;
+        public DateTime _ReadDatetimeStart;
+        public DateTime _ReadDatetimeStop;
 
         public Dictionary<string, string> BinaryFileFormats
         {
@@ -152,19 +151,19 @@ namespace BinReader
         public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
         {
             bool isPathCorrect = IsBinaryFileAtPath(filePath);
-            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", __Path); }            
-            this.__Path = filePath;
-            this.__FileHeader = GetFileHeader;            
-            this.__IsUseAvgValues = isUseAvgValues;
+            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", _Path); }            
+            this._Path = filePath;
+            this._FileHeader = GetFileHeader;            
+            this._IsUseAvgValues = isUseAvgValues;
             
             if (IsCorrectResampleFrequency(resampleFrequency) == true)
             {
-                __ResampleFrequency = resampleFrequency;
+                _ResampleFrequency = resampleFrequency;
             }
             else { throw new InvalidResampleFrequency(); }
            
-            __ReadDatetimeStart = new DateTime();
-            __ReadDatetimeStop = new DateTime();
+            _ReadDatetimeStart = new DateTime();
+            _ReadDatetimeStop = new DateTime();
         }
 
         static public dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
@@ -338,21 +337,21 @@ namespace BinReader
         {
             get
             {
-                return this.__Path;
+                return this._Path;
             }
         }
         private FileHeader FileHeader
         {
             get
             {
-                return this.__FileHeader;
+                return this._FileHeader;
             }
         }
         private bool IsUseAvgValues
         {
             get
             {
-                return this.__IsUseAvgValues;
+                return this._IsUseAvgValues;
             }
         }
         private int OriginFrequency
@@ -366,12 +365,12 @@ namespace BinReader
         {
             get
             {
-                if (this.__ResampleFrequency == 0)
+                if (this._ResampleFrequency == 0)
                 {
-                    this.__ResampleFrequency = OriginFrequency;
+                    this._ResampleFrequency = OriginFrequency;
                 }
 
-                return this.__ResampleFrequency;
+                return this._ResampleFrequency;
             }
         }
         public string FileExtension
@@ -385,7 +384,7 @@ namespace BinReader
         {
             get
             {
-                return this.__UniqueFileName;
+                return this._UniqueFileName;
             }
         }
         private string FormatType
@@ -430,7 +429,7 @@ namespace BinReader
         {
             get
             {
-                FileInfo file = new FileInfo(this.__Path);
+                FileInfo file = new FileInfo(this._Path);
                 long fileSize = file.Length;
                 int discreteAmount = Convert.ToInt32((fileSize - HeaderMemorySize) / (FileHeader.channelCount * 4));
 
@@ -462,7 +461,7 @@ namespace BinReader
             {
                 if (FormatType == "SIGMA_FMT")
                 {
-                    return OriginDatetimeStart.AddSeconds(SigmaSecondsOffset);
+                    return OriginDatetimeStart.AddSeconds(Constants.SigmaSecondsOffset);
                 }
 
                 else
@@ -497,12 +496,12 @@ namespace BinReader
         {
             get
             {
-                if (this.__ReadDatetimeStart == new DateTime())
+                if (this._ReadDatetimeStart == new DateTime())
                 {
-                    this.__ReadDatetimeStart = DatetimeStart;
+                    this._ReadDatetimeStart = DatetimeStart;
                 }
 
-                return this.__ReadDatetimeStart;
+                return this._ReadDatetimeStart;
             }
             set
             {
@@ -512,7 +511,7 @@ namespace BinReader
 
                 if (dt1 >= 0 & dt2 > 0)
                 {
-                    this.__ReadDatetimeStart = datetime;
+                    this._ReadDatetimeStart = datetime;
                 }
 
                 else
@@ -526,12 +525,12 @@ namespace BinReader
         {
             get
             {
-                if (this.__ReadDatetimeStop == new DateTime())
+                if (this._ReadDatetimeStop == new DateTime())
                 {
-                    this.__ReadDatetimeStop = DatetimeStop;
+                    this._ReadDatetimeStop = DatetimeStop;
                 }
 
-                return this.__ReadDatetimeStop;
+                return this._ReadDatetimeStop;
             }
             set
             {
@@ -541,7 +540,7 @@ namespace BinReader
 
                 if (dt1 > 0 & dt2 >= 0)
                 {
-                    this.__ReadDatetimeStop = datetime;
+                    this._ReadDatetimeStop = datetime;
                 }
 
                 else
@@ -583,7 +582,7 @@ namespace BinReader
         {
             get
             {
-                return ComponentsOrder;
+                return Constants.ComponentsOrder;
             }
         }
         public Dictionary<string, int> ComponentsIndex
@@ -611,21 +610,21 @@ namespace BinReader
         {
             get
             {
-                string extension = Path.GetExtension(this.__Path).Replace(".", "");
+                string extension = Path.GetExtension(this._Path).Replace(".", "");
 
                 if (extension == Constants.Baikal7Extension)
                 {
-                    return ReadBaikal7Header(this.__Path);
+                    return ReadBaikal7Header(this._Path);
                 }
 
                 else if (extension == Constants.Baikal8Fmt)
                 {
-                    return ReadBaikal8Header(this.__Path);
+                    return ReadBaikal8Header(this._Path);
                 }
 
                 else if (extension == Constants.SigmaFmt)
                 {
-                    return ReadSigmaHeader(this.__Path);
+                    return ReadSigmaHeader(this._Path);
                 }
 
                 else
