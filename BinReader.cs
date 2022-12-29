@@ -107,7 +107,19 @@ namespace BinReader
                 }                
             }
         }       
-    }    
+    }
+
+    public class Constants
+    {
+        public const string Baikal7Fmt = "Baikal7";
+        public const string Baikal8Fmt = "Baikal8";
+        public const string SigmaFmt = "Sigma";
+
+        public const string Baikal7Extension = "00";
+        public const string Baikal8Extension = "xx";
+        public const string SigmaExtension = "bin";
+
+    }
 
     public class BinarySeismicFile
     {        
@@ -122,15 +134,7 @@ namespace BinReader
         public bool __IsCorrectResampleFrequency;
         public string __UniqueFileName;
         public DateTime __ReadDatetimeStart;
-        public DateTime __ReadDatetimeStop;
-
-        string Baikal7Fmt = "Baikal7";
-        string Baikal8Fmt = "Baikal8";
-        string SigmaFmt = "Sigma";
-
-        string Baikal7Extension = "00";
-        string Baikal8Extension = "xx";
-        string SigmaExtension = "bin";
+        public DateTime __ReadDatetimeStop;       
 
         public Dictionary<string, string> BinaryFileFormats
         {
@@ -138,9 +142,9 @@ namespace BinReader
             {
                 var indexes = new Dictionary<string, string>()
                     {
-                        {Baikal7Fmt, Baikal7Extension},
-                        {Baikal8Fmt, Baikal8Extension},
-                        {SigmaFmt, SigmaExtension}
+                        {Constants.Baikal7Fmt, Constants.Baikal7Extension},
+                        {Constants.Baikal8Fmt, Constants.Baikal8Extension},
+                        {Constants.SigmaFmt, Constants.SigmaExtension}
                     };
                 return indexes;
             }
@@ -315,7 +319,7 @@ namespace BinReader
             {
                 string extension = Path.GetExtension(path).Replace(".", "");
 
-                if (extension == Baikal7Extension | extension == Baikal8Fmt | extension == SigmaFmt)
+                if (extension == Constants.Baikal7Extension | extension == Constants.Baikal8Fmt | extension == Constants.SigmaFmt)
                 {
                     return true;
                 }
@@ -609,17 +613,17 @@ namespace BinReader
             {
                 string extension = Path.GetExtension(this.__Path).Replace(".", "");
 
-                if (extension == Baikal7Extension)
+                if (extension == Constants.Baikal7Extension)
                 {
                     return ReadBaikal7Header(this.__Path);
                 }
 
-                else if (extension == Baikal8Fmt)
+                else if (extension == Constants.Baikal8Fmt)
                 {
                     return ReadBaikal8Header(this.__Path);
                 }
 
-                else if (extension == SigmaFmt)
+                else if (extension == Constants.SigmaFmt)
                 {
                     return ReadSigmaHeader(this.__Path);
                 }
