@@ -122,7 +122,7 @@ namespace BinReader
         string order = "ZXY";
 
         public string path;
-        public int[] signal;
+        public Int32[] signal;
         public int channelCount;
         public int frequency;
         public double latitude;
@@ -179,7 +179,7 @@ namespace BinReader
                 binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt32(time)));
             }
 
-            else if (FileExtension == ".00")
+            else if (FileExtension == ".00") // main
             {
                 binaryWriter.Seek(0, SeekOrigin.Begin);
                 binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt16(this.channelCount)));
@@ -190,16 +190,14 @@ namespace BinReader
                 binaryWriter.Seek(72, SeekOrigin.Begin);
                 binaryWriter.Write(BitConverter.GetBytes(Convert.ToDouble(this.latitude)));
                 binaryWriter.Seek(104, SeekOrigin.Begin);
-                string date = Convert.ToString(this.dateTimeStart.Year).Substring(2, 2)
-                    + Convert.ToString(this.dateTimeStart.Month).PadLeft(2, '0')
-                + Convert.ToString(this.dateTimeStart.Day).PadLeft(2, '0');
-                string time = Convert.ToString(this.dateTimeStart.Hour).PadLeft(2, '0')
-                    + Convert.ToString(this.dateTimeStart.Minute).PadLeft(2, '0')
-                + Convert.ToString(this.dateTimeStart.Second).PadLeft(2, '0');
-                string datetime = date + time;
-                binaryWriter.Write(BitConverter.GetBytes(Convert.ToUInt64(datetime)));
-            }
 
+                DateTime constDatetime = new DateTime(1980, 1, 1);
+                double secondsDuraion = (this.dateTimeStart - constDatetime).TotalSeconds;
+                ulong secondsForWriting = Convert.ToUInt64(secondsDuraion) * 256000000;
+                                                                
+                binaryWriter.Write(BitConverter.GetBytes(secondsForWriting));
+            }
+            
             else if (FileExtension == ".xx")
             {
                 binaryWriter.Seek(0, SeekOrigin.Begin);
@@ -229,7 +227,7 @@ namespace BinReader
             binaryWriter.Seek(headerMemorySize + columnIndex, 0);
             for (int i = 0; i < signal.Length; i++)
             {
-                binaryWriter.Write(BitConverter.GetBytes(signal[i]));
+                binaryWriter.Write(BitConverter.GetBytes(Convert.ToInt32(signal[i])));
                 binaryWriter.Seek(4 * 2, SeekOrigin.Current);
             }            
             binaryWriter.Close();
