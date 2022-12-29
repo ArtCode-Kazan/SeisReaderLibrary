@@ -110,11 +110,7 @@ namespace BinReader
     }    
 
     public class BinarySeismicFile
-    {
-        public const string Baikal7Fmt = "00";
-        public const string Baikal8Fmt = "xx";
-        public const string SigmaFmt = "bin";
-
+    {        
         public const int SigmaSecondsOffset = 2;
         public static string ComponentsOrder = "ZXY";
 
@@ -128,13 +124,13 @@ namespace BinReader
         public DateTime __ReadDatetimeStart;
         public DateTime __ReadDatetimeStop;
 
-        string BAIKAL7_FMT = "Baikal7";
-        string BAIKAL8_FMT = "Baikal8";
-        string SIGMA_FMT = "Sigma";
+        string Baikal7Fmt = "Baikal7";
+        string Baikal8Fmt = "Baikal8";
+        string SigmaFmt = "Sigma";
 
-        string BAIKAL7_EXTENSION = "00";
-        string BAIKAL8_EXTENSION = "xx";
-        string SIGMA_EXTENSION = "bin";
+        string Baikal7Extension = "00";
+        string Baikal8Extension = "xx";
+        string SigmaExtension = "bin";
 
         public Dictionary<string, string> BinaryFileFormats
         {
@@ -142,9 +138,9 @@ namespace BinReader
             {
                 var indexes = new Dictionary<string, string>()
                     {
-                        {BAIKAL7_FMT, BAIKAL7_EXTENSION},
-                        {BAIKAL8_FMT, BAIKAL8_EXTENSION},
-                        {SIGMA_FMT, SIGMA_EXTENSION}
+                        {Baikal7Fmt, Baikal7Extension},
+                        {Baikal8Fmt, Baikal8Extension},
+                        {SigmaFmt, SigmaExtension}
                     };
                 return indexes;
             }
@@ -319,7 +315,7 @@ namespace BinReader
             {
                 string extension = Path.GetExtension(path).Replace(".", "");
 
-                if (extension == Baikal7Fmt | extension == Baikal8Fmt | extension == SigmaFmt)
+                if (extension == Baikal7Extension | extension == Baikal8Fmt | extension == SigmaFmt)
                 {
                     return true;
                 }
@@ -613,7 +609,7 @@ namespace BinReader
             {
                 string extension = Path.GetExtension(this.__Path).Replace(".", "");
 
-                if (extension == Baikal7Fmt)
+                if (extension == Baikal7Extension)
                 {
                     return ReadBaikal7Header(this.__Path);
                 }
