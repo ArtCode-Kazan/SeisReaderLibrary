@@ -141,8 +141,8 @@ namespace BinReader
         public readonly string _Path;
         public readonly bool _IsUseAvgValues;
         public readonly FileHeader _FileHeader;
-        public readonly DateTime _ReadDatetimeStart;
-        public readonly DateTime _ReadDatetimeStop;
+        public DateTime _ReadDatetimeStart;
+        public DateTime _ReadDatetimeStop;
 
         public int _ResampleFrequency;
         public bool _IsCorrectResampleFrequency;
@@ -462,21 +462,23 @@ namespace BinReader
             }
         }
 
+        
+
         private DateTime ReadDatetimeStart
         {
             get
             {
                 return this._ReadDatetimeStart;
             }
+            
             set
-            {
-                DateTime datetime = new DateTime();
-                double dt1 = datetime.Subtract(DatetimeStart).TotalSeconds;
-                double dt2 = DatetimeStop.Subtract(datetime).TotalSeconds;
+            {                
+                double dt1 = value.Subtract(this.DatetimeStart).TotalSeconds;                
+                double dt2 = DatetimeStop.Subtract(value).TotalSeconds;
 
                 if (dt1 >= 0 & dt2 > 0)
                 {
-                    this._ReadDatetimeStart = datetime;
+                    this._ReadDatetimeStart = value;                    
                 }
 
                 else
@@ -493,14 +495,13 @@ namespace BinReader
                 return this._ReadDatetimeStop;
             }
             set
-            {
-                DateTime datetime = new DateTime();
-                double dt1 = datetime.Subtract(DatetimeStart).TotalSeconds;
-                double dt2 = DatetimeStop.Subtract(datetime).TotalSeconds;
+            {                
+                double dt1 = value.Subtract(this.DatetimeStart).TotalSeconds;
+                double dt2 = DatetimeStop.Subtract(value).TotalSeconds;
 
                 if (dt1 > 0 & dt2 >= 0)
                 {
-                    this._ReadDatetimeStop = datetime;
+                    this._ReadDatetimeStop = value;
                 }
 
                 else
