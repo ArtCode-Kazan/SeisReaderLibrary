@@ -550,14 +550,14 @@ namespace BinReader
         {
             get
             {
-                var componentOffset = new Dictionary<string, int>()
+                var componentIndex = new Dictionary<string, int>()
                     {
                         {RecordType.Substring(0,1), 0},
                         {RecordType.Substring(1,1), 1},
                         {RecordType.Substring(2,1), 2}
                     };
 
-                return componentOffset;
+                return componentIndex;
             }
         }
         public object ShortFileInfo
