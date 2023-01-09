@@ -288,7 +288,7 @@ namespace BinReader
             {
                 string extension = Path.GetExtension(path).Substring(1);
 
-                if (extension == Constants.Baikal7Extension | extension == Constants.Baikal8Extension | extension == Constants.SigmaExtension)
+                if (Constants.BinaryFileFormats.ContainsValue(extension))
                 {
                     return true;
                 }
