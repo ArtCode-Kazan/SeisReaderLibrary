@@ -158,12 +158,12 @@ namespace BinReader
 
             if (IsCorrectResampleFrequency(resampleFrequency) == true)
             {
-                _ResampleFrequency = resampleFrequency;
+                this._ResampleFrequency = resampleFrequency;
             }
             else { throw new InvalidResampleFrequency(); }
 
-            _ReadDatetimeStart = DatetimeStart;
-            _ReadDatetimeStop = DatetimeStop;
+            this._ReadDatetimeStart = DatetimeStart;
+            this._ReadDatetimeStop = DatetimeStop;
         }
 
         static public dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
@@ -321,7 +321,7 @@ namespace BinReader
         {
             get
             {
-                return _FileHeader.frequency;
+                return this._FileHeader.frequency;
             }
         }
         private int ResampleFrequency
@@ -369,14 +369,14 @@ namespace BinReader
         {
             get
             {
-                return _FileHeader.datetimeStart;
+                return this._FileHeader.datetimeStart;
             }
         }
         private int ChannelsCount
         {
             get
             {
-                return _FileHeader.channelCount;
+                return this._FileHeader.channelCount;
             }
         }
         private int HeaderMemorySize
@@ -394,7 +394,7 @@ namespace BinReader
             {
                 FileInfo file = new FileInfo(this._Path);
                 long fileSize = file.Length;
-                int discreteAmount = Convert.ToInt32((fileSize - HeaderMemorySize) / (_FileHeader.channelCount * sizeof(int)));
+                int discreteAmount = Convert.ToInt32((fileSize - HeaderMemorySize) / (this._FileHeader.channelCount * sizeof(int)));
 
                 return discreteAmount;
             }
@@ -444,14 +444,14 @@ namespace BinReader
         {
             get
             {
-                return Math.Round(_FileHeader.longitude, 6);
+                return Math.Round(this._FileHeader.longitude, 6);
             }
         }
         public double Latitude
         {
             get
             {
-                return Math.Round(_FileHeader.latitude, 6);
+                return Math.Round(this._FileHeader.latitude, 6);
             }
         }
 
