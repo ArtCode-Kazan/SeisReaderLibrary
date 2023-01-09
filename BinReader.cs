@@ -309,14 +309,7 @@ namespace BinReader
             {
                 return this._Path;
             }
-        }
-        private FileHeader FileHeader
-        {
-            get
-            {
-                return this._FileHeader;
-            }
-        }
+        }       
         private bool IsUseAvgValues
         {
             get
@@ -328,7 +321,7 @@ namespace BinReader
         {
             get
             {
-                return FileHeader.frequency;
+                return _FileHeader.frequency;
             }
         }
         private int ResampleFrequency
@@ -376,14 +369,14 @@ namespace BinReader
         {
             get
             {
-                return FileHeader.datetimeStart;
+                return _FileHeader.datetimeStart;
             }
         }
         private int ChannelsCount
         {
             get
             {
-                return FileHeader.channelCount;
+                return _FileHeader.channelCount;
             }
         }
         private int HeaderMemorySize
@@ -401,7 +394,7 @@ namespace BinReader
             {
                 FileInfo file = new FileInfo(this._Path);
                 long fileSize = file.Length;
-                int discreteAmount = Convert.ToInt32((fileSize - HeaderMemorySize) / (FileHeader.channelCount * sizeof(int)));
+                int discreteAmount = Convert.ToInt32((fileSize - HeaderMemorySize) / (_FileHeader.channelCount * sizeof(int)));
 
                 return discreteAmount;
             }
@@ -451,14 +444,14 @@ namespace BinReader
         {
             get
             {
-                return Math.Round(FileHeader.longitude, 6);
+                return Math.Round(_FileHeader.longitude, 6);
             }
         }
         public double Latitude
         {
             get
             {
-                return Math.Round(FileHeader.latitude, 6);
+                return Math.Round(_FileHeader.latitude, 6);
             }
         }
 
