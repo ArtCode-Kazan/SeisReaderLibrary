@@ -571,12 +571,12 @@ namespace BinReader
                     return ReadBaikal7Header(this._Path);
                 }
 
-                else if (extension == Constants.Baikal8Fmt)
+                else if (extension == Constants.Baikal8Extension)
                 {
                     return ReadBaikal8Header(this._Path);
                 }
 
-                else if (extension == Constants.SigmaFmt)
+                else if (extension == Constants.SigmaExtension)
                 {
                     return ReadSigmaHeader(this._Path);
                 }
