@@ -462,7 +462,7 @@ namespace BinReader
             }
         }
 
-        
+
 
         private DateTime ReadDatetimeStart
         {
@@ -470,15 +470,15 @@ namespace BinReader
             {
                 return this._ReadDatetimeStart;
             }
-            
+
             set
-            {                
-                double dt1 = value.Subtract(this.DatetimeStart).TotalSeconds;                
+            {
+                double dt1 = value.Subtract(this.DatetimeStart).TotalSeconds;
                 double dt2 = DatetimeStop.Subtract(value).TotalSeconds;
 
                 if (dt1 >= 0 & dt2 > 0)
                 {
-                    this._ReadDatetimeStart = value;                    
+                    this._ReadDatetimeStart = value;
                 }
 
                 else
@@ -495,7 +495,7 @@ namespace BinReader
                 return this._ReadDatetimeStop;
             }
             set
-            {                
+            {
                 double dt1 = value.Subtract(this.DatetimeStart).TotalSeconds;
                 double dt2 = DatetimeStop.Subtract(value).TotalSeconds;
 
@@ -550,12 +550,12 @@ namespace BinReader
         {
             get
             {
-                var componentIndex = new Dictionary<string, int>()
-                    {
-                        {RecordType.Substring(0,1), 0},
-                        {RecordType.Substring(1,1), 1},
-                        {RecordType.Substring(2,1), 2}
-                    };
+                var componentIndex = new Dictionary<string, int>();                
+                
+                for (int i=0; i < RecordType.Length; i++ )
+                {                                        
+                    componentIndex.Add(RecordType[i].ToString(), i);                    
+                }
 
                 return componentIndex;
             }
@@ -653,13 +653,13 @@ namespace BinReader
             int skipDataSize = sizeof(int) * ChannelsCount * StartMoment;
             int offsetSize = HeaderMemorySize + skipDataSize + columnIndex * sizeof(int);
             int stridesSize = sizeof(int) * ChannelsCount;
-            int signalSize = EndMoment - StartMoment;                                   
+            int signalSize = EndMoment - StartMoment;
 
             Int32[] intArray = new Int32[(signalSize / stridesSize) / sizeof(int)];
 
             using (FileStream fileStream = new FileStream(GetPath, FileMode.Open, FileAccess.Read))
             {
-                fileStream.Position = offsetSize;                
+                fileStream.Position = offsetSize;
 
                 using (BinaryReader binreader = new BinaryReader(fileStream))
                 {
@@ -668,8 +668,8 @@ namespace BinReader
                         intArray[i] = binreader.ReadInt32();
                         fileStream.Seek(stridesSize - sizeof(int), SeekOrigin.Current);
                     }
-                }                
-            }            
+                }
+            }
 
             return intArray;
         }
