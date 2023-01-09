@@ -667,7 +667,7 @@ namespace BinReader
                     for (int i = 0; i < intArray.Length; i++)
                     {
                         intArray[i] = binreader.ReadInt32();
-                        fileStream.Seek(stridesSize, SeekOrigin.Current);
+                        fileStream.Seek(stridesSize - sizeof(int), SeekOrigin.Current);
                     }
                 }                
             }            
