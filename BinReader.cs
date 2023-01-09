@@ -640,14 +640,14 @@ namespace BinReader
         {
             int columnIndex;
 
-            if (ChannelsCount == 3)
+            if (ChannelsCount == ComponentsIndex.Count)
             {
                 ComponentsIndex.TryGetValue(componentName, out columnIndex);
             }
             else
             {
                 ComponentsIndex.TryGetValue(componentName, out columnIndex);
-                columnIndex += 3;
+                columnIndex += ComponentsIndex.Count;
             }
 
             int skipDataSize = sizeof(int) * ChannelsCount * StartMoment;
