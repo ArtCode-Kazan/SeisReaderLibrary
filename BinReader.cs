@@ -158,7 +158,10 @@ namespace BinReader
             {
                 this._ResampleFrequency = resampleFrequency;
             }
-            else { throw new InvalidResampleFrequency(); }
+            else 
+            { 
+                throw new InvalidResampleFrequency(); 
+            }
 
             this._ReadDatetimeStart = DatetimeStart;
             this._ReadDatetimeStop = DatetimeStop;
@@ -452,16 +455,12 @@ namespace BinReader
                 return Math.Round(this._FileHeader.latitude, 6);
             }
         }
-
-
-
         private DateTime ReadDatetimeStart
         {
             get
             {
                 return this._ReadDatetimeStart;
             }
-
             set
             {
                 double dt1 = value.Subtract(this.DatetimeStart).TotalSeconds;
@@ -471,14 +470,12 @@ namespace BinReader
                 {
                     this._ReadDatetimeStart = value;
                 }
-
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid start reading datetime");
                 }
             }
         }
-
         private DateTime ReadDatetimeStop
         {
             get
@@ -494,7 +491,6 @@ namespace BinReader
                 {
                     this._ReadDatetimeStop = value;
                 }
-
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid stop reading datetime");
@@ -568,17 +564,14 @@ namespace BinReader
                 {
                     return ReadBaikal7Header(this._Path);
                 }
-
                 else if (extension == Constants.Baikal8Extension)
                 {
                     return ReadBaikal8Header(this._Path);
                 }
-
                 else if (extension == Constants.SigmaExtension)
                 {
                     return ReadSigmaHeader(this._Path);
                 }
-
                 else
                     return null;
             }
@@ -589,19 +582,16 @@ namespace BinReader
             {
                 return false;
             }
-
             else if (value == 0)
             {
                 return true;
             }
-
             else
             {
                 if (OriginFrequency % value == 0)
                 {
                     return true;
                 }
-
                 else
                 {
                     return false;
