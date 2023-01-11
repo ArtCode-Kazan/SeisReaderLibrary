@@ -1,11 +1,9 @@
 ﻿using System.Globalization;
 using System.Runtime.Serialization;
-using System.IO.MemoryMappedFiles;
 using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BinReader
 {
