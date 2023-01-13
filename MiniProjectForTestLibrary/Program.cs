@@ -21,6 +21,11 @@ namespace MiniProjectForTestLibrary
             Console.WriteLine(fileHat.latitude);
             Console.WriteLine(fileHat.longitude);
             Console.WriteLine(signalArray[1]);
+
+            binfile._ReadDatetimeStop = binfile.DatetimeStart.AddMinutes(60);
+
+            Int32[] signalArrayForOneMinute = binfile.GetComponentSignal("Z");
+
             Console.ReadLine();
         }
     }    
