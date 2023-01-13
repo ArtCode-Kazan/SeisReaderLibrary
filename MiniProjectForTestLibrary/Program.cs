@@ -20,6 +20,7 @@ namespace MiniProjectForTestLibrary
             Console.WriteLine(fileHat.frequency);
             Console.WriteLine(fileHat.latitude);
             Console.WriteLine(fileHat.longitude);
+            Console.WriteLine(signalArray[1]);
             Console.ReadLine();
         }
     }    
