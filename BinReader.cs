@@ -325,7 +325,7 @@ namespace BinReader
                 return this._FileHeader.frequency;
             }
         }
-        private int ResampleFrequency
+        public int ResampleFrequency
         {
             get
             {
@@ -341,7 +341,7 @@ namespace BinReader
         {
             get
             {
-                return Path.GetExtension(GetPath);
+                return Path.GetExtension(GetPath).Split('.')[1];                
             }
         }
         public string UniqueFileName
