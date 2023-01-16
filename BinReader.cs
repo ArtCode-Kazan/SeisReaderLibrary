@@ -399,7 +399,7 @@ namespace BinReader
                 int discreteCount = DiscreteAmount;
                 int freq = OriginFrequency;
                 int accuracy = Convert.ToInt32(Math.Log10(freq));
-                double deltaSeconds = Math.Round(Convert.ToDouble(discreteCount / freq), accuracy);
+                double deltaSeconds = Math.Round(Convert.ToDouble(Convert.ToDouble(discreteCount) / freq), accuracy);
 
                 return deltaSeconds;
             }
