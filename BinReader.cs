@@ -143,8 +143,7 @@ namespace BinReader
         public DateTime _ReadDatetimeStop;
 
         public int _ResampleFrequency;
-        public bool _IsCorrectResampleFrequency;
-        public string _UniqueFileName;
+        public bool _IsCorrectResampleFrequency;        
 
         public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
         {
@@ -235,7 +234,7 @@ namespace BinReader
             double seconds = BinaryRead(path, "double", 1, 56);
             double latitude = BinaryRead(path, "double", 1, 72);
             double longitude = BinaryRead(path, "double", 1, 80);
-            DateTime datetimeStart = new DateTime(year, month, day, 0, 0, 1).AddSeconds(seconds);
+            DateTime datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
             int frequency = Convert.ToInt16(1 / dt);
 
             return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
@@ -311,21 +310,21 @@ namespace BinReader
                 return this._Path;
             }
         }       
-        private bool IsUseAvgValues
+        public bool IsUseAvgValues
         {
             get
             {
                 return this._IsUseAvgValues;
             }
         }
-        private int OriginFrequency
+        public int OriginFrequency
         {
             get
             {
                 return this._FileHeader.frequency;
             }
         }
-        private int ResampleFrequency
+        public int ResampleFrequency
         {
             get
             {
@@ -341,17 +340,10 @@ namespace BinReader
         {
             get
             {
-                return Path.GetExtension(GetPath);
+                return Path.GetExtension(GetPath).Split('.')[1];                
             }
-        }
-        private string UniqueFileName
-        {
-            get
-            {
-                return this._UniqueFileName;
-            }
-        }
-        private string FormatType
+        }        
+        public string FormatType
         {
             get
             {
@@ -366,21 +358,21 @@ namespace BinReader
                 return null;
             }
         }
-        private DateTime OriginDatetimeStart
+        public DateTime OriginDatetimeStart
         {
             get
             {
                 return this._FileHeader.datetimeStart;
             }
         }
-        private int ChannelsCount
+        public int ChannelsCount
         {
             get
             {
                 return this._FileHeader.channelCount;
             }
         }
-        private int HeaderMemorySize
+        public int HeaderMemorySize
         {
             get
             {
@@ -389,7 +381,7 @@ namespace BinReader
                 return 120 + 72 * channelCount;
             }
         }
-        private int DiscreteAmount
+        public int DiscreteAmount
         {
             get
             {
@@ -400,14 +392,14 @@ namespace BinReader
                 return discreteAmount;
             }
         }
-        private double SecondsDuration
+        public double SecondsDuration
         {
             get
             {
                 int discreteCount = DiscreteAmount;
                 int freq = OriginFrequency;
                 int accuracy = Convert.ToInt32(Math.Log10(freq));
-                double deltaSeconds = Math.Round(Convert.ToDouble(discreteCount / freq), accuracy);
+                double deltaSeconds = Math.Round(Convert.ToDouble(Convert.ToDouble(discreteCount) / freq), accuracy);
 
                 return deltaSeconds;
             }
@@ -423,7 +415,7 @@ namespace BinReader
         {
             get
             {
-                if (FormatType == "SIGMA_FMT")
+                if (FormatType == Constants.SigmaFmt)
                 {
                     return OriginDatetimeStart.AddSeconds(Constants.SigmaSecondsOffset);
                 }
@@ -455,7 +447,7 @@ namespace BinReader
                 return Math.Round(this._FileHeader.latitude, 6);
             }
         }
-        private DateTime ReadDatetimeStart
+        public DateTime ReadDatetimeStart
         {
             get
             {
@@ -476,7 +468,7 @@ namespace BinReader
                 }
             }
         }
-        private DateTime ReadDatetimeStop
+        public DateTime ReadDatetimeStop
         {
             get
             {
@@ -497,7 +489,7 @@ namespace BinReader
                 }
             }
         }
-        private int StartMoment
+        public int StartMoment
         {
             get
             {
@@ -506,7 +498,7 @@ namespace BinReader
                 return Convert.ToInt32(Math.Round(dtSeconds * OriginFrequency));
             }
         }
-        private int EndMoment
+        public int EndMoment
         {
             get
             {
@@ -518,7 +510,7 @@ namespace BinReader
                 return discreetIndex;
             }
         }
-        private int ResampleParameter
+        public int ResampleParameter
         {
             get
             {
@@ -526,7 +518,7 @@ namespace BinReader
                 return Convert.ToInt32(Math.Floor(division));
             }
         }
-        private string RecordType
+        public string RecordType
         {
             get
             {
@@ -636,7 +628,7 @@ namespace BinReader
             int stridesSize = sizeof(int) * ChannelsCount;
             int signalSize = EndMoment - StartMoment;
 
-            Int32[] intArray = new Int32[(signalSize / stridesSize) / sizeof(int)];
+            Int32[] intArray = new Int32[signalSize];
 
             using (FileStream fileStream = new FileStream(GetPath, FileMode.Open, FileAccess.Read))
             {
@@ -751,7 +743,7 @@ namespace BinReader
     }
 
     [Serializable]
-    internal class BadFilePath : Exception
+    public class BadFilePath : Exception
     {
         private string v;
         private string file_path;
