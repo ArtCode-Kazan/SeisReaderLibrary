@@ -234,7 +234,7 @@ namespace BinReader
             double seconds = BinaryRead(path, "double", 1, 56);
             double latitude = BinaryRead(path, "double", 1, 72);
             double longitude = BinaryRead(path, "double", 1, 80);
-            DateTime datetimeStart = new DateTime(year, month, day, 0, 0, 1).AddSeconds(seconds);
+            DateTime datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
             int frequency = Convert.ToInt16(1 / dt);
 
             return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
