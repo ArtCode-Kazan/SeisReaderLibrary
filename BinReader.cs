@@ -636,7 +636,7 @@ namespace BinReader
             int stridesSize = sizeof(int) * ChannelsCount;
             int signalSize = EndMoment - StartMoment;
 
-            Int32[] intArray = new Int32[(signalSize / stridesSize) / sizeof(int)];
+            Int32[] intArray = new Int32[signalSize];
 
             using (FileStream fileStream = new FileStream(GetPath, FileMode.Open, FileAccess.Read))
             {
