@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinReader", "BinReader.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniProjectForTestLibrary", "MiniProjectForTestLibrary\MiniProjectForTestLibrary.csproj", "{A46FAE8D-A8D8-472C-BEC9-4B3639DED53C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryReaderLibraryTest", "..\BinaryReaderLibraryTest\BinaryReaderLibraryTest.csproj", "{96A7DD50-4FC9-4718-A9BB-F02F8A9F056F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A46FAE8D-A8D8-472C-BEC9-4B3639DED53C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A46FAE8D-A8D8-472C-BEC9-4B3639DED53C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A46FAE8D-A8D8-472C-BEC9-4B3639DED53C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96A7DD50-4FC9-4718-A9BB-F02F8A9F056F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96A7DD50-4FC9-4718-A9BB-F02F8A9F056F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96A7DD50-4FC9-4718-A9BB-F02F8A9F056F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96A7DD50-4FC9-4718-A9BB-F02F8A9F056F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

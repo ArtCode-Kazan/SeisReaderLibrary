@@ -311,14 +311,14 @@ namespace BinReader
                 return this._Path;
             }
         }       
-        private bool IsUseAvgValues
+        public bool IsUseAvgValues
         {
             get
             {
                 return this._IsUseAvgValues;
             }
         }
-        private int OriginFrequency
+        public int OriginFrequency
         {
             get
             {
@@ -344,14 +344,14 @@ namespace BinReader
                 return Path.GetExtension(GetPath);
             }
         }
-        private string UniqueFileName
+        public string UniqueFileName
         {
             get
             {
                 return this._UniqueFileName;
             }
         }
-        private string FormatType
+        public string FormatType
         {
             get
             {
@@ -366,21 +366,21 @@ namespace BinReader
                 return null;
             }
         }
-        private DateTime OriginDatetimeStart
+        public DateTime OriginDatetimeStart
         {
             get
             {
                 return this._FileHeader.datetimeStart;
             }
         }
-        private int ChannelsCount
+        public int ChannelsCount
         {
             get
             {
                 return this._FileHeader.channelCount;
             }
         }
-        private int HeaderMemorySize
+        public int HeaderMemorySize
         {
             get
             {
@@ -389,7 +389,7 @@ namespace BinReader
                 return 120 + 72 * channelCount;
             }
         }
-        private int DiscreteAmount
+        public int DiscreteAmount
         {
             get
             {
@@ -400,7 +400,7 @@ namespace BinReader
                 return discreteAmount;
             }
         }
-        private double SecondsDuration
+        public double SecondsDuration
         {
             get
             {
@@ -455,7 +455,7 @@ namespace BinReader
                 return Math.Round(this._FileHeader.latitude, 6);
             }
         }
-        private DateTime ReadDatetimeStart
+        public DateTime ReadDatetimeStart
         {
             get
             {
@@ -476,7 +476,7 @@ namespace BinReader
                 }
             }
         }
-        private DateTime ReadDatetimeStop
+        public DateTime ReadDatetimeStop
         {
             get
             {
@@ -497,7 +497,7 @@ namespace BinReader
                 }
             }
         }
-        private int StartMoment
+        public int StartMoment
         {
             get
             {
@@ -506,7 +506,7 @@ namespace BinReader
                 return Convert.ToInt32(Math.Round(dtSeconds * OriginFrequency));
             }
         }
-        private int EndMoment
+        public int EndMoment
         {
             get
             {
@@ -518,7 +518,7 @@ namespace BinReader
                 return discreetIndex;
             }
         }
-        private int ResampleParameter
+        public int ResampleParameter
         {
             get
             {
@@ -526,7 +526,7 @@ namespace BinReader
                 return Convert.ToInt32(Math.Floor(division));
             }
         }
-        private string RecordType
+        public string RecordType
         {
             get
             {
@@ -751,7 +751,7 @@ namespace BinReader
     }
 
     [Serializable]
-    internal class BadFilePath : Exception
+    public class BadFilePath : Exception
     {
         private string v;
         private string file_path;
