@@ -143,8 +143,7 @@ namespace BinReader
         public DateTime _ReadDatetimeStop;
 
         public int _ResampleFrequency;
-        public bool _IsCorrectResampleFrequency;
-        public string _UniqueFileName;
+        public bool _IsCorrectResampleFrequency;        
 
         public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
         {
@@ -343,14 +342,7 @@ namespace BinReader
             {
                 return Path.GetExtension(GetPath).Split('.')[1];                
             }
-        }
-        public string UniqueFileName
-        {
-            get
-            {
-                return this._UniqueFileName;
-            }
-        }
+        }        
         public string FormatType
         {
             get
