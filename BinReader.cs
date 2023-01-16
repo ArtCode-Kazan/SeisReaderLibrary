@@ -415,7 +415,7 @@ namespace BinReader
         {
             get
             {
-                if (FormatType == "SIGMA_FMT")
+                if (FormatType == "Sigma")
                 {
                     return OriginDatetimeStart.AddSeconds(Constants.SigmaSecondsOffset);
                 }
