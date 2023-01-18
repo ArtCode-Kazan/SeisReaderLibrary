@@ -97,7 +97,13 @@ namespace BinReader
         {
             get
             {
-                return (path, formatType, frequency, timeStart, timeStop, longitude, latitude);
+                return (BinaryFileInfo.path,
+                    BinaryFileInfo.formatType,
+                    BinaryFileInfo.frequency,
+                    BinaryFileInfo.timeStart,
+                    BinaryFileInfo.timeStop,
+                    BinaryFileInfo.longitude,
+                    BinaryFileInfo.latitude);
             }
         }
         static public double DurationInSeconds
@@ -543,7 +549,8 @@ namespace BinReader
         {
             get
             {
-                return BinaryFileInfo.GetShortInfo;
+                var value = BinaryFileInfo.GetShortInfo;
+                return value;
             }
         }
         public dynamic GetFileHeader
