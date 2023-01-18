@@ -403,7 +403,7 @@ namespace BinaryReaderLibraryTest
                     new DateTime(2022, 9, 19, 7, 48, 7),
                     new DateTime(2022, 9, 19, 23, 55, 0),
                     0,
-                    57.31888);                
+                    57.31888);
             }
             else if (path == "D:/testbinary/HF_0004_2022-09-19_08-53-54_K14_2022-09-19.xx")
             {
@@ -429,7 +429,7 @@ namespace BinaryReaderLibraryTest
             }
 
             BinarySeismicFile binFile = new BinarySeismicFile(path);
-            BinaryFileInfo actual = binFile.ShortFileInfo;            
+            BinaryFileInfo actual = binFile.ShortFileInfo;
             Assert.AreEqual(actual.path, expectedInfo.path);
             Assert.AreEqual(actual.formatType, expectedInfo.formatType);
             Assert.AreEqual(actual.frequency, expectedInfo.frequency);
