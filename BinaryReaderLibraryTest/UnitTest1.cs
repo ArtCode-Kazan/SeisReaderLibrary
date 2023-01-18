@@ -423,14 +423,30 @@ namespace BinaryReaderLibraryTest
                     "Sigma",
                     1000,
                     new DateTime(2022, 9, 19, 8, 38, 45),
-                    new DateTime(2022, 9, 21, 6, 59, 13, 10000),
+                    new DateTime(2022, 9, 21, 6, 59, 13, 10),
                     79.33,
                     66.74);
             }
 
             BinarySeismicFile binFile = new BinarySeismicFile(path);
-            BinaryFileInfo actual = binFile.ShortFileInfo;
-            Assert.AreEqual(actual, expectedInfo);
+            BinaryFileInfo actual = binFile.ShortFileInfo;            
+            Assert.AreEqual(actual.path, expectedInfo.path);
+            Assert.AreEqual(actual.formatType, expectedInfo.formatType);
+            Assert.AreEqual(actual.frequency, expectedInfo.frequency);
+            Assert.AreEqual(actual.timeStart, expectedInfo.timeStart);
+            Assert.AreEqual(actual.timeStop, expectedInfo.timeStop);
+            Assert.AreEqual(actual.longitude, expectedInfo.longitude);
+            Assert.AreEqual(actual.latitude, expectedInfo.latitude);
+        }
+        [TestMethod]
+        [DataRow("D:/testbinary/HF_0002_2022-09-19_07-48-07_90004_2022-09-19.00", true)]
+        [DataRow("D:/testbinary/HF_0004_2022-09-19_08-53-54_K14_2022-09-19.xx", true)]
+        [DataRow("D:/testbinary/HF_0009_2022-09-19_08-38-45_SigmaN012_2022-09-19.bin", true)]
+        public void testIsCorrectResampleFrequencyMethod(string path, bool expected)
+        {
+            BinarySeismicFile binFile = new BinarySeismicFile(path);
+            bool actual = binFile.IsCorrectResampleFrequency(1000);
+            Assert.AreEqual(expected, actual);
         }
     }
 }
