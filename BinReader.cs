@@ -60,13 +60,13 @@ namespace BinReader
 
     public class BinaryFileInfo
     {
-        public static string path;
-        public static string formatType;
-        public static int frequency;
-        public static DateTime timeStart;
-        public static DateTime timeStop;
-        public static double longitude;
-        public static double latitude;
+        public string path;
+        public string formatType;
+        public int frequency;
+        public DateTime timeStart;
+        public DateTime timeStop;
+        public double longitude;
+        public double latitude;
 
         public BinaryFileInfo(
             string path,
@@ -78,51 +78,38 @@ namespace BinReader
             double latitude
             )
         {
-            BinaryFileInfo.path = path;
-            BinaryFileInfo.formatType = formatType;
-            BinaryFileInfo.frequency = frequency;
-            BinaryFileInfo.timeStart = timeStart;
-            BinaryFileInfo.timeStop = timeStop;
-            BinaryFileInfo.longitude = longitude;
-            BinaryFileInfo.latitude = latitude;
+            this.path = path;
+            this.formatType = formatType;
+            this.frequency = frequency;
+            this.timeStart = timeStart;
+            this.timeStop = timeStop;
+            this.longitude = longitude;
+            this.latitude = latitude;
         }
-        static public string Name
+        public string Name
         {
             get
             {
-                return Path.GetFileName(BinaryFileInfo.path);
+                return Path.GetFileName(this.path);
             }
-        }
-        static public object GetShortInfo
+        }        
+        public double DurationInSeconds
         {
             get
             {
-                return (BinaryFileInfo.path,
-                    BinaryFileInfo.formatType,
-                    BinaryFileInfo.frequency,
-                    BinaryFileInfo.timeStart,
-                    BinaryFileInfo.timeStop,
-                    BinaryFileInfo.longitude,
-                    BinaryFileInfo.latitude);
-            }
-        }
-        static public double DurationInSeconds
-        {
-            get
-            {
-                return BinaryFileInfo.timeStop.Subtract(BinaryFileInfo.timeStart).TotalSeconds;
+                return this.timeStop.Subtract(this.timeStart).TotalSeconds;
             }
         }
 
-        static public string FormattedDuration
+        public string FormattedDuration
         {
             get
             {
-                int secs = Convert.ToInt32(BinaryFileInfo.DurationInSeconds);
+                int secs = Convert.ToInt32(DurationInSeconds);
                 int days = secs / 24 * 3600;
                 int hours = (secs - days * 24 * 3600) / 3600;
                 int minutes = (secs - days * 24 * 3600 - hours * 3600) / 60;
-                double seconds = BinaryFileInfo.DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
+                double seconds = DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
 
                 string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
                 string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
@@ -544,12 +531,18 @@ namespace BinReader
 
                 return componentsIndexes;
             }
-        }
-        public object ShortFileInfo
+        }      
+        public BinaryFileInfo ShortFileInfo
         {
             get
             {
-                var value = BinaryFileInfo.GetShortInfo;
+                BinaryFileInfo value = new BinaryFileInfo(GetPath,
+                    FormatType,
+                    OriginFrequency,
+                    DatetimeStart,
+                    DatetimeStop,
+                    Longitude,
+                    Latitude);
                 return value;
             }
         }
