@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using BinReader;
 using System.Collections.Generic;
@@ -9,6 +10,20 @@ namespace BinaryReaderLibraryTest
     public class TestLibrary
     {
         [TestMethod]
+        [DataRow(555, "00:09:15,000")]
+        [DataRow(1337, "00:22:17,000")]
+        [DataRow(50000, "13:53:20,000")]        
+        [DataRow(115851, "1 days 08:10:51,000")]
+        [DataRow(82485484, "954 days 16:38:04,000")]
+        public void testFormattedDuration(int secondsAll, string expected)
+        {
+            var mock = new Mock<BinaryFileInfo>("", "", 0, new DateTime(), new DateTime(), 0, 0) { CallBase = true };
+            mock.As<IBinaryFileInfo>().Setup(p => p.DurationInSeconds).Returns(secondsAll);
+            string actual = mock.Object.FormattedDuration;
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
         [DataRow("D:/testbinary/HF_0002_2022-09-19_07-48-07_90004_2022-09-19.00", "D:/testbinary/HF_0002_2022-09-19_07-48-07_90004_2022-09-19.00")]
         [DataRow("D:/testbinary/HF_0004_2022-09-19_08-53-54_K14_2022-09-19.xx", "D:/testbinary/HF_0004_2022-09-19_08-53-54_K14_2022-09-19.xx")]
         [DataRow("D:/testbinary/HF_0009_2022-09-19_08-38-45_SigmaN012_2022-09-19.bin", "D:/testbinary/HF_0009_2022-09-19_08-38-45_SigmaN012_2022-09-19.bin")]
@@ -18,6 +33,7 @@ namespace BinaryReaderLibraryTest
             string actual = binFile._Path;
             Assert.AreEqual(expected, actual);
         }
+
         [TestMethod]
         [DataRow("D:/testbinary/HF_0002_2022-09-19_07-48-07_90004_2022-09-19.00", true)]
         [DataRow("D:/testbinary/HF_0004_2022-09-19_08-53-54_K14_2022-09-19.xx", true)]

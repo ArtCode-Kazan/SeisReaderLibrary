@@ -11,6 +11,7 @@ namespace BinReader
     {
         public static string ComponentsOrder = "ZXY";
         public const int SigmaSecondsOffset = 2;
+        public static DateTime Baikal7BaseDateTime = new DateTime(1980, 1, 1);
 
         public const string Baikal7Fmt = "Baikal7";
         public const string Baikal8Fmt = "Baikal8";
@@ -19,6 +20,7 @@ namespace BinReader
         public const string Baikal7Extension = "00";
         public const string Baikal8Extension = "xx";
         public const string SigmaExtension = "bin";
+
         public static Dictionary<string, string> BinaryFileFormats
         {
             get
@@ -47,8 +49,7 @@ namespace BinReader
             int frequency,
             DateTime datetimeStart,
             double longitude,
-            double latitude
-            )
+            double latitude)
         {
             this.channelCount = channelCount;
             this.frequency = frequency;
@@ -58,7 +59,14 @@ namespace BinReader
         }
     }
 
-    public class BinaryFileInfo
+    public interface IBinaryFileInfo
+    { 
+        string Name { get; }
+        double DurationInSeconds { get; }
+        string FormattedDuration { get; }
+    }
+
+    public class BinaryFileInfo : IBinaryFileInfo
     {
         public string path;
         public string formatType;
@@ -72,8 +80,8 @@ namespace BinReader
             string path,
             string formatType,
             int frequency,
-            DateTime timeStart,
-            DateTime timeStop,
+            DateTime dateTimeStart,
+            DateTime dateTimeStop,
             double longitude,
             double latitude
             )
@@ -81,19 +89,21 @@ namespace BinReader
             this.path = path;
             this.formatType = formatType;
             this.frequency = frequency;
-            this.timeStart = timeStart;
-            this.timeStop = timeStop;
+            this.timeStart = dateTimeStart;
+            this.timeStop = dateTimeStop;
             this.longitude = longitude;
             this.latitude = latitude;
         }
+
         public string Name
         {
             get
             {
                 return Path.GetFileName(this.path);
             }
-        }        
-        public double DurationInSeconds
+        }      
+        
+        public virtual double DurationInSeconds
         {
             get
             {
@@ -101,28 +111,29 @@ namespace BinReader
             }
         }
 
-        public string FormattedDuration
+        public virtual string FormattedDuration
         {
             get
             {
-                int secs = Convert.ToInt32(DurationInSeconds);
-                int days = secs / 24 * 3600;
-                int hours = (secs - days * 24 * 3600) / 3600;
-                int minutes = (secs - days * 24 * 3600 - hours * 3600) / 60;
-                double seconds = DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
+                int days = (int)(this.DurationInSeconds / (24 * 3600));
+                int hours = (int)((this.DurationInSeconds - days * 24 * 3600) / 3600);
+                int minutes = (int)((this.DurationInSeconds - days * 24 * 3600 - hours * 3600) / 60);
+                double seconds = this.DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
 
-                string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
-                string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
                 string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
+                string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
+                string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
 
+                string durationFormat;
                 if (days != 0)
                 {
-                    return Convert.ToString(days) + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
+                    durationFormat = days + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;                
                 }
                 else
                 {
-                    return hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
+                    durationFormat = hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
                 }
+                return durationFormat;
             }
         }
     }
@@ -196,15 +207,12 @@ namespace BinReader
                     }
                 }
             }
-
             return returnedValue;
         }
         static public DateTime GetDatetimeStartBaikal7(ulong timeBegin)
-        {
-            DateTime constDatetime = new DateTime(1980, 1, 1);
+        {            
             ulong seconds = timeBegin / 256000000;
-
-            return constDatetime.AddSeconds(seconds);
+            return Constants.Baikal7BaseDateTime.AddSeconds(seconds);
         }
         static public FileHeader ReadBaikal7Header(string path)
         {
