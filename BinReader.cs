@@ -9,7 +9,7 @@ namespace BinReader
 {
     public class Constants
     {
-        public static string ComponentsOrder = "ZXY";
+        public const string ComponentsOrder = "ZXY";
         public const int SigmaSecondsOffset = 2;
         public static DateTime Baikal7BaseDateTime = new DateTime(1980, 1, 1);
 
@@ -138,7 +138,47 @@ namespace BinReader
         }
     }
 
-    public class BinarySeismicFile
+    public interface IBinarySeismicFile
+    {
+        dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0);
+        DateTime GetDatetimeStartBaikal7(ulong timeBegin);
+        FileHeader ReadBaikal7Header(string path);
+        FileHeader ReadBaikal8Header(string path);
+        FileHeader ReadSigmaHeader(string path);
+        bool IsBinaryFileAtPath(string path);
+        string GetPath { get; }
+        bool IsUseAvgValues { get; }
+        int OriginFrequency { get; }
+        int ResampleFrequency { get; }
+        string FileExtension { get; }
+        string FormatType { get; }
+        DateTime OriginDatetimeStart { get; }
+        int ChannelsCount { get; }
+        int HeaderMemorySize { get; }
+        int DiscreteAmount { get; }
+        double SecondsDuration { get; }
+        DateTime OriginDatetimeStop { get; }
+        DateTime DatetimeStart { get; }
+        DateTime DatetimeStop { get; }
+        double Longitude { get; }
+        double Latitude { get; }
+        DateTime ReadDatetimeStart { get; set; }
+        DateTime ReadDatetimeStop { get; set; }
+        int StartMoment { get; }
+        int ResampleParameter { get; }
+        int EndMoment { get; }
+        string RecordType { get; }
+        Dictionary<string, int> ComponentsIndex { get; }
+        BinaryFileInfo ShortFileInfo { get; }
+        dynamic GetFileHeader { get; }
+        bool IsCorrectResampleFrequency(int value);
+        dynamic Resampling(Int32[] signal, int ResampleParameter);
+        dynamic GetComponentSignal(string componentName);
+        dynamic ResampleSignal(Int32[] SrcSignal);
+        dynamic ReadSignal(string component = "Z");
+    }
+
+    public class BinarySeismicFile : IBinarySeismicFile
     {
         public readonly string _Path;
         public readonly bool _IsUseAvgValues;
@@ -175,7 +215,7 @@ namespace BinReader
             this._ReadDatetimeStop = this.DatetimeStop;
         }
 
-        static public dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
+        public virtual dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
         {
             dynamic returnedValue;
 
@@ -215,13 +255,13 @@ namespace BinReader
             return returnedValue;
         }
 
-        static public DateTime GetDatetimeStartBaikal7(ulong timeBegin)
+        public virtual DateTime GetDatetimeStartBaikal7(ulong timeBegin)
         {
             ulong seconds = timeBegin / 256000000;
             return Constants.Baikal7BaseDateTime.AddSeconds(seconds);
         }
 
-        static public FileHeader ReadBaikal7Header(string path)
+        public virtual FileHeader ReadBaikal7Header(string path)
         {
             int channelCount = BinaryRead(path, "uint16", 1, 0);
             int frequency = BinaryRead(path, "uint16", 1, 22);
@@ -233,7 +273,7 @@ namespace BinReader
             return new FileHeader(channelCount, frequency, datetime, longitude, latitude);
         }
 
-        static public FileHeader ReadBaikal8Header(string path)
+        public virtual FileHeader ReadBaikal8Header(string path)
         {
             int channelCount = BinaryRead(path, "uint16", 1, 0);
             int day = BinaryRead(path, "uint16", 1, 6);
@@ -249,7 +289,7 @@ namespace BinReader
             return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
         }
 
-        static public FileHeader ReadSigmaHeader(string path)
+        public virtual FileHeader ReadSigmaHeader(string path)
         {
             DateTime datetimeStart = new DateTime(1999, 1, 1);
             double longitude = 0;
@@ -322,7 +362,7 @@ namespace BinReader
             }
         }
 
-        public bool IsUseAvgValues
+        public virtual bool IsUseAvgValues
         {
             get
             {
@@ -330,7 +370,7 @@ namespace BinReader
             }
         }
 
-        public int OriginFrequency
+        public virtual int OriginFrequency
         {
             get
             {
@@ -338,7 +378,7 @@ namespace BinReader
             }
         }
 
-        public int ResampleFrequency
+        public virtual int ResampleFrequency
         {
             get
             {
@@ -351,7 +391,7 @@ namespace BinReader
             }
         }
 
-        public string FileExtension
+        public virtual string FileExtension
         {
             get
             {
@@ -359,7 +399,7 @@ namespace BinReader
             }
         }
 
-        public string FormatType
+        public virtual string FormatType
         {
             get
             {
@@ -375,7 +415,7 @@ namespace BinReader
             }
         }
 
-        public DateTime OriginDatetimeStart
+        public virtual DateTime OriginDatetimeStart
         {
             get
             {
@@ -383,7 +423,7 @@ namespace BinReader
             }
         }
 
-        public int ChannelsCount
+        public virtual int ChannelsCount
         {
             get
             {
@@ -391,7 +431,7 @@ namespace BinReader
             }
         }
 
-        public int HeaderMemorySize
+        public virtual int HeaderMemorySize
         {
             get
             {
@@ -401,7 +441,7 @@ namespace BinReader
             }
         }
 
-        public int DiscreteAmount
+        public virtual int DiscreteAmount
         {
             get
             {
@@ -413,7 +453,7 @@ namespace BinReader
             }
         }
 
-        public double SecondsDuration
+        public virtual double SecondsDuration
         {
             get
             {
@@ -426,7 +466,7 @@ namespace BinReader
             }
         }
 
-        public DateTime OriginDatetimeStop
+        public virtual DateTime OriginDatetimeStop
         {
             get
             {
@@ -434,7 +474,7 @@ namespace BinReader
             }
         }
 
-        public DateTime DatetimeStart
+        public virtual DateTime DatetimeStart
         {
             get
             {
@@ -450,7 +490,7 @@ namespace BinReader
             }
         }
 
-        public DateTime DatetimeStop
+        public virtual DateTime DatetimeStop
         {
             get
             {
@@ -458,7 +498,7 @@ namespace BinReader
             }
         }
 
-        public double Longitude
+        public virtual double Longitude
         {
             get
             {
@@ -466,7 +506,7 @@ namespace BinReader
             }
         }
 
-        public double Latitude
+        public virtual double Latitude
         {
             get
             {
@@ -474,7 +514,7 @@ namespace BinReader
             }
         }
 
-        public DateTime ReadDatetimeStart
+        public virtual DateTime ReadDatetimeStart
         {
             get
             {
@@ -496,7 +536,7 @@ namespace BinReader
             }
         }
 
-        public DateTime ReadDatetimeStop
+        public virtual DateTime ReadDatetimeStop
         {
             get
             {
@@ -518,7 +558,7 @@ namespace BinReader
             }
         }
 
-        public int StartMoment
+        public virtual int StartMoment
         {
             get
             {
@@ -528,7 +568,7 @@ namespace BinReader
             }
         }
 
-        public int ResampleParameter
+        public virtual int ResampleParameter
         {
             get
             {
@@ -537,7 +577,7 @@ namespace BinReader
             }
         }
 
-        public int EndMoment
+        public virtual int EndMoment
         {
             get
             {
@@ -550,7 +590,7 @@ namespace BinReader
             }
         }
 
-        public string RecordType
+        public virtual string RecordType
         {
             get
             {
@@ -558,7 +598,7 @@ namespace BinReader
             }
         }
 
-        public Dictionary<string, int> ComponentsIndex
+        public virtual Dictionary<string, int> ComponentsIndex
         {
             get
             {
@@ -573,7 +613,7 @@ namespace BinReader
             }
         }
 
-        public BinaryFileInfo ShortFileInfo
+        public virtual BinaryFileInfo ShortFileInfo
         {
             get
             {
@@ -588,7 +628,7 @@ namespace BinReader
             }
         }
 
-        public dynamic GetFileHeader
+        public virtual dynamic GetFileHeader
         {
             get
             {
@@ -611,7 +651,7 @@ namespace BinReader
             }
         }
 
-        public bool IsCorrectResampleFrequency(int value)
+        public virtual bool IsCorrectResampleFrequency(int value)
         {
             if (value < 0)
             {
@@ -634,7 +674,7 @@ namespace BinReader
             }
         }
 
-        public dynamic Resampling(Int32[] signal, int ResampleParameter)
+        public virtual dynamic Resampling(Int32[] signal, int ResampleParameter)
         {
             int discreteAmount = signal.GetLength(0);
             int ResampleDiscreteAmount = (discreteAmount - (discreteAmount % ResampleParameter)) / ResampleParameter;
@@ -654,7 +694,7 @@ namespace BinReader
             return ResampleSignal;
         }
 
-        public dynamic GetComponentSignal(string componentName)
+        public virtual dynamic GetComponentSignal(string componentName)
         {
             int columnIndex;
 
@@ -691,7 +731,7 @@ namespace BinReader
             return intArray;
         }
 
-        public dynamic ResampleSignal(Int32[] SrcSignal)
+        public virtual dynamic ResampleSignal(Int32[] SrcSignal)
         {
             if (this.ResampleParameter == 1)
             {
@@ -700,7 +740,7 @@ namespace BinReader
             return this.Resampling(SrcSignal, this.ResampleParameter);
         }
 
-        public dynamic ReadSignal(string component = "Z")
+        public virtual dynamic ReadSignal(string component = "Z")
         {
             component = component.ToUpper();
 

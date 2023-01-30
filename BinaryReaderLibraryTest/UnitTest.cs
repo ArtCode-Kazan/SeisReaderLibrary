@@ -24,6 +24,122 @@ namespace BinaryReaderLibraryTest
         }
 
         [TestMethod]
+        [DataRow(555)]
+        [DataRow(1337)]
+        [DataRow(50000)]
+        [DataRow(115851)]
+        [DataRow(82485484)]
+        public void testGetDatetimeStartBaikal7(int timeBegin)
+        {
+            timeBegin = timeBegin / 256000000;
+            DateTime expected = new DateTime(1980, 1, 1).AddSeconds(timeBegin);
+
+            var mock = new Mock<BinarySeismicFile>("", 0, false) { CallBase = true };            
+            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStart).Returns(new DateTime());
+            mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStop).Returns(new DateTime());
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
+            mock.As<IBinarySeismicFile>().Setup(p => p.GetFileHeader).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));            
+
+            var actual = mock.Object.GetDatetimeStartBaikal7((ulong)timeBegin);
+                      
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void testReadBaikal7Header()
+        {
+            var expected = new FileHeader(0, 0, new DateTime(), 0, 0);
+
+            var mock = new Mock<BinarySeismicFile>("", 0, false) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStart).Returns(new DateTime());
+            mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStop).Returns(new DateTime());
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
+            mock.As<IBinarySeismicFile>().Setup(p => p.GetFileHeader).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
+            mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(1)
+            .Returns(2)
+            .Returns(new DateTime())
+            .Returns(4)
+            .Returns(5);
+
+            var actual = mock.Object.ReadBaikal7Header("");
+
+            Assert.AreEqual(expected.longitude, actual.longitude);
+            Assert.AreEqual(expected.latitude, actual.latitude);
+            Assert.AreEqual(expected.channelCount, actual.channelCount);
+            Assert.AreEqual(expected.frequency, actual.frequency);
+            Assert.AreEqual(expected.datetimeStart, actual.datetimeStart);
+        }
+
+        [TestMethod]
+        public void testReadBaikal8Header()
+        {
+            var expected = new FileHeader(1, 1000, new DateTime(4, 3, 2, 0, 0 , 6), 8, 7);
+
+            var mock = new Mock<BinarySeismicFile>("", 0, false) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStart).Returns(new DateTime());
+            mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStop).Returns(new DateTime());
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
+            mock.As<IBinarySeismicFile>().Setup(p => p.GetFileHeader).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
+            mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(1) //channel
+            .Returns(2) //day
+            .Returns(3) //month
+            .Returns(4) //year
+            .Returns(0.001) //dt
+            .Returns(6) //seconds
+            .Returns(7) // latitude
+            .Returns(8); //longitude
+
+            var actual = mock.Object.ReadBaikal8Header("");
+
+            Assert.AreEqual(expected.longitude, actual.longitude);
+            Assert.AreEqual(expected.latitude, actual.latitude);
+            Assert.AreEqual(expected.channelCount, actual.channelCount);
+            Assert.AreEqual(expected.frequency, actual.frequency);
+            Assert.AreEqual(expected.datetimeStart, actual.datetimeStart);
+        }
+
+        [TestMethod]
+        public void testReadSigmaHeader()
+        {
+            var expected = new FileHeader(1, 2, new DateTime(4, 3, 2, 0, 0, 6), 8, 7);
+
+            var mock = new Mock<BinarySeismicFile>("", 0, false) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStart).Returns(new DateTime());
+            mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStop).Returns(new DateTime());
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
+            mock.As<IBinarySeismicFile>().Setup(p => p.GetFileHeader).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
+            mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(1) //channel
+            .Returns(2) //freq
+            .Returns("1234") //latit
+            .Returns("11234")
+            .Returns(2)
+            .Returns(2)
+            .Returns(2)
+            .Returns(2)
+            .Returns(2)
+            .Returns(2); //longit
+
+            var actual = mock.Object.ReadSigmaHeader("");
+
+            Assert.AreEqual(expected.longitude, actual.longitude);
+            Assert.AreEqual(expected.latitude, actual.latitude);
+            Assert.AreEqual(expected.channelCount, actual.channelCount);
+            Assert.AreEqual(expected.frequency, actual.frequency);
+            Assert.AreEqual(expected.datetimeStart, actual.datetimeStart);
+        }
+
+        [TestMethod]
         [DataRow("D:/testbinary/HF_0002_2022-09-19_07-48-07_90004_2022-09-19.00", "D:/testbinary/HF_0002_2022-09-19_07-48-07_90004_2022-09-19.00")]
         [DataRow("D:/testbinary/HF_0004_2022-09-19_08-53-54_K14_2022-09-19.xx", "D:/testbinary/HF_0004_2022-09-19_08-53-54_K14_2022-09-19.xx")]
         [DataRow("D:/testbinary/HF_0009_2022-09-19_08-38-45_SigmaN012_2022-09-19.bin", "D:/testbinary/HF_0009_2022-09-19_08-38-45_SigmaN012_2022-09-19.bin")]
