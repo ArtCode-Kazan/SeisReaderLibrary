@@ -97,36 +97,36 @@ namespace BinReader
             }
         }
 
-        public virtual dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
+        public virtual dynamic BinaryRead(string path, string type, int count, int skippingBytes = 0)
         {
-            dynamic returnedValue;
+            dynamic returnValue;
 
             using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                fileStream.Position = SkippingBytes;
+                fileStream.Position = skippingBytes;
 
-                using (BinaryReader binreader = new BinaryReader(fileStream))
+                using (BinaryReader binReader = new BinaryReader(fileStream))
                 {
                     switch (type)
                     {
                         case "uint16":
-                            returnedValue = binreader.ReadUInt16();
+                            returnValue = binReader.ReadUInt16();
                             break;
 
                         case "uint32":
-                            returnedValue = binreader.ReadUInt32();
+                            returnValue = binReader.ReadUInt32();
                             break;
 
                         case "double":
-                            returnedValue = binreader.ReadDouble();
+                            returnValue = binReader.ReadDouble();
                             break;
 
                         case "long":
-                            returnedValue = binreader.ReadUInt64();
+                            returnValue = binReader.ReadUInt64();
                             break;
 
                         case "string":
-                            returnedValue = new string(binreader.ReadChars(count));
+                            returnValue = new string(binReader.ReadChars(count));
                             break;
 
                         default:
@@ -134,7 +134,7 @@ namespace BinReader
                     }
                 }
             }
-            return returnedValue;
+            return returnValue;
         }
 
         public virtual DateTime GetDatetimeStartBaikal7(ulong timeBegin)
@@ -145,36 +145,36 @@ namespace BinReader
 
         public virtual void ReadBaikal7Header(string path)
         {
-            this.channelCount = BinaryRead(path, "uint16", 1, 0);
-            this.frequency = BinaryRead(path, "uint16", 1, 22);
-            ulong timeBegin = BinaryRead(path, "long", 1, 104);
+            this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 0);
+            this.frequency = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 22);
+            ulong timeBegin = BinaryRead(path: path, type: "long", count: 1, skippingBytes: 104);
             this.datetimeStart = GetDatetimeStartBaikal7(timeBegin);
-            this.coordinate.longitude = Math.Round(BinaryRead(path, "double", 1, 80), 6);
-            this.coordinate.latitude = Math.Round(BinaryRead(path, "double", 1, 72), 6);
+            this.coordinate.longitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 80), 6);
+            this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);
         }
 
         public virtual void ReadBaikal8Header(string path)
         {
-            this.channelCount = BinaryRead(path, "uint16", 1, 0);
-            int day = BinaryRead(path, "uint16", 1, 6);
-            int month = BinaryRead(path, "uint16", 1, 8);
-            int year = BinaryRead(path, "uint16", 1, 10);
-            double dt = BinaryRead(path, "double", 1, 48);
-            double seconds = BinaryRead(path, "double", 1, 56);
-            this.coordinate.latitude = Math.Round(BinaryRead(path, "double", 1, 72), 6);
-            this.coordinate.longitude = Math.Round(BinaryRead(path, "double", 1, 80), 6);
+            this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 0);
+            int day = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 6);
+            int month = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 8);
+            int year = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 10);
+            double dt = BinaryRead(path: path, type: "double", count: 1, skippingBytes: 48);
+            double seconds = BinaryRead(path: path, type: "double", count: 1, skippingBytes: 56);
+            this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);
+            this.coordinate.longitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 80), 6);
             this.datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
             this.frequency = Convert.ToInt16(1 / dt);
         }
 
         public virtual void ReadSigmaHeader(string path)
         {
-            this.channelCount = BinaryRead(path, "uint16", 1, 12);
-            this.frequency = BinaryRead(path, "uint16", 1, 24);
-            string latitudeSrc = BinaryRead(path, "string", 8, 40);
-            string longitudeSrc = BinaryRead(path, "string", 9, 48);
-            string dateSrc = Convert.ToString(BinaryRead(path, "uint32", 1, 60));
-            string timeSrc = Convert.ToString(BinaryRead(path, "uint32", 1, 64));
+            this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 12);
+            this.frequency = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 24);
+            string latitudeSrc = BinaryRead(path: path, type: "string", count: 8, skippingBytes: 40);
+            string longitudeSrc = BinaryRead(path: path, type: "string", count: 9, skippingBytes: 48);
+            string dateSrc = Convert.ToString(BinaryRead(path: path, type: "uint32", count: 1, skippingBytes: 60));
+            string timeSrc = Convert.ToString(BinaryRead(path: path, type: "uint32", count: 1, skippingBytes: 64));
             timeSrc = timeSrc.PadLeft(6, '0');
             int year = 2000 + Convert.ToInt32(dateSrc.Substring(0, 2));
             int month = Convert.ToInt32(dateSrc.Substring(2, 2));
@@ -228,7 +228,7 @@ namespace BinReader
             int frequency,
             DateTimeInterval datetimeInterval,
             Coordinate coordinate
-            )
+        )
         {
             this.path = path;
             this.formatType = formatType;
@@ -289,14 +289,14 @@ namespace BinReader
         int OriginFrequency { get; }
         int ResampleFrequency { get; }
         string FileExtension { get; }
-        string FormatType { get; }        
+        string FormatType { get; }
         int ChannelsCount { get; }
         int HeaderMemorySize { get; }
         int DiscreteAmount { get; }
         double SecondsDuration { get; }
-        DateTimeInterval OriginDateTimeInterval { get; }
-        DateTimeInterval DateTimeInterval { get; }        
         Coordinate Coordinate { get; }
+        DateTimeInterval OriginDateTimeInterval { get; }
+        DateTimeInterval DateTimeInterval { get; }
         DateTimeInterval ReadDateTimeInterval { get; set; }
         int StartMoment { get; }
         int ResampleParameter { get; }
@@ -305,9 +305,9 @@ namespace BinReader
         Dictionary<string, int> ComponentsIndex { get; }
         BinaryFileInfo ShortFileInfo { get; }
         bool IsCorrectResampleFrequency(int value);
-        dynamic Resampling(Int32[] signal, int ResampleParameter);
+        dynamic Resampling(Int32[] signal, int resampleParameter);
         dynamic GetComponentSignal(string componentName);
-        dynamic ResampleSignal(Int32[] SrcSignal);
+        dynamic ResampleSignal(Int32[] srcSignal);
         dynamic ReadSignal(string component = "Z");
     }
 
@@ -418,11 +418,11 @@ namespace BinReader
         {
             get
             {
-                foreach (var file in Constants.BinaryFileFormats)
+                foreach (var record in Constants.BinaryFileFormats)
                 {
-                    if (file.Value == this.FileExtension)
+                    if (record.Value == this.FileExtension)
                     {
-                        return file.Key;
+                        return record.Key;
                     }
                 }
 
@@ -469,12 +469,20 @@ namespace BinReader
             }
         }
 
+        public Coordinate Coordinate
+        {
+            get
+            {
+                return this._FileHeader.coordinate;
+            }
+        }
+
         public virtual DateTimeInterval OriginDateTimeInterval
         {
             get
             {
                 return new DateTimeInterval(
-                    datetimeStart: this._FileHeader.datetimeStart, 
+                    datetimeStart: this._FileHeader.datetimeStart,
                     datetimeStop: this._FileHeader.datetimeStart.AddSeconds(this.SecondsDuration)
                 );
             }
@@ -482,10 +490,10 @@ namespace BinReader
 
         public virtual DateTimeInterval DateTimeInterval
         {
-            get 
-            {                
+            get
+            {
                 if (this.FormatType == Constants.SigmaFmt)
-                {                    
+                {
                     return new DateTimeInterval(
                         datetimeStart: this.OriginDateTimeInterval.start.AddSeconds(Constants.SigmaSecondsOffset),
                         datetimeStop: this.OriginDateTimeInterval.start.AddSeconds(Constants.SigmaSecondsOffset + this.SecondsDuration)
@@ -501,13 +509,6 @@ namespace BinReader
             }
         }
 
-        public Coordinate Coordinate
-        {
-            get
-            {
-                return this._FileHeader.coordinate;
-            }
-        }
         public virtual DateTimeInterval ReadDateTimeInterval
         {
             get
@@ -612,19 +613,19 @@ namespace BinReader
             }
         }
 
-        public virtual bool IsCorrectResampleFrequency(int value)
+        public virtual bool IsCorrectResampleFrequency(int frequency)
         {
-            if (value < 0)
+            if (frequency < 0)
             {
                 return false;
             }
-            else if (value == 0)
+            else if (frequency == 0)
             {
                 return true;
             }
             else
             {
-                if (this.OriginFrequency % value == 0)
+                if (this.OriginFrequency % frequency == 0)
                 {
                     return true;
                 }
@@ -635,24 +636,24 @@ namespace BinReader
             }
         }
 
-        public virtual dynamic Resampling(Int32[] signal, int ResampleParameter)
+        public virtual dynamic Resampling(Int32[] signal, int resampleParameter)
         {
             int discreteAmount = signal.GetLength(0);
-            int ResampleDiscreteAmount = (discreteAmount - (discreteAmount % ResampleParameter)) / ResampleParameter;
-            Int32[] ResampleSignal = new int[ResampleDiscreteAmount];
+            int resampleDiscreteAmount = (discreteAmount - (discreteAmount % resampleParameter)) / resampleParameter;
+            Int32[] resampleSignal = new int[resampleDiscreteAmount];
 
-            for (int i = 0; i < ResampleDiscreteAmount; i++)
+            for (int i = 0; i < resampleDiscreteAmount; i++)
             {
                 int sum = 0;
-                for (int j = i * ResampleParameter; j < (i + 1) * ResampleParameter; j++)
+                for (int j = i * resampleParameter; j < (i + 1) * resampleParameter; j++)
                 {
                     sum += signal[i];
                 }
                 int sum_val = sum;
-                ResampleSignal[i] = sum_val;
+                resampleSignal[i] = sum_val;
             }
 
-            return ResampleSignal;
+            return resampleSignal;
         }
 
         public virtual dynamic GetComponentSignal(string componentName)
@@ -692,13 +693,13 @@ namespace BinReader
             return intArray;
         }
 
-        public virtual dynamic ResampleSignal(Int32[] SrcSignal)
+        public virtual dynamic ResampleSignal(Int32[] srcSignal)
         {
             if (this.ResampleParameter == 1)
             {
-                return SrcSignal;
+                return srcSignal;
             }
-            return this.Resampling(SrcSignal, this.ResampleParameter);
+            return this.Resampling(srcSignal, this.ResampleParameter);
         }
 
         public virtual dynamic ReadSignal(string component = "Z")
@@ -710,23 +711,23 @@ namespace BinReader
                 throw new InvalidComponentName("{1} not found", component);
             }
 
-            Int32[] SignalArray = this.GetComponentSignal(component);
-            Int32[] ResampleSignalArray = this.ResampleSignal(SignalArray);
+            Int32[] signalArray = this.GetComponentSignal(component);
+            Int32[] resampleSignalArray = this.ResampleSignal(signalArray);
 
             if (this.IsUseAvgValues == false)
             {
-                return ResampleSignalArray;
+                return resampleSignalArray;
             }
 
-            Int32[] AveragedSignalArray = ResampleSignalArray;
-            int avgValue = Convert.ToInt32(Enumerable.Average(ResampleSignalArray));
+            Int32[] averagedSignalArray = resampleSignalArray;
+            int avgValue = Convert.ToInt32(Enumerable.Average(resampleSignalArray));
 
-            for (int i = 0; i < AveragedSignalArray.Length; i++)
+            for (int i = 0; i < averagedSignalArray.Length; i++)
             {
-                AveragedSignalArray[i] = AveragedSignalArray[i] - avgValue;
+                averagedSignalArray[i] = averagedSignalArray[i] - avgValue;
             }
 
-            return AveragedSignalArray;
+            return averagedSignalArray;
         }
     }
 
