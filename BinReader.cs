@@ -50,15 +50,16 @@ namespace BinReader
 
     public class DateTimeInterval
     {
-        public DateTime datetimeStart;
-        public DateTime datetimeStop;
+        public DateTime start;
+        public DateTime stop;
 
         public DateTimeInterval(DateTime datetimeStart, DateTime datetimeStop)
         {
-            this.datetimeStart = datetimeStart;
-            this.datetimeStop = datetimeStop;
+            this.start = datetimeStart;
+            this.stop = datetimeStop;
         }
     }
+
     public interface IFileHeader
     {
         dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0);
@@ -218,24 +219,21 @@ namespace BinReader
         public string path;
         public string formatType;
         public int frequency;
-        public DateTime timeStart;
-        public DateTime timeStop;
+        public DateTimeInterval datetimeInterval;
         public Coordinate coordinate;
 
         public BinaryFileInfo(
             string path,
             string formatType,
             int frequency,
-            DateTime dateTimeStart,
-            DateTime dateTimeStop,
+            DateTimeInterval datetimeInterval,
             Coordinate coordinate
             )
         {
             this.path = path;
             this.formatType = formatType;
             this.frequency = frequency;
-            this.timeStart = dateTimeStart;
-            this.timeStop = dateTimeStop;
+            this.datetimeInterval = datetimeInterval;
             this.coordinate = coordinate;
         }
 
@@ -251,7 +249,7 @@ namespace BinReader
         {
             get
             {
-                return this.timeStop.Subtract(this.timeStart).TotalSeconds;
+                return this.datetimeInterval.stop.Subtract(this.datetimeInterval.start).TotalSeconds;
             }
         }
 
@@ -259,6 +257,8 @@ namespace BinReader
         {
             get
             {
+                string durationFormat;
+
                 int days = (int)(this.DurationInSeconds / (24 * 3600));
                 int hours = (int)((this.DurationInSeconds - days * 24 * 3600) / 3600);
                 int minutes = (int)((this.DurationInSeconds - days * 24 * 3600 - hours * 3600) / 60);
@@ -268,7 +268,6 @@ namespace BinReader
                 string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
                 string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
 
-                string durationFormat;
                 if (days != 0)
                 {
                     durationFormat = days + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
@@ -290,15 +289,13 @@ namespace BinReader
         int OriginFrequency { get; }
         int ResampleFrequency { get; }
         string FileExtension { get; }
-        string FormatType { get; }
-        DateTime OriginDatetimeStart { get; }
+        string FormatType { get; }        
         int ChannelsCount { get; }
         int HeaderMemorySize { get; }
         int DiscreteAmount { get; }
         double SecondsDuration { get; }
-        DateTime OriginDatetimeStop { get; }
-        DateTime DatetimeStart { get; }
-        DateTime DatetimeStop { get; }
+        DateTimeInterval OriginDateTimeInterval { get; }
+        DateTimeInterval DateTimeInterval { get; }        
         Coordinate Coordinate { get; }
         DateTimeInterval ReadDateTimeInterval { get; set; }
         int StartMoment { get; }
@@ -347,8 +344,8 @@ namespace BinReader
                 throw new InvalidResampleFrequency();
             }
 
-            this._ReadDatetimeStart = this.DatetimeStart;
-            this._ReadDatetimeStop = this.DatetimeStop;
+            this._ReadDatetimeStart = this.DateTimeInterval.start;
+            this._ReadDatetimeStop = this.DateTimeInterval.stop;
         }
 
         public virtual bool IsBinaryFileAtPath(string path)
@@ -433,14 +430,6 @@ namespace BinReader
             }
         }
 
-        public virtual DateTime OriginDatetimeStart
-        {
-            get
-            {
-                return this._FileHeader.datetimeStart;
-            }
-        }
-
         public virtual int ChannelsCount
         {
             get
@@ -452,7 +441,7 @@ namespace BinReader
         public virtual int HeaderMemorySize
         {
             get
-            {                
+            {
                 return 120 + 72 * this.ChannelsCount;
             }
         }
@@ -464,7 +453,6 @@ namespace BinReader
                 FileInfo file = new FileInfo(this._Path);
                 long fileSize = file.Length;
                 int discreteAmount = Convert.ToInt32((fileSize - this.HeaderMemorySize) / (this._FileHeader.channelCount * sizeof(int)));
-
                 return discreteAmount;
             }
         }
@@ -477,40 +465,39 @@ namespace BinReader
                 int freq = this.OriginFrequency;
                 int accuracy = Convert.ToInt32(Math.Log10(freq));
                 double deltaSeconds = Math.Round(Convert.ToDouble(Convert.ToDouble(discreteCount) / freq), accuracy);
-
                 return deltaSeconds;
             }
         }
 
-        public virtual DateTime OriginDatetimeStop
+        public virtual DateTimeInterval OriginDateTimeInterval
         {
             get
             {
-                return this.OriginDatetimeStart.AddSeconds(this.SecondsDuration);
+                return new DateTimeInterval(
+                    datetimeStart: this._FileHeader.datetimeStart, 
+                    datetimeStop: this._FileHeader.datetimeStart.AddSeconds(this.SecondsDuration)
+                );
             }
         }
 
-        public virtual DateTime DatetimeStart
+        public virtual DateTimeInterval DateTimeInterval
         {
-            get
-            {
+            get 
+            {                
                 if (this.FormatType == Constants.SigmaFmt)
-                {
-                    return this.OriginDatetimeStart.AddSeconds(Constants.SigmaSecondsOffset);
+                {                    
+                    return new DateTimeInterval(
+                        datetimeStart: this.OriginDateTimeInterval.start.AddSeconds(Constants.SigmaSecondsOffset),
+                        datetimeStop: this.OriginDateTimeInterval.start.AddSeconds(Constants.SigmaSecondsOffset + this.SecondsDuration)
+                    );
                 }
-
                 else
                 {
-                    return this.OriginDatetimeStart;
+                    return new DateTimeInterval(
+                        datetimeStart: this.OriginDateTimeInterval.start,
+                        datetimeStop: this.OriginDateTimeInterval.start.AddSeconds(this.SecondsDuration)
+                    );
                 }
-            }
-        }
-
-        public virtual DateTime DatetimeStop
-        {
-            get
-            {
-                return this.DatetimeStart.AddSeconds(this.SecondsDuration);
             }
         }
 
@@ -530,37 +517,37 @@ namespace BinReader
 
             set
             {
-                double dt1 = value.datetimeStart.Subtract(this.DatetimeStart).TotalSeconds;
-                double dt2 = this.DatetimeStop.Subtract(value.datetimeStart).TotalSeconds;
+                double dt1 = value.start.Subtract(this.DateTimeInterval.start).TotalSeconds;
+                double dt2 = this.DateTimeInterval.stop.Subtract(value.start).TotalSeconds;
 
                 if (dt1 >= 0 & dt2 > 0)
                 {
-                    this._ReadDatetimeStart = value.datetimeStart;
+                    this._ReadDatetimeStart = value.start;
                 }
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid start reading datetime");
                 }
 
-                dt1 = value.datetimeStop.Subtract(this.DatetimeStart).TotalSeconds;
-                dt2 = this.DatetimeStop.Subtract(value.datetimeStop).TotalSeconds;
+                dt1 = value.stop.Subtract(this.DateTimeInterval.start).TotalSeconds;
+                dt2 = this.DateTimeInterval.stop.Subtract(value.stop).TotalSeconds;
 
                 if (dt1 > 0 & dt2 >= 0)
                 {
-                    this._ReadDatetimeStop = value.datetimeStop;
+                    this._ReadDatetimeStop = value.stop;
                 }
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid stop reading datetime");
                 }
             }
-        }        
-        
+        }
+
         public virtual int StartMoment
         {
             get
             {
-                TimeSpan dtDiff = this.ReadDateTimeInterval.datetimeStart.Subtract(this.DatetimeStart);                
+                TimeSpan dtDiff = this.ReadDateTimeInterval.start.Subtract(this.DateTimeInterval.start);
                 double dtSeconds = dtDiff.TotalSeconds;
                 return Convert.ToInt32(Math.Round(dtSeconds * this.OriginFrequency));
             }
@@ -579,7 +566,7 @@ namespace BinReader
         {
             get
             {
-                double dt = this.ReadDateTimeInterval.datetimeStop.Subtract(this.DatetimeStart).TotalSeconds;                
+                double dt = this.ReadDateTimeInterval.stop.Subtract(this.DateTimeInterval.start).TotalSeconds;
                 int discreetIndex = Convert.ToInt32(Math.Round(dt * this.OriginFrequency));
                 int signalLength = discreetIndex - this.StartMoment;
                 signalLength -= signalLength % this.ResampleParameter;
@@ -616,13 +603,12 @@ namespace BinReader
             get
             {
                 return new BinaryFileInfo(
-                    this.GetPath,
-                    this.FormatType,
-                    this.OriginFrequency,
-                    this.DatetimeStart,
-                    this.DatetimeStop,
-                    this.Coordinate
-                    );
+                    path: this.GetPath,
+                    formatType: this.FormatType,
+                    frequency: this.OriginFrequency,
+                    datetimeInterval: this.DateTimeInterval,
+                    coordinate: this.Coordinate
+                );
             }
         }
 
