@@ -452,10 +452,8 @@ namespace BinReader
         public virtual int HeaderMemorySize
         {
             get
-            {
-                int channelCount = this.ChannelsCount;
-
-                return 120 + 72 * channelCount;
+            {                
+                return 120 + 72 * this.ChannelsCount;
             }
         }
 
@@ -503,7 +501,7 @@ namespace BinReader
 
                 else
                 {
-                    return this.OriginDatetimeStart.AddSeconds(0);
+                    return this.OriginDatetimeStart;
                 }
             }
         }
@@ -584,7 +582,7 @@ namespace BinReader
                 double dt = this.ReadDateTimeInterval.datetimeStop.Subtract(this.DatetimeStart).TotalSeconds;                
                 int discreetIndex = Convert.ToInt32(Math.Round(dt * this.OriginFrequency));
                 int signalLength = discreetIndex - this.StartMoment;
-                signalLength -= (signalLength % this.ResampleParameter);
+                signalLength -= signalLength % this.ResampleParameter;
                 discreetIndex = this.StartMoment + signalLength;
                 return discreetIndex;
             }
@@ -617,13 +615,14 @@ namespace BinReader
         {
             get
             {
-                BinaryFileInfo value = new BinaryFileInfo(this.GetPath,
+                return new BinaryFileInfo(
+                    this.GetPath,
                     this.FormatType,
                     this.OriginFrequency,
                     this.DatetimeStart,
                     this.DatetimeStop,
-                    this.Coordinate);
-                return value;
+                    this.Coordinate
+                    );
             }
         }
 
