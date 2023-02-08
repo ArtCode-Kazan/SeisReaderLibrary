@@ -35,15 +35,28 @@ namespace BinReader
             }
         }
     }
-    public class Coordinates 
+
+    public class Coordinate
     {
         public double longitude;
         public double latitude;
 
-        public Coordinates(double longitude, double latitude)
+        public Coordinate(double longitude, double latitude)
         {
             this.longitude = longitude;
             this.latitude = latitude;
+        }
+    }
+
+    public class DateTimeInterval
+    {
+        public DateTime datetimeStart;
+        public DateTime datetimeStop;
+
+        public DateTimeInterval(DateTime datetimeStart, DateTime datetimeStop)
+        {
+            this.datetimeStart = datetimeStart;
+            this.datetimeStop = datetimeStop;
         }
     }
     public interface IFileHeader
@@ -60,7 +73,7 @@ namespace BinReader
         public int channelCount;
         public int frequency;
         public DateTime datetimeStart;
-        public Coordinates coordinates;
+        public Coordinate coordinate;
 
         public FileHeader(string path)
         {
@@ -135,8 +148,8 @@ namespace BinReader
             this.frequency = BinaryRead(path, "uint16", 1, 22);
             ulong timeBegin = BinaryRead(path, "long", 1, 104);
             this.datetimeStart = GetDatetimeStartBaikal7(timeBegin);
-            this.coordinates.longitude = Math.Round(BinaryRead(path, "double", 1, 80), 6);
-            this.coordinates.latitude = Math.Round(BinaryRead(path, "double", 1, 72), 6);
+            this.coordinate.longitude = Math.Round(BinaryRead(path, "double", 1, 80), 6);
+            this.coordinate.latitude = Math.Round(BinaryRead(path, "double", 1, 72), 6);
         }
 
         public virtual void ReadBaikal8Header(string path)
@@ -147,8 +160,8 @@ namespace BinReader
             int year = BinaryRead(path, "uint16", 1, 10);
             double dt = BinaryRead(path, "double", 1, 48);
             double seconds = BinaryRead(path, "double", 1, 56);
-            this.coordinates.latitude = Math.Round(BinaryRead(path, "double", 1, 72), 6);
-            this.coordinates.longitude = Math.Round(BinaryRead(path, "double", 1, 80), 6);
+            this.coordinate.latitude = Math.Round(BinaryRead(path, "double", 1, 72), 6);
+            this.coordinate.longitude = Math.Round(BinaryRead(path, "double", 1, 80), 6);
             this.datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
             this.frequency = Convert.ToInt16(1 / dt);
         }
@@ -183,8 +196,8 @@ namespace BinReader
 
             try
             {
-                this.coordinates.longitude = Math.Round((Convert.ToInt32(longitudeSrc.Substring(0, 3)) + Convert.ToDouble(longitudeSrc.Substring(3, 5), provider) / 60), 2);
-                this.coordinates.latitude = Math.Round((Convert.ToInt32(latitudeSrc.Substring(0, 2)) + Convert.ToDouble(latitudeSrc.Substring(2, 4), provider) / 60), 2);
+                this.coordinate.longitude = Math.Round((Convert.ToInt32(longitudeSrc.Substring(0, 3)) + Convert.ToDouble(longitudeSrc.Substring(3, 5), provider) / 60), 2);
+                this.coordinate.latitude = Math.Round((Convert.ToInt32(latitudeSrc.Substring(0, 2)) + Convert.ToDouble(latitudeSrc.Substring(2, 4), provider) / 60), 2);
             }
             catch (Exception e)
             {
@@ -207,8 +220,7 @@ namespace BinReader
         public int frequency;
         public DateTime timeStart;
         public DateTime timeStop;
-        public double longitude;
-        public double latitude;
+        public Coordinate coordinate;
 
         public BinaryFileInfo(
             string path,
@@ -216,8 +228,7 @@ namespace BinReader
             int frequency,
             DateTime dateTimeStart,
             DateTime dateTimeStop,
-            double longitude,
-            double latitude
+            Coordinate coordinate
             )
         {
             this.path = path;
@@ -225,8 +236,7 @@ namespace BinReader
             this.frequency = frequency;
             this.timeStart = dateTimeStart;
             this.timeStop = dateTimeStop;
-            this.longitude = longitude;
-            this.latitude = latitude;
+            this.coordinate = coordinate;
         }
 
         public string Name
@@ -289,15 +299,14 @@ namespace BinReader
         DateTime OriginDatetimeStop { get; }
         DateTime DatetimeStart { get; }
         DateTime DatetimeStop { get; }
-        Coordinates Coordinates { get; }
-        DateTime ReadDatetimeStart { get; set; }
-        DateTime ReadDatetimeStop { get; set; }
+        Coordinate Coordinate { get; }
+        DateTimeInterval ReadDateTimeInterval { get; set; }
         int StartMoment { get; }
         int ResampleParameter { get; }
         int EndMoment { get; }
         string RecordType { get; }
         Dictionary<string, int> ComponentsIndex { get; }
-        BinaryFileInfo ShortFileInfo { get; }        
+        BinaryFileInfo ShortFileInfo { get; }
         bool IsCorrectResampleFrequency(int value);
         dynamic Resampling(Int32[] signal, int ResampleParameter);
         dynamic GetComponentSignal(string componentName);
@@ -506,64 +515,54 @@ namespace BinReader
                 return this.DatetimeStart.AddSeconds(this.SecondsDuration);
             }
         }
-        
-        public Coordinates Coordinates
-        { 
-            get 
-            {
-                return this._FileHeader.coordinates;
-            } 
-        }        
 
-        public virtual DateTime ReadDatetimeStart
+        public Coordinate Coordinate
         {
             get
             {
-                return this._ReadDatetimeStart;
+                return this._FileHeader.coordinate;
             }
+        }
+        public virtual DateTimeInterval ReadDateTimeInterval
+        {
+            get
+            {
+                return new DateTimeInterval(this._ReadDatetimeStart, this._ReadDatetimeStop);
+            }
+
             set
             {
-                double dt1 = value.Subtract(this.DatetimeStart).TotalSeconds;
-                double dt2 = this.DatetimeStop.Subtract(value).TotalSeconds;
+                double dt1 = value.datetimeStart.Subtract(this.DatetimeStart).TotalSeconds;
+                double dt2 = this.DatetimeStop.Subtract(value.datetimeStart).TotalSeconds;
 
                 if (dt1 >= 0 & dt2 > 0)
                 {
-                    this._ReadDatetimeStart = value;
+                    this._ReadDatetimeStart = value.datetimeStart;
                 }
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid start reading datetime");
                 }
-            }
-        }
 
-        public virtual DateTime ReadDatetimeStop
-        {
-            get
-            {
-                return this._ReadDatetimeStop;
-            }
-            set
-            {
-                double dt1 = value.Subtract(this.DatetimeStart).TotalSeconds;
-                double dt2 = this.DatetimeStop.Subtract(value).TotalSeconds;
+                dt1 = value.datetimeStop.Subtract(this.DatetimeStart).TotalSeconds;
+                dt2 = this.DatetimeStop.Subtract(value.datetimeStop).TotalSeconds;
 
                 if (dt1 > 0 & dt2 >= 0)
                 {
-                    this._ReadDatetimeStop = value;
+                    this._ReadDatetimeStop = value.datetimeStop;
                 }
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid stop reading datetime");
                 }
             }
-        }
-
+        }        
+        
         public virtual int StartMoment
         {
             get
             {
-                TimeSpan dtDiff = this.ReadDatetimeStart.Subtract(this.DatetimeStart);
+                TimeSpan dtDiff = this.ReadDateTimeInterval.datetimeStart.Subtract(this.DatetimeStart);                
                 double dtSeconds = dtDiff.TotalSeconds;
                 return Convert.ToInt32(Math.Round(dtSeconds * this.OriginFrequency));
             }
@@ -582,7 +581,7 @@ namespace BinReader
         {
             get
             {
-                double dt = this.ReadDatetimeStop.Subtract(this.DatetimeStart).TotalSeconds;
+                double dt = this.ReadDateTimeInterval.datetimeStop.Subtract(this.DatetimeStart).TotalSeconds;                
                 int discreetIndex = Convert.ToInt32(Math.Round(dt * this.OriginFrequency));
                 int signalLength = discreetIndex - this.StartMoment;
                 signalLength -= (signalLength % this.ResampleParameter);
@@ -623,11 +622,10 @@ namespace BinReader
                     this.OriginFrequency,
                     this.DatetimeStart,
                     this.DatetimeStop,
-                    this.Coordinates.longitude,
-                    this.Coordinates.latitude);
+                    this.Coordinate);
                 return value;
             }
-        }        
+        }
 
         public virtual bool IsCorrectResampleFrequency(int value)
         {
