@@ -35,6 +35,17 @@ namespace BinReader
             }
         }
     }
+    public class Coordinates 
+    {
+        public double longitude;
+        public double latitude;
+
+        public Coordinates(double longitude, double latitude)
+        {
+            this.longitude = longitude;
+            this.latitude = latitude;
+        }
+    }
     public interface IFileHeader
     {
         dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0);
@@ -49,8 +60,7 @@ namespace BinReader
         public int channelCount;
         public int frequency;
         public DateTime datetimeStart;
-        public double longitude;
-        public double latitude;
+        public Coordinates coordinates;
 
         public FileHeader(string path)
         {
@@ -125,8 +135,8 @@ namespace BinReader
             this.frequency = BinaryRead(path, "uint16", 1, 22);
             ulong timeBegin = BinaryRead(path, "long", 1, 104);
             this.datetimeStart = GetDatetimeStartBaikal7(timeBegin);
-            this.longitude = BinaryRead(path, "double", 1, 80);
-            this.latitude = BinaryRead(path, "double", 1, 72);
+            this.coordinates.longitude = Math.Round(BinaryRead(path, "double", 1, 80), 6);
+            this.coordinates.latitude = Math.Round(BinaryRead(path, "double", 1, 72), 6);
         }
 
         public virtual void ReadBaikal8Header(string path)
@@ -137,8 +147,8 @@ namespace BinReader
             int year = BinaryRead(path, "uint16", 1, 10);
             double dt = BinaryRead(path, "double", 1, 48);
             double seconds = BinaryRead(path, "double", 1, 56);
-            this.latitude = BinaryRead(path, "double", 1, 72);
-            this.longitude = BinaryRead(path, "double", 1, 80);
+            this.coordinates.latitude = Math.Round(BinaryRead(path, "double", 1, 72), 6);
+            this.coordinates.longitude = Math.Round(BinaryRead(path, "double", 1, 80), 6);
             this.datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
             this.frequency = Convert.ToInt16(1 / dt);
         }
@@ -173,8 +183,8 @@ namespace BinReader
 
             try
             {
-                this.longitude = Math.Round((Convert.ToInt32(longitudeSrc.Substring(0, 3)) + Convert.ToDouble(longitudeSrc.Substring(3, 5), provider) / 60), 2);
-                this.latitude = Math.Round((Convert.ToInt32(latitudeSrc.Substring(0, 2)) + Convert.ToDouble(latitudeSrc.Substring(2, 4), provider) / 60), 2);
+                this.coordinates.longitude = Math.Round((Convert.ToInt32(longitudeSrc.Substring(0, 3)) + Convert.ToDouble(longitudeSrc.Substring(3, 5), provider) / 60), 2);
+                this.coordinates.latitude = Math.Round((Convert.ToInt32(latitudeSrc.Substring(0, 2)) + Convert.ToDouble(latitudeSrc.Substring(2, 4), provider) / 60), 2);
             }
             catch (Exception e)
             {
@@ -279,8 +289,7 @@ namespace BinReader
         DateTime OriginDatetimeStop { get; }
         DateTime DatetimeStart { get; }
         DateTime DatetimeStop { get; }
-        double Longitude { get; }
-        double Latitude { get; }
+        Coordinates Coordinates { get; }
         DateTime ReadDatetimeStart { get; set; }
         DateTime ReadDatetimeStop { get; set; }
         int StartMoment { get; }
@@ -497,22 +506,14 @@ namespace BinReader
                 return this.DatetimeStart.AddSeconds(this.SecondsDuration);
             }
         }
-
-        public virtual double Longitude
-        {
-            get
+        
+        public Coordinates Coordinates
+        { 
+            get 
             {
-                return Math.Round(this._FileHeader.longitude, 6);
-            }
-        }
-
-        public virtual double Latitude
-        {
-            get
-            {
-                return Math.Round(this._FileHeader.latitude, 6);
-            }
-        }
+                return this._FileHeader.coordinates;
+            } 
+        }        
 
         public virtual DateTime ReadDatetimeStart
         {
@@ -622,8 +623,8 @@ namespace BinReader
                     this.OriginFrequency,
                     this.DatetimeStart,
                     this.DatetimeStop,
-                    this.Longitude,
-                    this.Latitude);
+                    this.Coordinates.longitude,
+                    this.Coordinates.latitude);
                 return value;
             }
         }        
