@@ -35,27 +35,151 @@ namespace BinReader
             }
         }
     }
-
-    public class FileHeader
+    public interface IFileHeader
     {
-        public readonly int channelCount;
-        public readonly int frequency;
-        public readonly DateTime datetimeStart;
-        public readonly double longitude;
-        public readonly double latitude;
+        dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0);
+        DateTime GetDatetimeStartBaikal7(ulong timeBegin);
+        void ReadBaikal7Header(string path);
+        void ReadBaikal8Header(string path);
+        void ReadSigmaHeader(string path);
+    }
 
-        public FileHeader(
-            int channelCount,
-            int frequency,
-            DateTime datetimeStart,
-            double longitude,
-            double latitude)
+    public class FileHeader : IFileHeader
+    {
+        public int channelCount;
+        public int frequency;
+        public DateTime datetimeStart;
+        public double longitude;
+        public double latitude;
+
+        public FileHeader(string path)
         {
-            this.channelCount = channelCount;
-            this.frequency = frequency;
-            this.datetimeStart = datetimeStart;
-            this.longitude = longitude;
-            this.latitude = latitude;
+            string extension = Path.GetExtension(path).Substring(1);
+
+            if (Constants.BinaryFileFormats.ContainsValue(extension))
+            {
+                if (extension == Constants.Baikal7Extension)
+                {
+                    ReadBaikal7Header(path);
+                }
+                else if (extension == Constants.Baikal8Extension)
+                {
+                    ReadBaikal8Header(path);
+                }
+                else if (extension == Constants.SigmaExtension)
+                {
+                    ReadSigmaHeader(path);
+                }
+            }
+        }
+
+        public virtual dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
+        {
+            dynamic returnedValue;
+
+            using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                fileStream.Position = SkippingBytes;
+
+                using (BinaryReader binreader = new BinaryReader(fileStream))
+                {
+                    switch (type)
+                    {
+                        case "uint16":
+                            returnedValue = binreader.ReadUInt16();
+                            break;
+
+                        case "uint32":
+                            returnedValue = binreader.ReadUInt32();
+                            break;
+
+                        case "double":
+                            returnedValue = binreader.ReadDouble();
+                            break;
+
+                        case "long":
+                            returnedValue = binreader.ReadUInt64();
+                            break;
+
+                        case "string":
+                            returnedValue = new string(binreader.ReadChars(count));
+                            break;
+
+                        default:
+                            return null;
+                    }
+                }
+            }
+            return returnedValue;
+        }
+
+        public virtual DateTime GetDatetimeStartBaikal7(ulong timeBegin)
+        {
+            ulong seconds = timeBegin / 256000000;
+            return Constants.Baikal7BaseDateTime.AddSeconds(seconds);
+        }
+
+        public virtual void ReadBaikal7Header(string path)
+        {
+            this.channelCount = BinaryRead(path, "uint16", 1, 0);
+            this.frequency = BinaryRead(path, "uint16", 1, 22);
+            ulong timeBegin = BinaryRead(path, "long", 1, 104);
+            this.datetimeStart = GetDatetimeStartBaikal7(timeBegin);
+            this.longitude = BinaryRead(path, "double", 1, 80);
+            this.latitude = BinaryRead(path, "double", 1, 72);
+        }
+
+        public virtual void ReadBaikal8Header(string path)
+        {
+            this.channelCount = BinaryRead(path, "uint16", 1, 0);
+            int day = BinaryRead(path, "uint16", 1, 6);
+            int month = BinaryRead(path, "uint16", 1, 8);
+            int year = BinaryRead(path, "uint16", 1, 10);
+            double dt = BinaryRead(path, "double", 1, 48);
+            double seconds = BinaryRead(path, "double", 1, 56);
+            this.latitude = BinaryRead(path, "double", 1, 72);
+            this.longitude = BinaryRead(path, "double", 1, 80);
+            this.datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
+            this.frequency = Convert.ToInt16(1 / dt);
+        }
+
+        public virtual void ReadSigmaHeader(string path)
+        {
+            this.channelCount = BinaryRead(path, "uint16", 1, 12);
+            this.frequency = BinaryRead(path, "uint16", 1, 24);
+            string latitudeSrc = BinaryRead(path, "string", 8, 40);
+            string longitudeSrc = BinaryRead(path, "string", 9, 48);
+            string dateSrc = Convert.ToString(BinaryRead(path, "uint32", 1, 60));
+            string timeSrc = Convert.ToString(BinaryRead(path, "uint32", 1, 64));
+            timeSrc = timeSrc.PadLeft(6, '0');
+            int year = 2000 + Convert.ToInt32(dateSrc.Substring(0, 2));
+            int month = Convert.ToInt32(dateSrc.Substring(2, 2));
+            int day = Convert.ToInt32(dateSrc.Substring(4));
+            int hours = Convert.ToInt32(timeSrc.Substring(0, 2));
+            int minutes = Convert.ToInt32(timeSrc.Substring(2, 2));
+            int seconds = Convert.ToInt32(timeSrc.Substring(4));
+
+            NumberFormatInfo provider = new NumberFormatInfo();
+            provider.NumberDecimalSeparator = ".";
+
+            try
+            {
+                this.datetimeStart = new DateTime(year, month, day, hours, minutes, seconds);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidDateTimeValue("Invalid start reading datetime: " + Convert.ToString(e));
+            }
+
+            try
+            {
+                this.longitude = Math.Round((Convert.ToInt32(longitudeSrc.Substring(0, 3)) + Convert.ToDouble(longitudeSrc.Substring(3, 5), provider) / 60), 2);
+                this.latitude = Math.Round((Convert.ToInt32(latitudeSrc.Substring(0, 2)) + Convert.ToDouble(latitudeSrc.Substring(2, 4), provider) / 60), 2);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidCoordinates("Invalid coordinates: " + Convert.ToString(e));
+            }
         }
     }
 
@@ -140,11 +264,6 @@ namespace BinReader
 
     public interface IBinarySeismicFile
     {
-        dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0);
-        DateTime GetDatetimeStartBaikal7(ulong timeBegin);
-        FileHeader ReadBaikal7Header(string path);
-        FileHeader ReadBaikal8Header(string path);
-        FileHeader ReadSigmaHeader(string path);
         bool IsBinaryFileAtPath(string path);
         string GetPath { get; }
         bool IsUseAvgValues { get; }
@@ -169,8 +288,7 @@ namespace BinReader
         int EndMoment { get; }
         string RecordType { get; }
         Dictionary<string, int> ComponentsIndex { get; }
-        BinaryFileInfo ShortFileInfo { get; }
-        dynamic GetFileHeader { get; }
+        BinaryFileInfo ShortFileInfo { get; }        
         bool IsCorrectResampleFrequency(int value);
         dynamic Resampling(Int32[] signal, int ResampleParameter);
         dynamic GetComponentSignal(string componentName);
@@ -199,7 +317,7 @@ namespace BinReader
             }
 
             this._Path = filePath;
-            this._FileHeader = this.GetFileHeader;
+            this._FileHeader = new FileHeader(this._Path);
             this._IsUseAvgValues = isUseAvgValues;
 
             if (this.IsCorrectResampleFrequency(resampleFrequency) == true)
@@ -213,124 +331,6 @@ namespace BinReader
 
             this._ReadDatetimeStart = this.DatetimeStart;
             this._ReadDatetimeStop = this.DatetimeStop;
-        }
-
-        public virtual dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
-        {
-            dynamic returnedValue;
-
-            using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                fileStream.Position = SkippingBytes;
-
-                using (BinaryReader binreader = new BinaryReader(fileStream))
-                {
-                    switch (type)
-                    {
-                        case "uint16":
-                            returnedValue = binreader.ReadUInt16();
-                            break;
-
-                        case "uint32":
-                            returnedValue = binreader.ReadUInt32();
-                            break;
-
-                        case "double":
-                            returnedValue = binreader.ReadDouble();
-                            break;
-
-                        case "long":
-                            returnedValue = binreader.ReadUInt64();
-                            break;
-
-                        case "string":
-                            returnedValue = new string(binreader.ReadChars(count));
-                            break;
-
-                        default:
-                            return null;
-                    }
-                }
-            }
-            return returnedValue;
-        }
-
-        public virtual DateTime GetDatetimeStartBaikal7(ulong timeBegin)
-        {
-            ulong seconds = timeBegin / 256000000;
-            return Constants.Baikal7BaseDateTime.AddSeconds(seconds);
-        }
-
-        public virtual FileHeader ReadBaikal7Header(string path)
-        {
-            int channelCount = BinaryRead(path, "uint16", 1, 0);
-            int frequency = BinaryRead(path, "uint16", 1, 22);
-            ulong timeBegin = BinaryRead(path, "long", 1, 104);
-            double longitude = BinaryRead(path, "double", 1, 80);
-            double latitude = BinaryRead(path, "double", 1, 72);
-            DateTime datetime = GetDatetimeStartBaikal7(timeBegin);
-
-            return new FileHeader(channelCount, frequency, datetime, longitude, latitude);
-        }
-
-        public virtual FileHeader ReadBaikal8Header(string path)
-        {
-            int channelCount = BinaryRead(path, "uint16", 1, 0);
-            int day = BinaryRead(path, "uint16", 1, 6);
-            int month = BinaryRead(path, "uint16", 1, 8);
-            int year = BinaryRead(path, "uint16", 1, 10);
-            double dt = BinaryRead(path, "double", 1, 48);
-            double seconds = BinaryRead(path, "double", 1, 56);
-            double latitude = BinaryRead(path, "double", 1, 72);
-            double longitude = BinaryRead(path, "double", 1, 80);
-            DateTime datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
-            int frequency = Convert.ToInt16(1 / dt);
-
-            return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
-        }
-
-        public virtual FileHeader ReadSigmaHeader(string path)
-        {
-            DateTime datetimeStart = new DateTime(1999, 1, 1);
-            double longitude = 0;
-            double latitude = 0;
-            int channelCount = BinaryRead(path, "uint16", 1, 12);
-            int frequency = BinaryRead(path, "uint16", 1, 24);
-            string latitudeSrc = BinaryRead(path, "string", 8, 40);
-            string longitudeSrc = BinaryRead(path, "string", 9, 48);
-            string dateSrc = Convert.ToString(BinaryRead(path, "uint32", 1, 60));
-            string timeSrc = Convert.ToString(BinaryRead(path, "uint32", 1, 64));
-            timeSrc = timeSrc.PadLeft(6, '0');
-            int year = 2000 + Convert.ToInt32(dateSrc.Substring(0, 2));
-            int month = Convert.ToInt32(dateSrc.Substring(2, 2));
-            int day = Convert.ToInt32(dateSrc.Substring(4));
-            int hours = Convert.ToInt32(timeSrc.Substring(0, 2));
-            int minutes = Convert.ToInt32(timeSrc.Substring(2, 2));
-            int seconds = Convert.ToInt32(timeSrc.Substring(4));
-
-            NumberFormatInfo provider = new NumberFormatInfo();
-            provider.NumberDecimalSeparator = ".";
-
-            try
-            {
-                datetimeStart = new DateTime(year, month, day, hours, minutes, seconds);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidDateTimeValue("Invalid start reading datetime: " + Convert.ToString(e));
-            }
-
-            try
-            {
-                longitude = Math.Round((Convert.ToInt32(longitudeSrc.Substring(0, 3)) + Convert.ToDouble(longitudeSrc.Substring(3, 5), provider) / 60), 2);
-                latitude = Math.Round((Convert.ToInt32(latitudeSrc.Substring(0, 2)) + Convert.ToDouble(latitudeSrc.Substring(2, 4), provider) / 60), 2);
-            }
-            catch (Exception e)
-            {
-                throw new InvalidCoordinates("Invalid coordinates: " + Convert.ToString(e));
-            }
-
-            return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
         }
 
         public virtual bool IsBinaryFileAtPath(string path)
@@ -626,30 +626,7 @@ namespace BinReader
                     this.Latitude);
                 return value;
             }
-        }
-
-        public virtual dynamic GetFileHeader
-        {
-            get
-            {
-                string extension = Path.GetExtension(this._Path).Substring(1);
-
-                if (extension == Constants.Baikal7Extension)
-                {
-                    return ReadBaikal7Header(this._Path);
-                }
-                else if (extension == Constants.Baikal8Extension)
-                {
-                    return ReadBaikal8Header(this._Path);
-                }
-                else if (extension == Constants.SigmaExtension)
-                {
-                    return ReadSigmaHeader(this._Path);
-                }
-                else
-                    return null;
-            }
-        }
+        }        
 
         public virtual bool IsCorrectResampleFrequency(int value)
         {
