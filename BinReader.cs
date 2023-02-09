@@ -64,9 +64,9 @@ namespace BinReader
     {
         dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0);
         DateTime GetDatetimeStartBaikal7(ulong timeBegin);
-        void ReadBaikal7Header(string path);
-        void ReadBaikal8Header(string path);
-        void ReadSigmaHeader(string path);
+        bool ReadBaikal7Header(string path);
+        bool ReadBaikal8Header(string path);
+        bool ReadSigmaHeader(string path);
     }
 
     public class FileHeader : IFileHeader
@@ -143,7 +143,7 @@ namespace BinReader
             return Constants.Baikal7BaseDateTime.AddSeconds(seconds);
         }
 
-        public virtual void ReadBaikal7Header(string path)
+        public virtual bool ReadBaikal7Header(string path)
         {
             this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 0);
             this.frequency = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 22);
@@ -151,9 +151,11 @@ namespace BinReader
             this.datetimeStart = GetDatetimeStartBaikal7(timeBegin);
             this.coordinate.longitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 80), 6);
             this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);
+
+            return true;
         }
 
-        public virtual void ReadBaikal8Header(string path)
+        public virtual bool ReadBaikal8Header(string path)
         {
             this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 0);
             int day = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 6);
@@ -165,9 +167,11 @@ namespace BinReader
             this.coordinate.longitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 80), 6);
             this.datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
             this.frequency = Convert.ToInt16(1 / dt);
+            
+            return true;
         }
 
-        public virtual void ReadSigmaHeader(string path)
+        public virtual bool ReadSigmaHeader(string path)
         {
             this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 12);
             this.frequency = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 24);
@@ -204,6 +208,8 @@ namespace BinReader
             {
                 throw new InvalidCoordinates("Invalid coordinates: " + Convert.ToString(e));
             }
+
+            return true;
         }
     }
 

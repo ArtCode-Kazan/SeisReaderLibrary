@@ -8,21 +8,7 @@ namespace BinaryReaderLibraryTest
 {
     [TestClass]
     public class TestLibrary
-    {
-        [TestMethod]
-        [DataRow(555, "00:09:15,000")]
-        [DataRow(1337, "00:22:17,000")]
-        [DataRow(50000, "13:53:20,000")]        
-        [DataRow(115851, "1 days 08:10:51,000")]
-        [DataRow(82485484, "954 days 16:38:04,000")]
-        public void testFormattedDuration(int secondsAll, string expected)
-        {
-            var mock = new Mock<BinaryFileInfo>("", "", 0, new DateTime(), new DateTime(), 0, 0) { CallBase = true };
-            mock.As<IBinaryFileInfo>().Setup(p => p.DurationInSeconds).Returns(secondsAll);
-            string actual = mock.Object.FormattedDuration;
-            Assert.AreEqual(expected, actual);
-        }
-
+    {        
         [TestMethod]
         [DataRow(555)]
         [DataRow(1337)]
@@ -33,18 +19,26 @@ namespace BinaryReaderLibraryTest
         {
             timeBegin = timeBegin / 256000000;
             DateTime expected = new DateTime(1980, 1, 1).AddSeconds(timeBegin);
+            var mock = new Mock<FileHeader>("123.00") { CallBase = true };
+            mock.As<IFileHeader>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(true);            
+            
+            var actual = mock.Object.GetDatetimeStartBaikal7((ulong)timeBegin);
+            
+            Assert.AreEqual(expected, actual);
+        }
 
-            var mock = new Mock<BinarySeismicFile>("", 0, false) { CallBase = true };            
-            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(0);
-           //mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStart).Returns(new DateTime());
-           // mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStop).Returns(new DateTime());
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            //mock.As<IBinarySeismicFile>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
-            //mock.As<IBinarySeismicFile>().Setup(p => p.GetFileHeader).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));            
-
-            //var actual = mock.Object.GetDatetimeStartBaikal7((ulong)timeBegin);
-                      
-            //Assert.AreEqual(expected, actual);
+        [TestMethod]
+        [DataRow(555, "00:09:15,000")]
+        [DataRow(1337, "00:22:17,000")]
+        [DataRow(50000, "13:53:20,000")]
+        [DataRow(115851, "1 days 08:10:51,000")]
+        [DataRow(82485484, "954 days 16:38:04,000")]
+        public void testFormattedDuration(int secondsAll, string expected)
+        {
+            var mock = new Mock<BinaryFileInfo>("", "", 0, new DateTime(), new DateTime(), 0, 0) { CallBase = true };
+            mock.As<IBinaryFileInfo>().Setup(p => p.DurationInSeconds).Returns(secondsAll);
+            string actual = mock.Object.FormattedDuration;
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
