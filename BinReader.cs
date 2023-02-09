@@ -296,7 +296,7 @@ namespace BinReader
         double SecondsDuration { get; }
         Coordinate Coordinate { get; }
         DateTimeInterval OriginDateTimeInterval { get; }
-        DateTimeInterval DateTimeInterval { get; }
+        DateTimeInterval RecordDateTimeInterval { get; }
         DateTimeInterval ReadDateTimeInterval { get; set; }
         int StartMoment { get; }
         int ResampleParameter { get; }
@@ -316,8 +316,7 @@ namespace BinReader
         public readonly string _Path;
         public readonly bool _IsUseAvgValues;
         public readonly FileHeader _FileHeader;
-        public DateTime _ReadDatetimeStart;
-        public DateTime _ReadDatetimeStop;
+        public DateTimeInterval _ReadDatetimeInterval;        
 
         public int _ResampleFrequency;
         public bool _IsCorrectResampleFrequency;
@@ -344,8 +343,7 @@ namespace BinReader
                 throw new InvalidResampleFrequency();
             }
 
-            this._ReadDatetimeStart = this.DateTimeInterval.start;
-            this._ReadDatetimeStop = this.DateTimeInterval.stop;
+            this._ReadDatetimeInterval = this.RecordDateTimeInterval;           
         }
 
         public virtual bool IsBinaryFileAtPath(string path)
@@ -488,7 +486,7 @@ namespace BinReader
             }
         }
 
-        public virtual DateTimeInterval DateTimeInterval
+        public virtual DateTimeInterval RecordDateTimeInterval
         {
             get
             {
@@ -513,29 +511,29 @@ namespace BinReader
         {
             get
             {
-                return new DateTimeInterval(this._ReadDatetimeStart, this._ReadDatetimeStop);
+                return this._ReadDatetimeInterval;
             }
 
             set
             {
-                double dt1 = value.start.Subtract(this.DateTimeInterval.start).TotalSeconds;
-                double dt2 = this.DateTimeInterval.stop.Subtract(value.start).TotalSeconds;
+                double dt1 = value.start.Subtract(this.RecordDateTimeInterval.start).TotalSeconds;
+                double dt2 = this.RecordDateTimeInterval.stop.Subtract(value.start).TotalSeconds;
 
                 if (dt1 >= 0 & dt2 > 0)
                 {
-                    this._ReadDatetimeStart = value.start;
+                    this._ReadDatetimeInterval.start = value.start;
                 }
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid start reading datetime");
                 }
 
-                dt1 = value.stop.Subtract(this.DateTimeInterval.start).TotalSeconds;
-                dt2 = this.DateTimeInterval.stop.Subtract(value.stop).TotalSeconds;
+                dt1 = value.stop.Subtract(this.RecordDateTimeInterval.start).TotalSeconds;
+                dt2 = this.RecordDateTimeInterval.stop.Subtract(value.stop).TotalSeconds;
 
                 if (dt1 > 0 & dt2 >= 0)
                 {
-                    this._ReadDatetimeStop = value.stop;
+                    this._ReadDatetimeInterval.stop = value.stop;
                 }
                 else
                 {
@@ -548,7 +546,7 @@ namespace BinReader
         {
             get
             {
-                TimeSpan dtDiff = this.ReadDateTimeInterval.start.Subtract(this.DateTimeInterval.start);
+                TimeSpan dtDiff = this.ReadDateTimeInterval.start.Subtract(this.RecordDateTimeInterval.start);
                 double dtSeconds = dtDiff.TotalSeconds;
                 return Convert.ToInt32(Math.Round(dtSeconds * this.OriginFrequency));
             }
@@ -567,7 +565,7 @@ namespace BinReader
         {
             get
             {
-                double dt = this.ReadDateTimeInterval.stop.Subtract(this.DateTimeInterval.start).TotalSeconds;
+                double dt = this.ReadDateTimeInterval.stop.Subtract(this.RecordDateTimeInterval.start).TotalSeconds;
                 int discreetIndex = Convert.ToInt32(Math.Round(dt * this.OriginFrequency));
                 int signalLength = discreetIndex - this.StartMoment;
                 signalLength -= signalLength % this.ResampleParameter;
@@ -607,7 +605,7 @@ namespace BinReader
                     path: this.GetPath,
                     formatType: this.FormatType,
                     frequency: this.OriginFrequency,
-                    datetimeInterval: this.DateTimeInterval,
+                    datetimeInterval: this.RecordDateTimeInterval,
                     coordinate: this.Coordinate
                 );
             }
