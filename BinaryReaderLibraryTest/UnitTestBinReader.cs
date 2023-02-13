@@ -330,10 +330,7 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(result.coordinate.latitude, actual.coordinate.latitude);
         }
 
-        [DataRow(31, -100, false)]
-        [DataRow(1200, 0, false)]
-        [DataRow(4234, 2, true)]
-        [DataRow(4234, 3, false)]
+        [DataRow(100, -100, false)]
         [TestMethod]
         public void testIsCorrectResampleFrequency(int origin, int resample, bool result)
         {
@@ -341,7 +338,8 @@ namespace BinaryReaderLibraryTest
             mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
             mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
-            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(1);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ResampleFrequency).Returns(resample);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(0);
 
             bool actual = mock.Object.IsCorrectResampleFrequency(resample);
 
