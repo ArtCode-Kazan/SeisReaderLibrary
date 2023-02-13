@@ -3,12 +3,13 @@ using Moq;
 using System;
 using BinReader;
 using System.Collections.Generic;
+using System.IO;
 
 namespace BinaryReaderLibraryTest
 {
     [TestClass]
     public class TestLibrary
-    {        
+    {
         [TestMethod]
         [DataRow(555)]
         [DataRow(1337)]
@@ -20,53 +21,38 @@ namespace BinaryReaderLibraryTest
             timeBegin = timeBegin / 256000000;
             DateTime expected = new DateTime(1980, 1, 1).AddSeconds(timeBegin);
             var mock = new Mock<FileHeader>("123.00") { CallBase = true };
-            mock.As<IFileHeader>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(true);            
-            
-            var actual = mock.Object.GetDatetimeStartBaikal7((ulong)timeBegin);
-            
-            Assert.AreEqual(expected, actual);
-        }
+            mock.As<IFileHeader>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(true);
 
-        [TestMethod]
-        [DataRow(555, "00:09:15,000")]
-        [DataRow(1337, "00:22:17,000")]
-        [DataRow(50000, "13:53:20,000")]
-        [DataRow(115851, "1 days 08:10:51,000")]
-        [DataRow(82485484, "954 days 16:38:04,000")]
-        public void testFormattedDuration(int secondsAll, string expected)
-        {
-            var mock = new Mock<BinaryFileInfo>("", "", 0, new DateTime(), new DateTime(), 0, 0) { CallBase = true };
-            mock.As<IBinaryFileInfo>().Setup(p => p.DurationInSeconds).Returns(secondsAll);
-            string actual = mock.Object.FormattedDuration;
+            var actual = mock.Object.GetDatetimeStartBaikal7((ulong)timeBegin);
+
             Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
         public void testReadBaikal7Header()
         {
-            //var expected = new FileHeader(0, 0, new DateTime(), 0, 0);
-
-            var mock = new Mock<BinarySeismicFile>("", 0, false) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(0);
-            //mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStart).Returns(new DateTime());
-            //mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStop).Returns(new DateTime());
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            //mock.As<IBinarySeismicFile>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
-            //mock.As<IBinarySeismicFile>().Setup(p => p.GetFileHeader).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
+            var mock = new Mock<FileHeader>("123.00") { CallBase = true };
             //mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            //.Returns(1)
-            //.Returns(2)
-            //.Returns(new DateTime())
-            //.Returns(4)
-            //.Returns(5);
+            //.Returns((int)1)
+            //.Returns((int)2)
+            //.Returns((ulong)0)
+            //.Returns((double)4)
+            //.Returns((double)5);
 
-            ////var actual = mock.Object.ReadBaikal7Header("");
+            mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(1)
+            .Returns(2)
+            .Returns((ulong)0)
+            .Returns(4)
+            .Returns(5);
 
-            //Assert.AreEqual(expected.longitude, actual.longitude);
-            //Assert.AreEqual(expected.latitude, actual.latitude);
-            //Assert.AreEqual(expected.channelCount, actual.channelCount);
-            //Assert.AreEqual(expected.frequency, actual.frequency);
-            //Assert.AreEqual(expected.datetimeStart, actual.datetimeStart);
+            mock.Object.ReadBaikal7Header("123.00");
+
+            Assert.AreEqual(1, mock.Object.channelCount);
+            Assert.AreEqual(2, mock.Object.frequency);
+            Assert.AreEqual(Constants.Baikal7BaseDateTime, mock.Object.datetimeStart);
+            Assert.AreEqual(4.123123, mock.Object.coordinate.longitude);
+            Assert.AreEqual(5.123123, mock.Object.coordinate.latitude);
         }
 
         [TestMethod]
@@ -131,6 +117,85 @@ namespace BinaryReaderLibraryTest
             //Assert.AreEqual(expected.channelCount, actual.channelCount);
             //Assert.AreEqual(expected.frequency, actual.frequency);
             //Assert.AreEqual(expected.datetimeStart, actual.datetimeStart);
+        }
+
+        [DataRow("gsdfgdf/bala.bol", "bala.bol")]
+        [DataRow("gsd?/fgd/f/12.l", "12.l")]
+        [DataRow("y543-0/g5/f", "f")]
+        [DataRow("6hrte/3g/", "")]
+        [TestMethod]
+        public void testName(string path, string expected)
+        {            
+            var mock = new Mock<BinaryFileInfo>(path, "",0,new DateTimeInterval(new DateTime(),new DateTime()), new Coordinate(0,0));
+            var actual = mock.Object.Name;
+            Assert.AreEqual(expected, actual);
+        }
+
+        [DataRow(0)]
+        [DataRow(12321)]
+        [DataRow(734)]
+        [DataRow(74567456)]
+        [DataRow(2147483647)]
+        [TestMethod]
+        public void testDurationInSeconds(int seconds)
+        {
+            DateTime startDate = new DateTime();
+            DateTime stopDate = startDate.AddSeconds(seconds);
+            DateTimeInterval interval = new DateTimeInterval(startDate, stopDate);
+            var mock = new Mock<BinaryFileInfo>("", "", 0, interval, new Coordinate(0, 0)) {CallBase = true};            
+            var actual = mock.Object.DurationInSeconds;
+            Assert.AreEqual(seconds, actual);
+        }
+
+        [TestMethod]
+        [DataRow(555, "00:09:15,000")]
+        [DataRow(1337, "00:22:17,000")]
+        [DataRow(50000, "13:53:20,000")]
+        [DataRow(115851, "1 days 08:10:51,000")]
+        [DataRow(82485484, "954 days 16:38:04,000")]
+        public void testFormattedDuration(int secondsAll, string expected)
+        {
+            var mock = new Mock<BinaryFileInfo>("", "", 0, new DateTimeInterval(new DateTime(), new DateTime()), new Coordinate(0, 0)) { CallBase = true };
+            mock.As<IBinaryFileInfo>().Setup(p => p.DurationInSeconds).Returns(secondsAll);
+            string actual = mock.Object.FormattedDuration;
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        [DataRow("gdf.00", true)]
+        [DataRow("gdf.xx", true)]
+        [DataRow("gdf.00", true)]
+        [DataRow("gdf.oo", false)]
+        [DataRow("gdf.hgf", false)]
+        public void testIsBinaryFileAtPath(string path, bool result)
+        {
+
+            File.Create(@"C:\Windows\Temp\"+path);
+            
+            var mock = new Mock<BinarySeismicFile>("123.10", 1, false) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.10")).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
+            bool actual = mock.Object.IsBinaryFileAtPath(@"C:\Windows\Temp\" + path);
+            File.Delete(path);
+            Assert.AreEqual(result, actual);
+        }
+
+        [TestMethod]
+        [DataRow("00", "Baikal7")]
+        [DataRow("xx", "Baikal8")]
+        [DataRow("bin", "Sigma")]
+        [DataRow("oo", null)]
+        [DataRow("txt", null)]
+        public void testFormatType(string ext, string result)
+        {
+            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1, true) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
+            mock.As<IBinarySeismicFile>().Setup(p => p.FileExtension).Returns(ext); 
+            string actual = mock.Object.FormatType;     
+            Assert.AreEqual(result, actual);
         }
 
         [TestMethod]
@@ -371,7 +436,7 @@ namespace BinaryReaderLibraryTest
             }
             BinarySeismicFile binFile = new BinarySeismicFile(path);
             //DateTime actual = binFile.DatetimeStart;
-           /// Assert.AreEqual(originDateTimeStart, actual);
+            /// Assert.AreEqual(originDateTimeStart, actual);
         }
 
         [TestMethod]
@@ -442,7 +507,7 @@ namespace BinaryReaderLibraryTest
                 originDateTimeStart = new DateTime(2022, 9, 19, 8, 38, 45);
             }
             BinarySeismicFile binFile = new BinarySeismicFile(path);
-            DateTime actual = binFile.ReadDateTimeInterval.start;            
+            DateTime actual = binFile.ReadDateTimeInterval.start;
             Assert.AreEqual(originDateTimeStart, actual);
         }
 
@@ -578,13 +643,13 @@ namespace BinaryReaderLibraryTest
 
             BinarySeismicFile binFile = new BinarySeismicFile(path);
             BinaryFileInfo actual = binFile.ShortFileInfo;
-           //Assert.AreEqual(actual.path, expectedInfo.path);
-           // Assert.AreEqual(actual.formatType, expectedInfo.formatType);
-           // Assert.AreEqual(actual.frequency, expectedInfo.frequency);
-           // Assert.AreEqual(actual.timeStart, expectedInfo.timeStart);
-           // Assert.AreEqual(actual.timeStop, expectedInfo.timeStop);
-           // Assert.AreEqual(actual.longitude, expectedInfo.longitude);
-           // //Assert.AreEqual(actual.latitude, expectedInfo.latitude);
+            //Assert.AreEqual(actual.path, expectedInfo.path);
+            // Assert.AreEqual(actual.formatType, expectedInfo.formatType);
+            // Assert.AreEqual(actual.frequency, expectedInfo.frequency);
+            // Assert.AreEqual(actual.timeStart, expectedInfo.timeStart);
+            // Assert.AreEqual(actual.timeStop, expectedInfo.timeStop);
+            // Assert.AreEqual(actual.longitude, expectedInfo.longitude);
+            // //Assert.AreEqual(actual.latitude, expectedInfo.latitude);
         }
 
         [TestMethod]

@@ -74,7 +74,7 @@ namespace BinReader
         public int channelCount;
         public int frequency;
         public DateTime datetimeStart;
-        public Coordinate coordinate;
+        public Coordinate coordinate = new Coordinate(0, 0);
 
         public FileHeader(string path)
         {
