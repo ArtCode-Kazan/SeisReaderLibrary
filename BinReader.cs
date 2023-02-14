@@ -319,9 +319,9 @@ namespace BinReader
 
     public class BinarySeismicFile : IBinarySeismicFile
     {
-        public readonly string _Path;
-        public readonly bool _IsUseAvgValues;
-        public readonly FileHeader _FileHeader;
+        public string _Path;
+        public bool _IsUseAvgValues;
+        public FileHeader _FileHeader;
         public DateTimeInterval _ReadDatetimeInterval;        
 
         public int _ResampleFrequency;

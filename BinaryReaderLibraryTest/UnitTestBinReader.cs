@@ -179,6 +179,63 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(result, actual);
         }
 
+        [DataRow("gdf.6x")]
+        [DataRow("fds/fsd/1fsd.sa")]
+        [TestMethod]
+        public void testGetPath(string path)
+        {            
+            var mock = new Mock<BinarySeismicFile>(path, 1, false) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(path)).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(123);
+            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(123);
+            string actual = mock.Object.GetPath;
+            Assert.AreEqual(path, actual);
+        }
+
+        [DataRow(true)]
+        [DataRow(false)]
+        [TestMethod]
+        public void testIsUseAvgValues(bool avg)
+        {
+            var mock = new Mock<BinarySeismicFile>("123.1", 1, avg) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.1")).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(123);
+            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(123);
+            bool actual = mock.Object.IsUseAvgValues;
+            Assert.AreEqual(avg, actual);
+        }
+
+        [DataRow(123)]
+        [DataRow(321)]
+        [TestMethod]
+        public void testResampleFrequency(int freq)
+        {
+            var mock = new Mock<BinarySeismicFile>("123.1", freq, false) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.1")).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(123);
+            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(123);
+            int actual = mock.Object.ResampleFrequency;
+            Assert.AreEqual(freq, actual);
+        }
+
+        [DataRow("gdf/sdf/text.tst", "tst")]
+        [DataRow("gdf.qwe", "qwe")]
+        [TestMethod]
+        public void testFileExtension(string path, string ext)
+        {
+            var mock = new Mock<BinarySeismicFile>("123.1", 1, false) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.1")).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(123);
+            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(123);
+            mock.As<IBinarySeismicFile>().Setup(p => p.GetPath).Returns(path);
+            string actual = mock.Object.FileExtension;
+            Assert.AreEqual(ext, actual);
+        }
+
         [TestMethod]
         [DataRow("00", "Baikal7")]
         [DataRow("xx", "Baikal8")]
@@ -214,17 +271,35 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testDiscreteAmount()
         {
+            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.00", 1, true) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.HeaderMemorySize).Returns(336);
+            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
+
+            var mockf = new Mock<FileHeader>("123.00") { CallBase = true };
+            mock.As<IFileHeader>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(true);
+
+            mock.Object._FileHeader = new FileHeader("123");
+            int actual = mock.Object.DiscreteAmount;
+                        
+
+            Random rnd = new Random();
+
             using (var stream = File.Open("exampleFile", FileMode.Create))
             {
                 using (var writer = new BinaryWriter(stream))
                 {
-                    for (int i = 0; i < 10240000; i++)
+                    for (int i = 0; i < rnd.Next(80000, 10000000); i++)
                     { writer.Write(BitConverter.GetBytes((Int32)2)); ; }
                 }
-            }
+            }            
+
             FileInfo file = new FileInfo("exampleFile");
             long fileSize = file.Length;
+            int expected = (int)((fileSize - mock.Object.HeaderMemorySize) / (3 * sizeof(int)));
 
+            Assert.AreEqual(expected, actual);
         }
 
         [DataRow(3, 10)]
