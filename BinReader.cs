@@ -312,9 +312,9 @@ namespace BinReader
         BinaryFileInfo ShortFileInfo { get; }
         bool IsCorrectResampleFrequency(int value);
         Int32[] Resampling(Int32[] signal, int resampleParameter);
-        dynamic GetComponentSignal(string componentName);
-        dynamic ResampleSignal(Int32[] srcSignal);
-        dynamic ReadSignal(string component = "Z");
+        Int32[] GetComponentSignal(string componentName);
+        int[] ResampleSignal(Int32[] srcSignal);
+        Int32[] ReadSignal(string component = "Z");
     }
 
     public class BinarySeismicFile : IBinarySeismicFile
@@ -660,7 +660,7 @@ namespace BinReader
             return resampleSignal;
         }
 
-        public virtual dynamic GetComponentSignal(string componentName)
+        public virtual Int32[] GetComponentSignal(string componentName)
         {
             int columnIndex;
 
@@ -697,7 +697,7 @@ namespace BinReader
             return intArray;
         }
 
-        public virtual dynamic ResampleSignal(Int32[] srcSignal)
+        public virtual int[] ResampleSignal(Int32[] srcSignal)
         {
             if (this.ResampleParameter == 1)
             {
@@ -706,7 +706,7 @@ namespace BinReader
             return this.Resampling(srcSignal, this.ResampleParameter);
         }
 
-        public virtual dynamic ReadSignal(string component = "Z")
+        public virtual Int32[] ReadSignal(string component = "Z")
         {
             component = component.ToUpper();
 

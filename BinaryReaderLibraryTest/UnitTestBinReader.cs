@@ -715,8 +715,6 @@ namespace BinaryReaderLibraryTest
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
 
-            int testetesse = mock.Object.OriginFrequency;
-
             bool actual = mock.Object.IsCorrectResampleFrequency(resample);
 
             Assert.AreEqual(exp, actual);
@@ -739,6 +737,82 @@ namespace BinaryReaderLibraryTest
             {
                 Assert.AreEqual(expected[i], actual[i]);
             }            
+        }
+        
+        [TestMethod]
+        public void testGetComponentSignal()
+        {
+            string filename = "/testGetComponentSignal.binary";
+            string path = Environment.CurrentDirectory + filename;
+
+            Random rnd = new Random();
+            Int32[] signalArr = new Int32[10000];
+
+            for (int i = 0; i < signalArr.Length; i++)
+            {
+                signalArr[i] = rnd.Next(-32768, 32768);
+            }                        
+
+            using (var stream = File.Open(path, FileMode.Create))
+            {
+                using (var bw = new BinaryWriter(stream))
+                {
+                    for (int i = 0; i < signalArr.Length; i++)
+                    {
+                        bw.Write(BitConverter.GetBytes(signalArr[i]), 0, 4);
+                        bw.Seek(8, SeekOrigin.Current);
+                    }
+                }
+            }
+
+            var mock = new Mock<BinarySeismicFile>(path, 1, true) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1);
+            mock.As<IBinarySeismicFile>().Setup(p => p.HeaderMemorySize).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.EndMoment).Returns(signalArr.Length);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ChannelsCount).Returns(3);
+
+            int[] actual = mock.Object.GetComponentSignal("Z");
+
+            //File.Delete(path);            
+
+            for(int i=0; i < signalArr.Length; i++)
+            {
+                Assert.AreEqual(signalArr[i], actual[i]);
+            }
+
+        }
+
+        [DataRow(1, false)]
+        [DataRow(2, true)]
+        [DataRow(0, true)]
+        [DataRow(1432, true)]
+        [TestMethod]
+        public void testResampleSignal(int ResampleParameter, bool isCalled)
+        {
+            int[] signal = new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 99, true) { CallBase = true };
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(99)).Returns(true);
+            mock.As<IBinarySeismicFile>().Setup(p => p.Resampling(It.IsAny<int[]>(), It.IsAny<int>())).Returns(signal);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(ResampleParameter);
+            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(1);
+            mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1);
+
+            int[] actual = mock.Object.ResampleSignal(signal);
+
+            if (isCalled == true)
+            {
+                mock.Verify(p => p.Resampling(It.IsAny<int[]>(), It.IsAny<int>()), Times.Once());
+            }
+            else
+            {
+                mock.Verify(p => p.Resampling(It.IsAny<int[]>(), It.IsAny<int>()), Times.Never());
+            }
         }
 
         [TestMethod]
