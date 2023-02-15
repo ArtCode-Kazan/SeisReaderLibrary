@@ -163,8 +163,8 @@ namespace BinReader
             int year = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 10);
             double dt = BinaryRead(path: path, type: "double", count: 1, skippingBytes: 48);
             double seconds = BinaryRead(path: path, type: "double", count: 1, skippingBytes: 56);
-            this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);
             this.coordinate.longitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 80), 6);
+            this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);            
             this.datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
             this.frequency = Convert.ToInt16(1 / dt);
             

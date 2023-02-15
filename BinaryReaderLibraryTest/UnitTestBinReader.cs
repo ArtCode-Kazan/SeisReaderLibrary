@@ -32,22 +32,15 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadBaikal7Header()
         {
-            var mock = new Mock<FileHeader>("123.00") { CallBase = true };
-            //mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            //.Returns((int)1)
-            //.Returns((int)2)
-            //.Returns((ulong)0)
-            //.Returns((double)4)
-            //.Returns((double)5);
-
+            var mock = new Mock<FileHeader>("123.10") { CallBase = true };           
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(1)
             .Returns(2)
             .Returns((ulong)0)
-            .Returns(4)
-            .Returns(5);
+            .Returns((double)4.12312342543)
+            .Returns((double)5.12312312543);
 
-            mock.Object.ReadBaikal7Header("123.00");
+            bool headerRead = mock.Object.ReadBaikal7Header("123.00");
 
             Assert.AreEqual(1, mock.Object.channelCount);
             Assert.AreEqual(2, mock.Object.frequency);
@@ -58,33 +51,25 @@ namespace BinaryReaderLibraryTest
 
         [TestMethod]
         public void testReadBaikal8Header()
-        {
-            //var expected = new FileHeader(1, 1000, new DateTime(4, 3, 2, 0, 0 , 6), 8, 7);
+        {                        
+            var mock = new Mock<FileHeader>("123.10") { CallBase = true };
+            mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(1) //channel
+            .Returns(2) //day
+            .Returns(3) //month
+            .Returns(4) //year
+            .Returns(0.001) //dt
+            .Returns(6) //seconds
+            .Returns((double)7) // latitude
+            .Returns((double)8); //longitude
 
-            var mock = new Mock<BinarySeismicFile>("", 0, false) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(0);
-            //mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStart).Returns(new DateTime());
-            //mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStop).Returns(new DateTime());
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            //mock.As<IBinarySeismicFile>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
-            //mock.As<IBinarySeismicFile>().Setup(p => p.GetFileHeader).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
-            //mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            //.Returns(1) //channel
-            //.Returns(2) //day
-            //.Returns(3) //month
-            //.Returns(4) //year
-            //.Returns(0.001) //dt
-            //.Returns(6) //seconds
-            //.Returns(7) // latitude
-            //.Returns(8); //longitude
+            var actual = mock.Object.ReadBaikal8Header("123.00");
 
-            //var actual = mock.Object.ReadBaikal8Header("");
-
-            //Assert.AreEqual(expected.longitude, actual.longitude);
-            //Assert.AreEqual(expected.latitude, actual.latitude);
-            //Assert.AreEqual(expected.channelCount, actual.channelCount);
-            //Assert.AreEqual(expected.frequency, actual.frequency);
-            //Assert.AreEqual(expected.datetimeStart, actual.datetimeStart);
+            Assert.AreEqual(1, mock.Object.channelCount);            
+            Assert.AreEqual(1000, mock.Object.frequency);
+            Assert.AreEqual(new DateTime(4, 3, 2).AddSeconds(6), mock.Object.datetimeStart);
+            Assert.AreEqual(7, mock.Object.coordinate.longitude);
+            Assert.AreEqual(8, mock.Object.coordinate.latitude);
         }
 
         [TestMethod]
