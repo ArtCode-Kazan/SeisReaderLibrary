@@ -513,7 +513,7 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(intervalToRead.start, actual.start);
             Assert.AreEqual(intervalToRead.stop, actual.stop);
         }
-        
+
         [DataRow(50, 2, 2, 0, 0, false)]
         [DataRow(60000, 5234, 45678, 0, 0, false)]
         [DataRow(50, 0, 2, 0, 0, false)]
@@ -615,7 +615,7 @@ namespace BinaryReaderLibraryTest
 
             Assert.AreEqual(res, actual);
         }
-        
+
         [DataRow(3, 2)]
         [DataRow(4234, 434)]
         [DataRow(1425344, 84534)]
@@ -626,8 +626,8 @@ namespace BinaryReaderLibraryTest
             exp = exp - (exp % 4);
             exp = exp + startMom;
 
-            DateTime def = new DateTime();            
-            DateTimeInterval recordDateTimeInterval = new DateTimeInterval(def, def.AddSeconds(sec+sec));
+            DateTime def = new DateTime();
+            DateTimeInterval recordDateTimeInterval = new DateTimeInterval(def, def.AddSeconds(sec + sec));
             DateTimeInterval readDateTimeInterval = new DateTimeInterval(def, def.AddSeconds(sec));
 
             var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1000, true) { CallBase = true };
@@ -700,7 +700,7 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(result.coordinate.longitude, actual.coordinate.longitude);
             Assert.AreEqual(result.coordinate.latitude, actual.coordinate.latitude);
         }
-        
+
         [DataRow(100, -100, false)]
         [DataRow(100, 0, true)]
         [DataRow(1000, 100, true)]
@@ -710,7 +710,7 @@ namespace BinaryReaderLibraryTest
         {
             var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 99, true) { CallBase = true };
             mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(99)).Returns(true);            
+            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(99)).Returns(true);
             mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(4);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
@@ -719,7 +719,7 @@ namespace BinaryReaderLibraryTest
 
             Assert.AreEqual(exp, actual);
         }
-        
+
         [DataRow(new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 2, new int[5] { 2, 4, 6, 8, 10 })]
         [DataRow(new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, new int[3] { 3, 6, 9 })]
         [TestMethod]
@@ -736,9 +736,9 @@ namespace BinaryReaderLibraryTest
             for (int i = 0; i < expected.Length; i++)
             {
                 Assert.AreEqual(expected[i], actual[i]);
-            }            
+            }
         }
-        
+
         [TestMethod]
         public void testGetComponentSignal()
         {
@@ -751,7 +751,7 @@ namespace BinaryReaderLibraryTest
             for (int i = 0; i < signalArr.Length; i++)
             {
                 signalArr[i] = rnd.Next(-32768, 32768);
-            }                        
+            }
 
             using (var stream = File.Open(path, FileMode.Create))
             {
@@ -777,13 +777,12 @@ namespace BinaryReaderLibraryTest
 
             int[] actual = mock.Object.GetComponentSignal("Z");
 
-            File.Delete(path);            
+            File.Delete(path);
 
-            for(int i=0; i < signalArr.Length; i++)
+            for (int i = 0; i < signalArr.Length; i++)
             {
                 Assert.AreEqual(signalArr[i], actual[i]);
             }
-
         }
 
         [DataRow(1, false)]
@@ -825,7 +824,7 @@ namespace BinaryReaderLibraryTest
 
             Int32[] signalArr = new Int32[10000];
 
-            Random rnd = new Random();                        
+            Random rnd = new Random();
             for (int i = 0; i < signalArr.Length; i++)
             {
                 signalArr[i] = rnd.Next(-32768, 32768);
@@ -880,7 +879,6 @@ namespace BinaryReaderLibraryTest
             {
                 Assert.AreEqual(signalAvg[i], actual[i]);
             }
-
         }
 
         [TestMethod]
