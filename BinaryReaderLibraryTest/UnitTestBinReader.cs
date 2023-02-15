@@ -60,49 +60,47 @@ namespace BinaryReaderLibraryTest
             .Returns(4) //year
             .Returns(0.001) //dt
             .Returns(6) //seconds
-            .Returns((double)7) // latitude
-            .Returns((double)8); //longitude
+            .Returns((double)7.7469722438) // latitude
+            .Returns((double)8.166847342); //longitude
 
-            var actual = mock.Object.ReadBaikal8Header("123.00");
+            bool headerRead = mock.Object.ReadBaikal8Header("123.00");
 
             Assert.AreEqual(1, mock.Object.channelCount);            
             Assert.AreEqual(1000, mock.Object.frequency);
             Assert.AreEqual(new DateTime(4, 3, 2).AddSeconds(6), mock.Object.datetimeStart);
-            Assert.AreEqual(7, mock.Object.coordinate.longitude);
-            Assert.AreEqual(8, mock.Object.coordinate.latitude);
+            Assert.AreEqual(7.746972, mock.Object.coordinate.longitude);
+            Assert.AreEqual(8.166847, mock.Object.coordinate.latitude);
         }
 
         [TestMethod]
         public void testReadSigmaHeader()
-        {
-            //var expected = new FileHeader(1, 2, new DateTime(4, 3, 2, 0, 0, 6), 8, 7);
+        {         
+            var mock = new Mock<FileHeader>("123.10") { CallBase = true };
+            mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(1) // channel
+            .Returns(2) // freq
+            .Returns("6644.66X") // latit
+            .Returns("07919.53Z") // long
+            .Returns("200221") // datesrc
+            .Returns("1232"); // timesrc
 
-            var mock = new Mock<BinarySeismicFile>("", 0, false) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(0);
-            //mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStart).Returns(new DateTime());
-            //mock.As<IBinarySeismicFile>().Setup(p => p.DatetimeStop).Returns(new DateTime());
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            //mock.As<IBinarySeismicFile>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
-            //mock.As<IBinarySeismicFile>().Setup(p => p.GetFileHeader).Returns(new FileHeader(0, 0, new DateTime(), 0, 0));
-            //mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            //.Returns(1) //channel
-            //.Returns(2) //freq
-            //.Returns("1234") //latit
-            //.Returns("11234")
-            //.Returns(2)
-            //.Returns(2)
-            //.Returns(2)
-            //.Returns(2)
-            //.Returns(2)
-            //.Returns(2); //longit
+            int year = 2000 + 20;
+            int month = 2;
+            int day = 21;
+            int hours = 0;
+            int minutes = 12;
+            int seconds = 32;
+            DateTime expDateTimeStart = new DateTime(year, month, day, hours, minutes, seconds);
+            double longitude = Math.Round(79 + Convert.ToDouble((Convert.ToDouble(19) / Convert.ToDouble(60))), 2);
+            double latitude = Math.Round(66 + Convert.ToDouble((Convert.ToDouble(44) / Convert.ToDouble(60))), 2);
 
-            //var actual = mock.Object.ReadSigmaHeader("");
+            bool headerRead = mock.Object.ReadSigmaHeader("123.00");
 
-            //Assert.AreEqual(expected.longitude, actual.longitude);
-            //Assert.AreEqual(expected.latitude, actual.latitude);
-            //Assert.AreEqual(expected.channelCount, actual.channelCount);
-            //Assert.AreEqual(expected.frequency, actual.frequency);
-            //Assert.AreEqual(expected.datetimeStart, actual.datetimeStart);
+            Assert.AreEqual(1, mock.Object.channelCount);
+            Assert.AreEqual(2, mock.Object.frequency);
+            Assert.AreEqual(expDateTimeStart, mock.Object.datetimeStart);
+            Assert.AreEqual(79.33, mock.Object.coordinate.longitude);
+            Assert.AreEqual(66.74, mock.Object.coordinate.latitude);                  
         }
 
         [DataRow("gsdfgdf/bala.bol", "bala.bol")]
