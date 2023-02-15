@@ -10,7 +10,31 @@ namespace BinaryReaderLibraryTest
 {
     [TestClass]
     public class TestLibrary
-    {
+    {        
+        [TestMethod]
+        [DataRow("uint32", 1)]
+        public void testBinaryRead(string type, int count)
+        {
+            string filename = "/testGetComponentSignal.binary";
+            string path = Environment.CurrentDirectory + filename;
+
+            using (var stream = File.Open(path, FileMode.Create))
+            {
+                using (var bw = new BinaryWriter(stream))
+                {
+                    bw.Write(BitConverter.GetBytes((UInt32)123), 0, 4);
+                }
+            }
+
+            var mock = new Mock<FileHeader>(path) { CallBase = true };
+
+            UInt32 actual = mock.Object.BinaryRead(path, type, count);
+
+            File.Delete(path);
+
+            Assert.AreEqual((UInt32)123, actual);
+        }
+
         [TestMethod]
         [DataRow(555)]
         [DataRow(1337)]
@@ -32,7 +56,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadBaikal7Header()
         {
-            var mock = new Mock<FileHeader>("123.10") { CallBase = true };           
+            var mock = new Mock<FileHeader>("123.10") { CallBase = true };
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(1)
             .Returns(2)
@@ -51,7 +75,7 @@ namespace BinaryReaderLibraryTest
 
         [TestMethod]
         public void testReadBaikal8Header()
-        {                        
+        {
             var mock = new Mock<FileHeader>("123.10") { CallBase = true };
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(1) //channel
@@ -65,7 +89,7 @@ namespace BinaryReaderLibraryTest
 
             bool headerRead = mock.Object.ReadBaikal8Header("123.00");
 
-            Assert.AreEqual(1, mock.Object.channelCount);            
+            Assert.AreEqual(1, mock.Object.channelCount);
             Assert.AreEqual(1000, mock.Object.frequency);
             Assert.AreEqual(new DateTime(4, 3, 2).AddSeconds(6), mock.Object.datetimeStart);
             Assert.AreEqual(7.746972, mock.Object.coordinate.longitude);
@@ -74,7 +98,7 @@ namespace BinaryReaderLibraryTest
 
         [TestMethod]
         public void testReadSigmaHeader()
-        {         
+        {
             var mock = new Mock<FileHeader>("123.10") { CallBase = true };
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(1) // channel
@@ -100,7 +124,7 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(2, mock.Object.frequency);
             Assert.AreEqual(expDateTimeStart, mock.Object.datetimeStart);
             Assert.AreEqual(79.33, mock.Object.coordinate.longitude);
-            Assert.AreEqual(66.74, mock.Object.coordinate.latitude);                  
+            Assert.AreEqual(66.74, mock.Object.coordinate.latitude);
         }
 
         [DataRow("gsdfgdf/bala.bol", "bala.bol")]
