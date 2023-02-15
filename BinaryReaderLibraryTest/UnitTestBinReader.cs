@@ -513,7 +513,7 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(intervalToRead.start, actual.start);
             Assert.AreEqual(intervalToRead.stop, actual.stop);
         }
-
+        
         [DataRow(50, 2, 2, 0, 0, false)]
         [DataRow(60000, 5234, 45678, 0, 0, false)]
         [DataRow(50, 0, 2, 0, 0, false)]
@@ -530,7 +530,7 @@ namespace BinaryReaderLibraryTest
         [DataRow(60000, 0, 0, 0, 45678, true)]
         [DataRow(50, 0, 0, 30, 0, true)]
         [DataRow(60000, 0, 0, 40591, 0, true)]
-        [DataRow(150, 0, 0, 30, -30, true)]
+        [DataRow(350, 0, 0, 60, -60, true)]
         [DataRow(160000, 0, 0, 40591, -45678, true)]
         [DataRow(50, 0, 0, -30, 30, true)]
         [DataRow(60000, 0, 0, -40591, 45678, true)]
@@ -541,8 +541,8 @@ namespace BinaryReaderLibraryTest
 
             DateTime def = new DateTime();
             DateTimeInterval recordInterval = new DateTimeInterval(
-                def.AddSeconds(dt1Start + dt2Stop),
-                def.AddSeconds(dt1Start + dt2Stop + readlong)
+                def.AddSeconds(Math.Abs(dt1Start) + Math.Abs(dt2Start) + Math.Abs(dt1Stop) + Math.Abs(dt2Stop)),
+                def.AddSeconds(Math.Abs(dt1Start) + Math.Abs(dt2Start) + Math.Abs(dt1Stop) + Math.Abs(dt2Stop) + readlong)
             );
 
             DateTimeInterval intervalToRead = new DateTimeInterval(def, def);
