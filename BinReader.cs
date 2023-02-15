@@ -311,7 +311,7 @@ namespace BinReader
         Dictionary<string, int> ComponentsIndex { get; }
         BinaryFileInfo ShortFileInfo { get; }
         bool IsCorrectResampleFrequency(int value);
-        dynamic Resampling(Int32[] signal, int resampleParameter);
+        Int32[] Resampling(Int32[] signal, int resampleParameter);
         dynamic GetComponentSignal(string componentName);
         dynamic ResampleSignal(Int32[] srcSignal);
         dynamic ReadSignal(string component = "Z");
@@ -640,7 +640,7 @@ namespace BinReader
             }
         }
 
-        public virtual dynamic Resampling(Int32[] signal, int resampleParameter)
+        public virtual Int32[] Resampling(Int32[] signal, int resampleParameter)
         {
             int discreteAmount = signal.GetLength(0);
             int resampleDiscreteAmount = (discreteAmount - (discreteAmount % resampleParameter)) / resampleParameter;
