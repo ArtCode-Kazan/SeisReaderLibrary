@@ -737,24 +737,32 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testShortFileInfo()
         {
-            BinaryFileInfo result = new BinaryFileInfo("123", "type", 1000, new DateTimeInterval(new DateTime(), new DateTime().AddDays(1)), new Coordinate(0, 0));
+            BinaryFileInfo expected = new BinaryFileInfo(
+                Helpers.SomePath, 
+                Constants.SigmaFmt, 
+                Helpers.ZeroResampleFrequency, 
+                new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddDays(1)), 
+                new Coordinate(0, 0));
 
             var mock = Helpers.GetMockBinarySeismicFile();
-            mock.As<IBinarySeismicFile>().Setup(p => p.GetPath).Returns("123");
-            mock.As<IBinarySeismicFile>().Setup(p => p.FormatType).Returns("type");
-            mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1000);
-            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime().AddDays(1)));
+            mock.As<IBinarySeismicFile>().Setup(p => p.GetPath).Returns(Helpers.SomePath);
+            mock.As<IBinarySeismicFile>().Setup(p => p.FormatType).Returns(Constants.SigmaFmt);
+            mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(Helpers.ZeroResampleFrequency);
+            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(
+                Helpers.NullDateTime, 
+                Helpers.NullDateTime.AddDays(1))
+            );
             mock.As<IBinarySeismicFile>().Setup(p => p.Coordinate).Returns(new Coordinate(1, 2));
 
             var actual = mock.Object.ShortFileInfo;
 
-            Assert.AreEqual(result.path, actual.path);
-            Assert.AreEqual(result.formatType, actual.formatType);
-            Assert.AreEqual(result.frequency, actual.frequency);
-            Assert.AreEqual(result.datetimeInterval.stop, actual.datetimeInterval.stop);
-            Assert.AreEqual(result.datetimeInterval.start, actual.datetimeInterval.start);
-            Assert.AreEqual(result.coordinate.longitude, actual.coordinate.longitude);
-            Assert.AreEqual(result.coordinate.latitude, actual.coordinate.latitude);
+            Assert.AreEqual(expected.path, actual.path);
+            Assert.AreEqual(expected.formatType, actual.formatType);
+            Assert.AreEqual(expected.frequency, actual.frequency);
+            Assert.AreEqual(expected.datetimeInterval.stop, actual.datetimeInterval.stop);
+            Assert.AreEqual(expected.datetimeInterval.start, actual.datetimeInterval.start);
+            Assert.AreEqual(expected.coordinate.longitude, actual.coordinate.longitude);
+            Assert.AreEqual(expected.coordinate.latitude, actual.coordinate.latitude);
         }
 
         [DataRow(100, -100, false)]
