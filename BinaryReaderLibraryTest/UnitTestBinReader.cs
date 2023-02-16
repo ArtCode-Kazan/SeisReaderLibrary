@@ -46,8 +46,10 @@ namespace BinaryReaderLibraryTest
         public static Mock<BinarySeismicFile> getMockBinarySeismicFile(RemoveMethod removedMethod = 0)
         {
                 var mock = new Mock<BinarySeismicFile>("123.10", 1, false) { CallBase = true };
-                mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.10")).Returns(true);
-                mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(1)).Returns(true);
+                if (removedMethod != RemoveMethod.IsBinaryFileAtPath)
+                    mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.10")).Returns(true);
+                if (removedMethod != RemoveMethod.IsCorrectResampleFrequency)
+                    mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(1)).Returns(true);
                 if (removedMethod != RemoveMethod.RecordDateTimeInterval)
                     mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
                 return mock;            
@@ -750,9 +752,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testIsCorrectResampleFrequency(int origin, int resample, bool exp)
         {
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 99, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(99)).Returns(true);
+            var mock = Helpers.getMockBinarySeismicFile(Helpers.RemoveMethod.IsCorrectResampleFrequency);
             mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(4);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
