@@ -836,9 +836,7 @@ namespace BinaryReaderLibraryTest
         {
             int[] signal = new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 99, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(99)).Returns(true);
+            var mock = Helpers.getMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.Resampling(It.IsAny<int[]>(), It.IsAny<int>())).Returns(signal);
             mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(ResampleParameter);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(1);
