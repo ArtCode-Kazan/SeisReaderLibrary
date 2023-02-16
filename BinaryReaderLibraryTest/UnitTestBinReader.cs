@@ -371,12 +371,12 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testOriginFrequency(int expectedFrequency)
         {
-            var mock = Helpers.GetMockBinarySeismicFile();
+            var mockbsf = Helpers.GetMockBinarySeismicFile();
             var mockf = Helpers.GetMockFileHeader;
             mockf.Object.frequency = expectedFrequency;
-            mock.Object._FileHeader = mockf.Object;
+            mockbsf.Object._FileHeader = mockf.Object;
 
-            int actualFrequency = mock.Object.OriginFrequency;
+            int actualFrequency = mockbsf.Object.OriginFrequency;
 
             Assert.AreEqual(expectedFrequency, actualFrequency);
         }
