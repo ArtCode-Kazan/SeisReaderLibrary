@@ -723,9 +723,9 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testShortFileInfo()
         {
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            BinaryFileInfo result = new BinaryFileInfo("123", "type", 1000, new DateTimeInterval(new DateTime(), new DateTime().AddDays(1)), new Coordinate(0, 0));
+
+            var mock = Helpers.getMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.GetPath).Returns("123");
             mock.As<IBinarySeismicFile>().Setup(p => p.FormatType).Returns("type");
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1000);
@@ -733,9 +733,7 @@ namespace BinaryReaderLibraryTest
             mock.As<IBinarySeismicFile>().Setup(p => p.Coordinate).Returns(new Coordinate(1, 2));
 
             var actual = mock.Object.ShortFileInfo;
-
-            BinaryFileInfo result = new BinaryFileInfo("123", "type", 1000, new DateTimeInterval(new DateTime(), new DateTime().AddDays(1)), new Coordinate(0, 0));
-
+            
             Assert.AreEqual(result.path, actual.path);
             Assert.AreEqual(result.formatType, actual.formatType);
             Assert.AreEqual(result.frequency, actual.frequency);
