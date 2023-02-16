@@ -313,7 +313,7 @@ namespace BinReader
         bool IsCorrectResampleFrequency(int value);
         Int32[] Resampling(Int32[] signal, int resampleParameter);
         Int32[] GetComponentSignal(string componentName);
-        int[] ResampleSignal(Int32[] srcSignal);
+        Int32[] ResampleSignal(Int32[] srcSignal);
         Int32[] ReadSignal(string component = "Z");
     }
 
@@ -697,7 +697,7 @@ namespace BinReader
             return intArray;
         }
 
-        public virtual int[] ResampleSignal(Int32[] srcSignal)
+        public virtual Int32[] ResampleSignal(Int32[] srcSignal)
         {
             if (this.ResampleParameter == 1)
             {
