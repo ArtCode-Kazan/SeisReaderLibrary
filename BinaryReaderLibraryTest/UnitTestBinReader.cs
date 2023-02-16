@@ -221,33 +221,46 @@ namespace BinaryReaderLibraryTest
 
         [TestMethod]
         public void testReadSigmaHeader()
-        {
+        {                        
+            string longitudeSource = "07919.53Z";
+            string latitudeSource = "6644.66X";
+            string dateSource = "200221";
+            string fullTimeSource = "001232";
+            int year = 2000 + Convert.ToInt32(dateSource.Substring(0, 2));
+            int month = Convert.ToInt32(dateSource.Substring(2, 2));
+            int day = Convert.ToInt32(dateSource.Substring(4, 2));
+            int hours = Convert.ToInt32(fullTimeSource.Substring(0, 2));
+            int minutes = Convert.ToInt32(fullTimeSource.Substring(2, 2));
+            int seconds = Convert.ToInt32(fullTimeSource.Substring(4, 2));            
+            int expectedChannelCount = 1;
+            int expectedFrequency = 2;
+            DateTime expectedDateTimeStart = new DateTime(year, month, day, hours, minutes, seconds);
+            double expectedLongitude = Math.Round(
+                Convert.ToInt32(longitudeSource.Substring(1, 2)) + 
+                Convert.ToDouble(Convert.ToDouble(longitudeSource.Substring(3, 2)) / Convert.ToDouble(60)), 
+                2
+            );
+            double expectedLatitude = Math.Round(
+                Convert.ToInt32(latitudeSource.Substring(0, 2)) + 
+                Convert.ToDouble(Convert.ToDouble(longitudeSource.Substring(2, 2)) / Convert.ToDouble(60)), 
+                2
+            );
+
             var mock = Helpers.GetMockFileHeader;
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .Returns(1) // channel
-            .Returns(2) // freq
-            .Returns("6644.66X") // latit
-            .Returns("07919.53Z") // long
-            .Returns("200221") // datesrc
-            .Returns("1232"); // timesrc
+            .Returns(expectedChannelCount) // channel
+            .Returns(expectedFrequency) // freq
+            .Returns(latitudeSource) // latit
+            .Returns(longitudeSource) // long
+            .Returns(dateSource) // datesrc
+            .Returns(fullTimeSource); // timesrc            
+            mock.Object.ReadSigmaHeader(Helpers.SomePath);
 
-            int year = 2000 + 20;
-            int month = 2;
-            int day = 21;
-            int hours = 0;
-            int minutes = 12;
-            int seconds = 32;
-            DateTime expDateTimeStart = new DateTime(year, month, day, hours, minutes, seconds);
-            double longitude = Math.Round(79 + Convert.ToDouble((Convert.ToDouble(19) / Convert.ToDouble(60))), 2);
-            double latitude = Math.Round(66 + Convert.ToDouble((Convert.ToDouble(44) / Convert.ToDouble(60))), 2);
-
-            bool headerRead = mock.Object.ReadSigmaHeader(Helpers.SomePath);
-
-            Assert.AreEqual(1, mock.Object.channelCount);
-            Assert.AreEqual(2, mock.Object.frequency);
-            Assert.AreEqual(expDateTimeStart, mock.Object.datetimeStart);
-            Assert.AreEqual(79.33, mock.Object.coordinate.longitude);
-            Assert.AreEqual(66.74, mock.Object.coordinate.latitude);
+            Assert.AreEqual(expectedChannelCount, mock.Object.channelCount);
+            Assert.AreEqual(expectedFrequency, mock.Object.frequency);
+            Assert.AreEqual(expectedDateTimeStart, mock.Object.datetimeStart);
+            Assert.AreEqual(expectedLongitude, mock.Object.coordinate.longitude);
+            Assert.AreEqual(expectedLatitude, mock.Object.coordinate.latitude);
         }
 
         [DataRow("gsdfgdf/bala.bol", "bala.bol")]
