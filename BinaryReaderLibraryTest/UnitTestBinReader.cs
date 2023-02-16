@@ -252,7 +252,7 @@ namespace BinaryReaderLibraryTest
                 path, 
                 Constants.Baikal7Fmt, 
                 Helpers.ZeroResampleFrequency, 
-                new DateTimeInterval(new DateTime(), new DateTime()), 
+                new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime), 
                 new Coordinate(0, 0)
             );
 
