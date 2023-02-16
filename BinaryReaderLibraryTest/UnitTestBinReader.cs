@@ -12,6 +12,7 @@ namespace BinaryReaderLibraryTest
     {
         public enum RemoveMethod
         {
+            None,
             IsBinaryFileAtPath,
             IsCorrectResampleFrequency,
             RecordDateTimeInterval
@@ -43,14 +44,14 @@ namespace BinaryReaderLibraryTest
             }
         }
 
-        public static Mock<BinarySeismicFile> getMockBinarySeismicFile(RemoveMethod removedMethod = 0)
+        public static Mock<BinarySeismicFile> getMockBinarySeismicFile(RemoveMethod removedMethod = RemoveMethod.None)
         {
                 var mock = new Mock<BinarySeismicFile>("123.10", 1, false) { CallBase = true };
                 if (removedMethod != RemoveMethod.IsBinaryFileAtPath)
                     mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.10")).Returns(true);
-                if (removedMethod != RemoveMethod.IsCorrectResampleFrequency)
+                else if (removedMethod != RemoveMethod.IsCorrectResampleFrequency)
                     mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(1)).Returns(true);
-                if (removedMethod != RemoveMethod.RecordDateTimeInterval)
+                else if (removedMethod != RemoveMethod.RecordDateTimeInterval)
                     mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
                 return mock;            
         }
@@ -765,9 +766,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testResampling(int[] signal, int resampleParam, int[] expected)
         {
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            var mock = Helpers.getMockBinarySeismicFile();                  
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(0);
 
