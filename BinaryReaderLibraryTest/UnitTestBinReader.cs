@@ -425,7 +425,7 @@ namespace BinaryReaderLibraryTest
             var mockbsf = Helpers.getMockBinarySeismicFile;
             mockbsf.Object._Path = path;
             mockbsf.Object._FileHeader = mockfh.Object;
-
+           
             int actual = mockbsf.Object.DiscreteAmount;
 
             FileInfo file = new FileInfo(path);
@@ -459,18 +459,10 @@ namespace BinaryReaderLibraryTest
         public void testCoordinate(double longi, double lat)
         {
             Coordinate expected = new Coordinate(longi, lat);
-
-            var mock = new Mock<BinarySeismicFile>(@"D:/exampleFile.123", 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.HeaderMemorySize).Returns(336);
-            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
-
-            var mockf = new Mock<FileHeader>("123.020") { CallBase = true };
-            mock.As<IFileHeader>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(true);
-            mockf.Object.coordinate = expected;
-
-            mock.Object._FileHeader = mockf.Object;
+            var mockfh = Helpers.getMockFileHeader;
+            mockfh.Object.coordinate = expected;
+            var mock = Helpers.getMockBinarySeismicFile;
+            mock.Object._FileHeader = mockfh.Object;            
 
             var actual = mock.Object.Coordinate;
 
