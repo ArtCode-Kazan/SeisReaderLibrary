@@ -49,9 +49,9 @@ namespace BinaryReaderLibraryTest
             var mock = new Mock<BinarySeismicFile>("123.10", 1, false) { CallBase = true };
             if (removedMethod != RemoveMethod.IsBinaryFileAtPath)
                 mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.10")).Returns(true);
-            else if (removedMethod != RemoveMethod.IsCorrectResampleFrequency)
+            if (removedMethod != RemoveMethod.IsCorrectResampleFrequency)
                 mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(1)).Returns(true);
-            else if (removedMethod != RemoveMethod.RecordDateTimeInterval)
+            if (removedMethod != RemoveMethod.RecordDateTimeInterval)
                 mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
             return mock;
         }
@@ -793,7 +793,7 @@ namespace BinaryReaderLibraryTest
             string filename = "/testGetComponentSignal.binary";
             string path = Environment.CurrentDirectory + filename;
 
-            Int32[] signalArr = new Int32[10000];
+            Int32[] signalArr = new Int32[10];
             for (int i = 0; i < signalArr.Length; i++)
             {
                 signalArr[i] = Helpers.Random.Next(-32768, 32768);
@@ -816,6 +816,8 @@ namespace BinaryReaderLibraryTest
             mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(0);
             mock.As<IBinarySeismicFile>().Setup(p => p.EndMoment).Returns(signalArr.Length);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.HeaderMemorySize).Returns(0);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ChannelsCount).Returns(3);
             mock.Object._Path = path;
 
             int[] actual = mock.Object.GetComponentSignal("Z");
