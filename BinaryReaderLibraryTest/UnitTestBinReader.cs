@@ -356,14 +356,14 @@ namespace BinaryReaderLibraryTest
         [DataRow(true)]
         [DataRow(false)]
         [TestMethod]
-        public void testIsUseAvgValues(bool avg)
+        public void testIsUseAvgValues(bool expectedAvg)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
-            mock.Object._IsUseAvgValues = avg;
+            mock.Object._IsUseAvgValues = expectedAvg;
 
-            bool actual = mock.Object.IsUseAvgValues;
+            bool actualAvg = mock.Object.IsUseAvgValues;
 
-            Assert.AreEqual(avg, actual);
+            Assert.AreEqual(expectedAvg, actualAvg);
         }
 
         [DataRow(1000)]
