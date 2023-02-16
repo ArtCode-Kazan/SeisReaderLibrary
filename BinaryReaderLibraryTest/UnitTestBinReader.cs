@@ -74,10 +74,10 @@ namespace BinaryReaderLibraryTest
         [DataRow("string", 4)]
         public void testBinaryRead(string type, int count)
         {            
-            string fullPath = Path.Combine(Path.GetTempPath(), Helpers.SomeFileName);            
-
+            string fullPath = Path.Combine(Path.GetTempPath(), Helpers.SomeFileName);
+            int expectedValue = 1234;            
             var filehead = new FileHeader(fullPath);
-            dynamic actual;
+            dynamic actualValue;
 
             switch (type)
             {
@@ -87,11 +87,11 @@ namespace BinaryReaderLibraryTest
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
-                                bw.Write(BitConverter.GetBytes((UInt16)1234), 0, 2);
+                                bw.Write(BitConverter.GetBytes((UInt16)expectedValue), 0, 2);
                             }
                         }
-                        actual = filehead.BinaryRead(fullPath, type, count, 0);
-                        Assert.AreEqual((UInt16)1234, (UInt16)actual);
+                        actualValue = filehead.BinaryRead(fullPath, type, count, 0);
+                        Assert.AreEqual((UInt16)expectedValue, (UInt16)actualValue);
                         break;
                     }
                 case "uint32":
@@ -100,11 +100,11 @@ namespace BinaryReaderLibraryTest
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
-                                bw.Write(BitConverter.GetBytes((UInt32)1234), 0, 4);
+                                bw.Write(BitConverter.GetBytes((UInt32)expectedValue), 0, 4);
                             }
                         }
-                        actual = filehead.BinaryRead(fullPath, type, count, 0);
-                        Assert.AreEqual((UInt32)1234, (UInt32)actual);
+                        actualValue = filehead.BinaryRead(fullPath, type, count, 0);
+                        Assert.AreEqual((UInt32)expectedValue, (UInt32)actualValue);
                         break;
                     }
                 case "double":
@@ -113,11 +113,11 @@ namespace BinaryReaderLibraryTest
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
-                                bw.Write(BitConverter.GetBytes((double)1234), 0, 8);
+                                bw.Write(BitConverter.GetBytes((double)expectedValue), 0, 8);
                             }
                         }
-                        actual = filehead.BinaryRead(fullPath, type, count, 0);
-                        Assert.AreEqual((double)1234, (double)actual);
+                        actualValue = filehead.BinaryRead(fullPath, type, count, 0);
+                        Assert.AreEqual((double)expectedValue, (double)actualValue);
                         break;
                     }
                 case "long":
@@ -126,11 +126,11 @@ namespace BinaryReaderLibraryTest
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
-                                bw.Write(BitConverter.GetBytes((ulong)1234), 0, 8);
+                                bw.Write(BitConverter.GetBytes((ulong)expectedValue), 0, 8);
                             }
                         }
-                        actual = filehead.BinaryRead(fullPath, type, count, 0);
-                        Assert.AreEqual((long)1234, (long)actual);
+                        actualValue = filehead.BinaryRead(fullPath, type, count, 0);
+                        Assert.AreEqual((long)expectedValue, (long)actualValue);
                         break;
                     }
                 case "string":
@@ -139,15 +139,14 @@ namespace BinaryReaderLibraryTest
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
-                                bw.Write(Encoding.UTF8.GetBytes("1234"));
+                                bw.Write(Encoding.UTF8.GetBytes(Convert.ToString(expectedValue)));
                             }
                         }
-                        actual = filehead.BinaryRead(fullPath, type, count, 0);
-                        Assert.AreEqual("1234", actual);
+                        actualValue = filehead.BinaryRead(fullPath, type, count, 0);
+                        Assert.AreEqual(Convert.ToString(expectedValue), actualValue);
                         break;
                     }
             }
-
             File.Delete(fullPath);
         }
 
