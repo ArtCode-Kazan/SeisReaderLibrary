@@ -689,10 +689,10 @@ namespace BinaryReaderLibraryTest
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.ReadDateTimeInterval).Returns(new DateTimeInterval(new DateTime().AddSeconds(sec), new DateTime()));
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(freq);
-            int expected = freq * sec;
-            double actual = mock.Object.StartMoment;
+            int expectedStartMoment = freq * sec;
+            double actualStartMoment = mock.Object.StartMoment;
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedStartMoment, actualStartMoment);
         }
 
         [DataRow(1000, 1000, 1)]
