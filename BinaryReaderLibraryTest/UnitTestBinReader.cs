@@ -531,7 +531,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testOriginDateTimeInterval(int second)
         {
-            DateTimeInterval expinterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
+            DateTimeInterval expectedInterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
 
             var mockfh = Helpers.GetMockFileHeader;
             mockfh.Object.datetimeStart = Helpers.NullDateTime;
@@ -539,10 +539,10 @@ namespace BinaryReaderLibraryTest
             mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(second);
             mock.Object._FileHeader = mockfh.Object;
 
-            var actual = mock.Object.OriginDateTimeInterval;
+            var actualInterval = mock.Object.OriginDateTimeInterval;
 
-            Assert.AreEqual(expinterval.start, actual.start);
-            Assert.AreEqual(expinterval.stop, actual.stop);
+            Assert.AreEqual(expectedInterval.start, actualInterval.start);
+            Assert.AreEqual(expectedInterval.stop, actualInterval.stop);
         }
 
         [DataRow(3, true)]
