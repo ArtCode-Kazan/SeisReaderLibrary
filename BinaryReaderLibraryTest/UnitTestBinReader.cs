@@ -10,29 +10,91 @@ namespace BinaryReaderLibraryTest
 {
     [TestClass]
     public class TestLibrary
-    {        
+    {
         [TestMethod]
+        [DataRow("uint16", 1)]
         [DataRow("uint32", 1)]
+        [DataRow("double", 1)]
+        [DataRow("long", 1)]
+        [DataRow("string", 4)]
         public void testBinaryRead(string type, int count)
         {
             string filename = "/testGetComponentSignal.binary";
             string path = Environment.CurrentDirectory + filename;
 
-            using (var stream = File.Open(path, FileMode.Create))
+            var filehead = new FileHeader(path);
+            dynamic actual;
+
+            switch (type)
             {
-                using (var bw = new BinaryWriter(stream))
-                {
-                    bw.Write(BitConverter.GetBytes((UInt32)123), 0, 4);
-                }
+                case "uint16":
+                    {
+                        using (var stream = File.Open(path, FileMode.Create))
+                        {
+                            using (var bw = new BinaryWriter(stream))
+                            {
+                                bw.Write(BitConverter.GetBytes((UInt16)1234), 0, 2);
+                            }
+                        }
+                        actual = filehead.BinaryRead(path, type, count, 0);                        
+                        Assert.AreEqual((UInt16)1234, (UInt16)actual);
+                        break;
+                    }
+                case "uint32":
+                    {
+                        using (var stream = File.Open(path, FileMode.Create))
+                        {
+                            using (var bw = new BinaryWriter(stream))
+                            {
+                                bw.Write(BitConverter.GetBytes((UInt32)1234), 0, 4);
+                            }
+                        }
+                        actual = filehead.BinaryRead(path, type, count, 0);
+                        Assert.AreEqual((UInt32)1234, (UInt32)actual);
+                        break;
+                    }
+                case "double":
+                    {
+                        using (var stream = File.Open(path, FileMode.Create))
+                        {
+                            using (var bw = new BinaryWriter(stream))
+                            {
+                                bw.Write(BitConverter.GetBytes((double)1234), 0, 8);
+                            }
+                        }
+                        actual = filehead.BinaryRead(path, type, count, 0);
+                        Assert.AreEqual((double)1234, (double)actual);
+                        break;
+                    }
+                case "long":
+                    {
+                        using (var stream = File.Open(path, FileMode.Create))
+                        {
+                            using (var bw = new BinaryWriter(stream))
+                            {
+                                bw.Write(BitConverter.GetBytes((ulong)1234), 0, 8);
+                            }
+                        }
+                        actual = filehead.BinaryRead(path, type, count, 0);
+                        Assert.AreEqual((long)1234, (long)actual);
+                        break;
+                    }
+                case "string":
+                    {
+                        using (var stream = File.Open(path, FileMode.Create))
+                        {
+                            using (var bw = new BinaryWriter(stream))
+                            {
+                                bw.Write(Encoding.UTF8.GetBytes("1234"));
+                            }
+                        }
+                        actual = filehead.BinaryRead(path, type, count, 0);
+                        Assert.AreEqual("1234", actual);
+                        break;
+                    }
             }
 
-            var mock = new Mock<FileHeader>(path) { CallBase = true };
-
-            UInt32 actual = mock.Object.BinaryRead(path, type, count);
-
-            File.Delete(path);
-
-            Assert.AreEqual((UInt32)123, actual);
+            File.Delete(path);            
         }
 
         [TestMethod]
