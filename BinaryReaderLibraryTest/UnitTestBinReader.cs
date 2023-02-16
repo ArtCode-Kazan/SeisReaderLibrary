@@ -252,8 +252,7 @@ namespace BinaryReaderLibraryTest
                 path, 
                 Constants.Baikal7Fmt, 
                 Helpers.ZeroResampleFrequency, 
-                new DateTimeInterval(new DateTime(), 
-                new DateTime()), 
+                new DateTimeInterval(new DateTime(), new DateTime()), 
                 new Coordinate(0, 0)
             );
 
@@ -273,7 +272,12 @@ namespace BinaryReaderLibraryTest
             DateTime startDate = new DateTime();
             DateTime stopDate = startDate.AddSeconds(seconds);
             DateTimeInterval interval = new DateTimeInterval(startDate, stopDate);
-            var mock = new Mock<BinaryFileInfo>("", "", 0, interval, new Coordinate(0, 0)) { CallBase = true };
+            var mock = new Mock<BinaryFileInfo>(
+                Helpers.SomePath,
+                Constants.Baikal7Fmt,
+                Helpers.ZeroResampleFrequency, 
+                interval, 
+                new Coordinate(0, 0)) { CallBase = true };
 
             var actual = mock.Object.DurationInSeconds;
 
