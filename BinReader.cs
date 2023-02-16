@@ -164,10 +164,10 @@ namespace BinReader
             double dt = BinaryRead(path: path, type: "double", count: 1, skippingBytes: 48);
             double seconds = BinaryRead(path: path, type: "double", count: 1, skippingBytes: 56);
             this.coordinate.longitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 80), 6);
-            this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);            
+            this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);
             this.datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
             this.frequency = Convert.ToInt16(1 / dt);
-            
+
             return true;
         }
 
@@ -322,7 +322,7 @@ namespace BinReader
         public string _Path;
         public bool _IsUseAvgValues;
         public FileHeader _FileHeader;
-        public DateTimeInterval _ReadDatetimeInterval;        
+        public DateTimeInterval _ReadDatetimeInterval;
 
         public int _ResampleFrequency;
         public bool _IsCorrectResampleFrequency;
@@ -349,7 +349,7 @@ namespace BinReader
                 throw new InvalidResampleFrequency();
             }
 
-            this._ReadDatetimeInterval = this.RecordDateTimeInterval;           
+            this._ReadDatetimeInterval = this.RecordDateTimeInterval;
         }
 
         public virtual bool IsBinaryFileAtPath(string path)

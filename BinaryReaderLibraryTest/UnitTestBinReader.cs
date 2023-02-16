@@ -46,20 +46,20 @@ namespace BinaryReaderLibraryTest
 
         public static Mock<BinarySeismicFile> GetMockBinarySeismicFile(RemoveMethod removedMethod = RemoveMethod.None)
         {
-                var mock = new Mock<BinarySeismicFile>("123.10", 1, false) { CallBase = true };
-                if (removedMethod != RemoveMethod.IsBinaryFileAtPath)
-                    mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.10")).Returns(true);
-                else if (removedMethod != RemoveMethod.IsCorrectResampleFrequency)
-                    mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(1)).Returns(true);
-                else if (removedMethod != RemoveMethod.RecordDateTimeInterval)
-                    mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
-                return mock;            
+            var mock = new Mock<BinarySeismicFile>("123.10", 1, false) { CallBase = true };
+            if (removedMethod != RemoveMethod.IsBinaryFileAtPath)
+                mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.10")).Returns(true);
+            else if (removedMethod != RemoveMethod.IsCorrectResampleFrequency)
+                mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(1)).Returns(true);
+            else if (removedMethod != RemoveMethod.RecordDateTimeInterval)
+                mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
+            return mock;
         }
 
         public static Random Random
         {
             get
-            {                
+            {
                 return new Random();
             }
         }
@@ -70,7 +70,7 @@ namespace BinaryReaderLibraryTest
             {
                 return new DateTime();
             }
-        }        
+        }
     }
 
     [TestClass]
@@ -433,7 +433,7 @@ namespace BinaryReaderLibraryTest
         {
             string filename = "/testGetComponentSignal.binary";
             string path = Environment.CurrentDirectory + filename;
-            
+
 
             using (var stream = File.Open(path, FileMode.Create))
             {
@@ -500,7 +500,7 @@ namespace BinaryReaderLibraryTest
         [DataRow(498656516)]
         [TestMethod]
         public void testOriginDateTimeInterval(int second)
-        {            
+        {
             DateTimeInterval expinterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
 
             var mockfh = Helpers.GetMockFileHeader;
@@ -520,13 +520,13 @@ namespace BinaryReaderLibraryTest
         [DataRow(498656516, true)]
         [TestMethod]
         public void testRecordDateTimeInterval(int second, bool isSigma)
-        {            
+        {
             DateTimeInterval interval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
             DateTimeInterval expinterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
 
-            var mock = Helpers.GetMockBinarySeismicFile(Helpers.RemoveMethod.RecordDateTimeInterval);                     
+            var mock = Helpers.GetMockBinarySeismicFile(Helpers.RemoveMethod.RecordDateTimeInterval);
             mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(second);
-            mock.As<IBinarySeismicFile>().Setup(p => p.OriginDateTimeInterval).Returns(interval);            
+            mock.As<IBinarySeismicFile>().Setup(p => p.OriginDateTimeInterval).Returns(interval);
 
             if (isSigma == true)
             {
@@ -550,7 +550,7 @@ namespace BinaryReaderLibraryTest
         [DataRow(498656516)]
         [TestMethod]
         public void testReadDateTimeIntervalGetter(int second)
-        {            
+        {
             DateTimeInterval interval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
 
             var mock = Helpers.GetMockBinarySeismicFile();
@@ -569,7 +569,7 @@ namespace BinaryReaderLibraryTest
         [DataRow(498656516, 53442, 6234574)]
         [TestMethod]
         public void testReadDateTimeIntervalSetter(int readlong, int dt1Start, int dt2Stop)
-        {            
+        {
             DateTimeInterval recordInterval = new DateTimeInterval(
                 Helpers.NullDateTime.AddSeconds(dt1Start + dt2Stop),
                 Helpers.NullDateTime.AddSeconds(dt1Start + dt2Stop + readlong)
@@ -613,7 +613,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadDateTimeIntervalSetterException(int readlong, int dt1Start, int dt2Stop, int dt2Start, int dt1Stop, bool exceptionExp)
         {
-            bool isException = false;            
+            bool isException = false;
             DateTimeInterval recordInterval = new DateTimeInterval(
                 Helpers.NullDateTime.AddSeconds(Math.Abs(dt1Start) + Math.Abs(dt2Start) + Math.Abs(dt1Stop) + Math.Abs(dt2Stop)),
                 Helpers.NullDateTime.AddSeconds(Math.Abs(dt1Start) + Math.Abs(dt2Start) + Math.Abs(dt1Stop) + Math.Abs(dt2Stop) + readlong)
@@ -689,7 +689,7 @@ namespace BinaryReaderLibraryTest
             int exp = sec * 1000 - startMom;
             exp = exp - (exp % 4);
             exp = exp + startMom;
-            
+
             DateTimeInterval recordDateTimeInterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(sec + sec));
             DateTimeInterval readDateTimeInterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(sec));
 
@@ -725,7 +725,7 @@ namespace BinaryReaderLibraryTest
 
             var mock = Helpers.GetMockBinarySeismicFile();
 
-            var actual = mock.Object.ComponentsIndex;            
+            var actual = mock.Object.ComponentsIndex;
 
             Assert.AreEqual(componentsIndexes["Z"], actual["Z"]);
             Assert.AreEqual(componentsIndexes["X"], actual["X"]);
@@ -745,7 +745,7 @@ namespace BinaryReaderLibraryTest
             mock.As<IBinarySeismicFile>().Setup(p => p.Coordinate).Returns(new Coordinate(1, 2));
 
             var actual = mock.Object.ShortFileInfo;
-            
+
             Assert.AreEqual(result.path, actual.path);
             Assert.AreEqual(result.formatType, actual.formatType);
             Assert.AreEqual(result.frequency, actual.frequency);
@@ -775,7 +775,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testResampling(int[] signal, int resampleParam, int[] expected)
         {
-            var mock = Helpers.GetMockBinarySeismicFile();                  
+            var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(0);
 
@@ -792,7 +792,7 @@ namespace BinaryReaderLibraryTest
         {
             string filename = "/testGetComponentSignal.binary";
             string path = Environment.CurrentDirectory + filename;
-            
+
             Int32[] signalArr = new Int32[10000];
             for (int i = 0; i < signalArr.Length; i++)
             {
@@ -811,7 +811,7 @@ namespace BinaryReaderLibraryTest
                 }
             }
 
-            var mock = Helpers.GetMockBinarySeismicFile();            
+            var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(0);
             mock.As<IBinarySeismicFile>().Setup(p => p.EndMoment).Returns(signalArr.Length);
@@ -864,7 +864,7 @@ namespace BinaryReaderLibraryTest
             string path = Environment.CurrentDirectory + filename;
 
             Int32[] signalArr = new Int32[10000];
-            
+
             for (int i = 0; i < signalArr.Length; i++)
             {
                 signalArr[i] = Helpers.Random.Next(-32768, 32768);
