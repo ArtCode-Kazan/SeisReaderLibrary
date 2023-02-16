@@ -236,7 +236,7 @@ namespace BinaryReaderLibraryTest
             int expectedFrequency = 2;
             DateTime expectedDateTimeStart = new DateTime(year, month, day, hours, minutes, seconds);
             double expectedLongitude = Math.Round(
-                Convert.ToInt32(longitudeSource.Substring(1, 2)) + 
+                Convert.ToInt32(longitudeSource.Substring(1, 2)) + //<79,317>. Фактически: <79,33>.
                 Convert.ToDouble(Convert.ToDouble(longitudeSource.Substring(3, 2)) / Convert.ToDouble(60)), 
                 2
             );
