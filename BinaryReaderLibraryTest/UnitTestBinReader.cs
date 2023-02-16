@@ -483,10 +483,11 @@ namespace BinaryReaderLibraryTest
 
             FileInfo file = new FileInfo(path);
             long fileSize = file.Length;
-            int expected = (int)((fileSize - mockbsf.Object.HeaderMemorySize) / (3 * sizeof(int)));
-            file.Delete();
+            int expected = (int)((fileSize - mockbsf.Object.HeaderMemorySize) / (3 * sizeof(int)));            
 
             Assert.AreEqual(expected, actual);
+
+            file.Delete();
         }
 
         [DataRow(3, 10)]
