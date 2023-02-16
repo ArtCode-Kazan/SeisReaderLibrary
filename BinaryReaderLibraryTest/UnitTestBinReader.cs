@@ -658,10 +658,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testResampleParameter(int origin, int resample, int res)
         {
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(1);
+            var mock = Helpers.getMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
             mock.As<IBinarySeismicFile>().Setup(p => p.ResampleFrequency).Returns(resample);
 
