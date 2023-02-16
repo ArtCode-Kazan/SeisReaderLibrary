@@ -12,7 +12,7 @@ namespace BinaryReaderLibraryTest
     {
         public const string SomePath = "/some/path/some.file";
         public const int ZeroResampleFrequency = 0;
-        public static DateTime NullDateTime = new DateTime();
+        public static DateTime NullDateTime = new DateTime();        
 
 
         public enum RemoveMethod
@@ -308,10 +308,10 @@ namespace BinaryReaderLibraryTest
         [DataRow("gdf.hgf", false)]
         public void testIsBinaryFileAtPath(string path, bool result)
         {
-            File.Create(@"C:\Windows\Temp\" + path, 4096, FileOptions.DeleteOnClose);
+            File.Create(Path.GetTempPath() + path, 4096, FileOptions.DeleteOnClose);
             var mock = Helpers.GetMockBinarySeismicFile();
 
-            bool actual = mock.Object.IsBinaryFileAtPath(@"C:\Windows\Temp\" + path);
+            bool actual = mock.Object.IsBinaryFileAtPath(Path.GetTempPath() + path);
 
             Assert.AreEqual(result, actual);
         }
