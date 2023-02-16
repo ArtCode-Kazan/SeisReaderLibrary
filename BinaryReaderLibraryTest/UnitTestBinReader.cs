@@ -28,7 +28,7 @@ namespace BinaryReaderLibraryTest
         {
             get
             {
-                var mock = new Mock<FileHeader>(SomePath) { CallBase = true };
+                var mock = new Mock<FileHeader>(Helpers.SomePath) { CallBase = true };
                 mock.As<IFileHeader>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(true);
                 return mock;
             }
@@ -41,8 +41,8 @@ namespace BinaryReaderLibraryTest
                 var mock = new Mock<BinaryFileInfo>(
                     Helpers.SomePath,
                     Constants.Baikal7Fmt,
-                    Helpers.NullDateTime,
-                    new DateTimeInterval(new DateTime(), new DateTime()),
+                    Helpers.ZeroResampleFrequency,
+                    new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime),
                     new Coordinate(0, 0)
                 )
                 { CallBase = true };
