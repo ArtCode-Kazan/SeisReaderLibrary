@@ -699,15 +699,15 @@ namespace BinaryReaderLibraryTest
         [DataRow(123, 1234, 0)]
         [DataRow(4234, 434, 9)]
         [TestMethod]
-        public void testResampleParameter(int origin, int resample, int expected)
+        public void testResampleParameter(int origin, int resample, int expectedResampleParameter)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
             mock.As<IBinarySeismicFile>().Setup(p => p.ResampleFrequency).Returns(resample);
 
-            double actual = mock.Object.ResampleParameter;
+            double actualResampleParameter = mock.Object.ResampleParameter;
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedResampleParameter, actualResampleParameter);
         }
 
         [DataRow(3, 2)]
