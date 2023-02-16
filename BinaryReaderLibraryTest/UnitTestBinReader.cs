@@ -413,14 +413,14 @@ namespace BinaryReaderLibraryTest
         [DataRow(Constants.SigmaExtension, Constants.SigmaFmt)]
         [DataRow("oo", null)]
         [DataRow("txt", null)]
-        public void testFormatType(string extension, string expected)
+        public void testFormatType(string extension, string expectedType)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.FileExtension).Returns(extension);
 
-            string actual = mock.Object.FormatType;
+            string actualType = mock.Object.FormatType;
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedType, actualType);
         }
 
         [DataRow(3)]
