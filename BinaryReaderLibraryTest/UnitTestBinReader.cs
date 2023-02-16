@@ -872,9 +872,8 @@ namespace BinaryReaderLibraryTest
         [DataRow(false)]
         [TestMethod]
         public void testReadSignal(bool isUseAvgValues)
-        {
-            string filename = "/testGetComponentSignal.binary";
-            string path = Environment.CurrentDirectory + filename;
+        {            
+            string path = Path.Combine(Path.GetTempPath(), Helpers.SomeFileName);
 
             Int32[] signalArr = new Int32[10000];
             var random = new Random();
@@ -904,33 +903,33 @@ namespace BinaryReaderLibraryTest
             mock.Object._Path = path;
             mock.Object._IsUseAvgValues = true;
 
-            int[] actual = mock.Object.ReadSignal("Z");
+            int[] actualArray = mock.Object.ReadSignal("Z");
 
             if (isUseAvgValues == false)
             {
                 for (int i = 0; i < signalArr.Length; i++)
                 {
-                    Assert.AreEqual(signalArr[i], actual[i]);
+                    Assert.AreEqual(signalArr[i], actualArray[i]);
                 }
             }
 
-            int signalArrAvg = 0;
+            int expectedArrayAvg = 0;
             for (int i = 0; i < signalArr.Length; i++)
             {
-                signalArrAvg += signalArr[i];
+                expectedArrayAvg += signalArr[i];
             }
-            signalArrAvg = signalArrAvg / signalArr.Length;
-            int[] signalAvg = new int[signalArr.Length];
-            for (int i = 0; i < signalAvg.Length; i++)
+            expectedArrayAvg = expectedArrayAvg / signalArr.Length;
+            int[] expectedArray = new int[signalArr.Length];
+            for (int i = 0; i < expectedArray.Length; i++)
             {
-                signalAvg[i] = signalArr[i] - signalArrAvg;
+                expectedArray[i] = signalArr[i] - expectedArrayAvg;
             }
 
             File.Delete(path);
 
             for (int i = 0; i < signalArr.Length; i++)
             {
-                Assert.AreEqual(signalAvg[i], actual[i]);
+                Assert.AreEqual(expectedArray[i], actualArray[i]);
             }
         }
     }
