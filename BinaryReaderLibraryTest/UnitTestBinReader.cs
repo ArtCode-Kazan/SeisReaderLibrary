@@ -479,13 +479,13 @@ namespace BinaryReaderLibraryTest
             mockbsf.Object._Path = path;
             mockbsf.Object._FileHeader = mockfh.Object;
 
-            int actual = mockbsf.Object.DiscreteAmount;
+            int actualDiscreteAmount = mockbsf.Object.DiscreteAmount;
 
             FileInfo file = new FileInfo(path);
             long fileSize = file.Length;
-            int expected = (int)((fileSize - mockbsf.Object.HeaderMemorySize) / (3 * sizeof(int)));            
+            int expectedDiscreteAmount = (int)((fileSize - mockbsf.Object.HeaderMemorySize) / (3 * sizeof(int)));            
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedDiscreteAmount, actualDiscreteAmount);
 
             file.Delete();
         }
