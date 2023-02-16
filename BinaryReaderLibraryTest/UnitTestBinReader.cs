@@ -390,10 +390,10 @@ namespace BinaryReaderLibraryTest
         [DataRow("bin", "Sigma")]
         [DataRow("oo", null)]
         [DataRow("txt", null)]
-        public void testFormatType(string ext, string expected)
+        public void testFormatType(string extension, string expected)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
-            mock.As<IBinarySeismicFile>().Setup(p => p.FileExtension).Returns(ext);
+            mock.As<IBinarySeismicFile>().Setup(p => p.FileExtension).Returns(extension);
 
             string actual = mock.Object.FormatType;
 
