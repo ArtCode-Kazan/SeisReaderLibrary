@@ -169,44 +169,54 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadBaikal7Header()
         {
-            var mock = new Mock<FileHeader>(Helpers.SomePath) { CallBase = true };
-            mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .Returns(1)
-            .Returns(2)
+            int expectedChannelCount = 1;
+            int expectedFrequency = 2;
+            DateTime expectedDateTimeStart = Constants.Baikal7BaseDateTime;
+            double expectedLongitude = 4.123123;
+            double expectedLatitude = 4.123123;
+
+            var actual = new Mock<FileHeader>(Helpers.SomePath) { CallBase = true };
+            actual.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(expectedChannelCount)
+            .Returns(expectedFrequency)
             .Returns((ulong)0)
-            .Returns((double)4.12312342543)
-            .Returns((double)5.12312312543);
+            .Returns(expectedLongitude)
+            .Returns(expectedLatitude);
+            actual.Object.ReadBaikal7Header(Helpers.SomePath);           
 
-            bool headerRead = mock.Object.ReadBaikal7Header(Helpers.SomePath);
-
-            Assert.AreEqual(1, mock.Object.channelCount);
-            Assert.AreEqual(2, mock.Object.frequency);
-            Assert.AreEqual(Constants.Baikal7BaseDateTime, mock.Object.datetimeStart);
-            Assert.AreEqual(4.123123, mock.Object.coordinate.longitude);
-            Assert.AreEqual(5.123123, mock.Object.coordinate.latitude);
+            Assert.AreEqual(expectedChannelCount, actual.Object.channelCount);
+            Assert.AreEqual(expectedFrequency, actual.Object.frequency);
+            Assert.AreEqual(expectedDateTimeStart, actual.Object.datetimeStart);
+            Assert.AreEqual(expectedLongitude, actual.Object.coordinate.longitude);
+            Assert.AreEqual(expectedLatitude, actual.Object.coordinate.latitude);
         }
 
         [TestMethod]
         public void testReadBaikal8Header()
         {
-            var mock = Helpers.GetMockFileHeader;
-            mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .Returns(1) //channel
-            .Returns(2) //day
-            .Returns(3) //month
-            .Returns(4) //year
-            .Returns(0.001) //dt
-            .Returns(6) //seconds
-            .Returns((double)7.7469722438) // latitude
-            .Returns((double)8.166847342); //longitude
+            int expectedChannelCount = 1;
+            int expectedFrequency = 1000;
+            DateTime expectedDateTimeStart = new DateTime(4, 3, 2).AddSeconds(6);
+            double expectedLongitude = 7.746972;
+            double expectedLatitude = 8.166847;
 
-            bool headerRead = mock.Object.ReadBaikal8Header(Helpers.SomePath);
+            var actual = Helpers.GetMockFileHeader;
+            actual.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(expectedChannelCount) //channel
+            .Returns(expectedDateTimeStart.Day) //day
+            .Returns(expectedDateTimeStart.Month) //month
+            .Returns(expectedDateTimeStart.Year) //year
+            .Returns((double)1 / expectedFrequency) //dt
+            .Returns(expectedDateTimeStart.Second) //seconds
+            .Returns(expectedLongitude) // latitude
+            .Returns(expectedLatitude); //longitude
+            actual.Object.ReadBaikal8Header(Helpers.SomePath);
 
-            Assert.AreEqual(1, mock.Object.channelCount);
-            Assert.AreEqual(1000, mock.Object.frequency);
-            Assert.AreEqual(new DateTime(4, 3, 2).AddSeconds(6), mock.Object.datetimeStart);
-            Assert.AreEqual(7.746972, mock.Object.coordinate.longitude);
-            Assert.AreEqual(8.166847, mock.Object.coordinate.latitude);
+            Assert.AreEqual(expectedChannelCount, actual.Object.channelCount);
+            Assert.AreEqual(expectedFrequency, actual.Object.frequency);
+            Assert.AreEqual(expectedDateTimeStart, actual.Object.datetimeStart);
+            Assert.AreEqual(expectedLongitude, actual.Object.coordinate.longitude);
+            Assert.AreEqual(expectedLatitude, actual.Object.coordinate.latitude);
         }
 
         [TestMethod]
