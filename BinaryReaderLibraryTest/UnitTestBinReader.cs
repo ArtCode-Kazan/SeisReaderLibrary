@@ -862,13 +862,13 @@ namespace BinaryReaderLibraryTest
             mock.Object._Path = path;
 
             int[] actualArray = mock.Object.GetComponentSignal("Z");
-
-            File.Delete(path);
-
+            
             for (int i = 0; i < expectedArray.Length; i++)
             {
                 Assert.AreEqual(expectedArray[i], actualArray[i]);
             }
+
+            File.Delete(path);
         }
 
         [DataRow(1, false)]
