@@ -524,7 +524,7 @@ namespace BinaryReaderLibraryTest
         public void testRecordDateTimeInterval(int second, bool isSigma)
         {
             DateTimeInterval interval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
-            DateTimeInterval expinterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
+            DateTimeInterval expectedInterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
 
             var mock = Helpers.GetMockBinarySeismicFile(Helpers.RemoveMethod.RecordDateTimeInterval);
             mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(second);
@@ -533,18 +533,18 @@ namespace BinaryReaderLibraryTest
             if (isSigma == true)
             {
                 mock.As<IBinarySeismicFile>().Setup(p => p.FormatType).Returns(Constants.SigmaFmt);
-                expinterval.start = expinterval.start.AddSeconds(Constants.SigmaSecondsOffset);
-                expinterval.stop = expinterval.stop.AddSeconds(Constants.SigmaSecondsOffset);
+                expectedInterval.start = expectedInterval.start.AddSeconds(Constants.SigmaSecondsOffset);
+                expectedInterval.stop = expectedInterval.stop.AddSeconds(Constants.SigmaSecondsOffset);
             }
             else
             {
                 mock.As<IBinarySeismicFile>().Setup(p => p.FormatType).Returns(Constants.Baikal7Fmt);
             }
 
-            var actual = mock.Object.RecordDateTimeInterval;
+            var actualInterval = mock.Object.RecordDateTimeInterval;
 
-            Assert.AreEqual(expinterval.start, actual.start);
-            Assert.AreEqual(expinterval.stop, actual.stop);
+            Assert.AreEqual(expectedInterval.start, actualInterval.start);
+            Assert.AreEqual(expectedInterval.stop, actualInterval.stop);
         }
 
         [DataRow(3)]
@@ -553,17 +553,17 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadDateTimeIntervalGetter(int second)
         {
-            DateTimeInterval interval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
+            DateTimeInterval expectedInterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(second));
 
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(second);
-            mock.As<IBinarySeismicFile>().Setup(p => p.OriginDateTimeInterval).Returns(interval);
-            mock.Object._ReadDatetimeInterval = interval;
+            mock.As<IBinarySeismicFile>().Setup(p => p.OriginDateTimeInterval).Returns(expectedInterval);
+            mock.Object._ReadDatetimeInterval = expectedInterval;
 
-            var actual = mock.Object.ReadDateTimeInterval;
+            var actualInterval = mock.Object.ReadDateTimeInterval;
 
-            Assert.AreEqual(interval.start, actual.start);
-            Assert.AreEqual(interval.stop, actual.stop);
+            Assert.AreEqual(expectedInterval.start, actualInterval.start);
+            Assert.AreEqual(expectedInterval.stop, actualInterval.stop);
         }
 
         [DataRow(5, 1, 2)]
@@ -576,7 +576,7 @@ namespace BinaryReaderLibraryTest
                 Helpers.NullDateTime.AddSeconds(dt1Start + dt2Stop),
                 Helpers.NullDateTime.AddSeconds(dt1Start + dt2Stop + readlong)
             );
-            DateTimeInterval intervalToRead = new DateTimeInterval(
+            DateTimeInterval expectedInterval = new DateTimeInterval(
                 recordInterval.start.AddSeconds(dt1Start),
                 recordInterval.stop.AddSeconds(dt2Stop * -1)
             );
@@ -584,12 +584,12 @@ namespace BinaryReaderLibraryTest
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(readlong);
             mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(recordInterval);
-            mock.Object.ReadDateTimeInterval = intervalToRead;
+            mock.Object.ReadDateTimeInterval = expectedInterval;
 
-            var actual = mock.Object.ReadDateTimeInterval;
+            var actualInterval = mock.Object.ReadDateTimeInterval;
 
-            Assert.AreEqual(intervalToRead.start, actual.start);
-            Assert.AreEqual(intervalToRead.stop, actual.stop);
+            Assert.AreEqual(expectedInterval.start, actualInterval.start);
+            Assert.AreEqual(expectedInterval.stop, actualInterval.stop);
         }
 
         [DataRow(50, 2, 2, 0, 0, false)]
@@ -613,9 +613,9 @@ namespace BinaryReaderLibraryTest
         [DataRow(50, 0, 0, -30, 30, true)]
         [DataRow(60000, 0, 0, -40591, 45678, true)]
         [TestMethod]
-        public void testReadDateTimeIntervalSetterException(int readlong, int dt1Start, int dt2Stop, int dt2Start, int dt1Stop, bool exceptionExp)
+        public void testReadDateTimeIntervalSetterException(int readlong, int dt1Start, int dt2Stop, int dt2Start, int dt1Stop, bool exceptedException)
         {
-            bool isException = false;
+            bool actualException = false;
             DateTimeInterval recordInterval = new DateTimeInterval(
                 Helpers.NullDateTime.AddSeconds(Math.Abs(dt1Start) + Math.Abs(dt2Start) + Math.Abs(dt1Stop) + Math.Abs(dt2Stop)),
                 Helpers.NullDateTime.AddSeconds(Math.Abs(dt1Start) + Math.Abs(dt2Start) + Math.Abs(dt1Stop) + Math.Abs(dt2Stop) + readlong)
@@ -647,10 +647,10 @@ namespace BinaryReaderLibraryTest
             }
             catch
             {
-                isException = true;
+                actualException = true;
             }
 
-            Assert.AreEqual(exceptionExp, isException);
+            Assert.AreEqual(exceptedException, actualException);
         }
 
         [DataRow(31, 1000)]
@@ -661,10 +661,10 @@ namespace BinaryReaderLibraryTest
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.ReadDateTimeInterval).Returns(new DateTimeInterval(new DateTime().AddSeconds(sec), new DateTime()));
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(freq);
-
+            int expected = freq * sec;
             double actual = mock.Object.StartMoment;
 
-            Assert.AreEqual(freq * sec, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [DataRow(1000, 1000, 1)]
