@@ -231,7 +231,7 @@ namespace BinaryReaderLibraryTest
             double longitude = Math.Round(79 + Convert.ToDouble((Convert.ToDouble(19) / Convert.ToDouble(60))), 2);
             double latitude = Math.Round(66 + Convert.ToDouble((Convert.ToDouble(44) / Convert.ToDouble(60))), 2);
 
-            bool headerRead = mock.Object.ReadSigmaHeader("123.00");
+            bool headerRead = mock.Object.ReadSigmaHeader(Helpers.SomePath);
 
             Assert.AreEqual(1, mock.Object.channelCount);
             Assert.AreEqual(2, mock.Object.frequency);
