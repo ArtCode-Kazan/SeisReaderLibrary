@@ -741,11 +741,11 @@ namespace BinaryReaderLibraryTest
         public void testRecordType()
         {
             var mock = Helpers.GetMockBinarySeismicFile();
-            string expected = Constants.ComponentsOrder;
+            string expectedRecordType = Constants.ComponentsOrder;
 
-            string actual = mock.Object.RecordType;
+            string actualRecordType = mock.Object.RecordType;
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedRecordType, actualRecordType);
         }
 
         [TestMethod]
