@@ -681,9 +681,7 @@ namespace BinaryReaderLibraryTest
             DateTimeInterval recordDateTimeInterval = new DateTimeInterval(def, def.AddSeconds(sec + sec));
             DateTimeInterval readDateTimeInterval = new DateTimeInterval(def, def.AddSeconds(sec));
 
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1000, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            var mock = Helpers.getMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.ReadDateTimeInterval).Returns(readDateTimeInterval);
             mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(recordDateTimeInterval);
             mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(startMom);
