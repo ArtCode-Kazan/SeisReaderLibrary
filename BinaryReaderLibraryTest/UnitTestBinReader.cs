@@ -176,7 +176,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadBaikal8Header()
         {
-            var mock = new Mock<FileHeader>("123.10") { CallBase = true };
+            var mock = Helpers.getMockFileHeader;
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(1) //channel
             .Returns(2) //day
@@ -199,7 +199,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadSigmaHeader()
         {
-            var mock = new Mock<FileHeader>("123.10") { CallBase = true };
+            var mock = Helpers.getMockFileHeader;
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(1) // channel
             .Returns(2) // freq
@@ -420,23 +420,17 @@ namespace BinaryReaderLibraryTest
                 }
             }
 
-            var mock = new Mock<BinarySeismicFile>(path, 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.HeaderMemorySize).Returns(336);
-            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
+            var mockfh = Helpers.getMockFileHeader;
+            mockfh.Object.channelCount = 3;
+            var mockbsf = Helpers.getMockBinarySeismicFile;
+            mockbsf.Object._Path = path;
+            mockbsf.Object._FileHeader = mockfh.Object;
 
-            var mockf = new Mock<FileHeader>("123.020") { CallBase = true };
-            mock.As<IFileHeader>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(true);
-            mockf.Object.channelCount = 3;
-            mock.Object._FileHeader = mockf.Object;
-
-            int actual = mock.Object.DiscreteAmount;
+            int actual = mockbsf.Object.DiscreteAmount;
 
             FileInfo file = new FileInfo(path);
             long fileSize = file.Length;
-            int expected = (int)((fileSize - mock.Object.HeaderMemorySize) / (3 * sizeof(int)));
-
+            int expected = (int)((fileSize - mockbsf.Object.HeaderMemorySize) / (3 * sizeof(int)));
             file.Delete();
 
             Assert.AreEqual(expected, actual);
