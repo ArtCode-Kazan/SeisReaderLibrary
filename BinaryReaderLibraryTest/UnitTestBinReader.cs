@@ -770,14 +770,14 @@ namespace BinaryReaderLibraryTest
         [DataRow(1000, 100, true)]
         [DataRow(1000, 98, false)]
         [TestMethod]
-        public void testIsCorrectResampleFrequency(int origin, int resample, bool exp)
+        public void testIsCorrectResampleFrequency(int origin, int resample, bool expected)
         {
             var mock = Helpers.GetMockBinarySeismicFile(Helpers.RemoveMethod.IsCorrectResampleFrequency);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
 
             bool actual = mock.Object.IsCorrectResampleFrequency(resample);
 
-            Assert.AreEqual(exp, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [DataRow(new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 2, new int[5] { 2, 4, 6, 8, 10 })]
@@ -799,25 +799,24 @@ namespace BinaryReaderLibraryTest
 
         [TestMethod]
         public void testGetComponentSignal()
-        {
-            string filename = "/testGetComponentSignal.binary";
-            string path = Environment.CurrentDirectory + filename;
+        {            
+            string path = Path.Combine(Path.GetTempPath(), Helpers.SomeFileName);
 
             var random = new Random();
+            Int32[] expectedArray = new Int32[100];
 
-            Int32[] signalArr = new Int32[10];
-            for (int i = 0; i < signalArr.Length; i++)
+            for (int i = 0; i < expectedArray.Length; i++)
             {
-                signalArr[i] = random.Next(-32768, 32768);
+                expectedArray[i] = random.Next(-32768, 32768);
             }
 
             using (var stream = File.Open(path, FileMode.Create))
             {
                 using (var bw = new BinaryWriter(stream))
                 {
-                    for (int i = 0; i < signalArr.Length; i++)
+                    for (int i = 0; i < expectedArray.Length; i++)
                     {
-                        bw.Write(BitConverter.GetBytes(signalArr[i]), 0, 4);
+                        bw.Write(BitConverter.GetBytes(expectedArray[i]), 0, 4);
                         bw.Seek(8, SeekOrigin.Current);
                     }
                 }
@@ -826,19 +825,19 @@ namespace BinaryReaderLibraryTest
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(0);
-            mock.As<IBinarySeismicFile>().Setup(p => p.EndMoment).Returns(signalArr.Length);
+            mock.As<IBinarySeismicFile>().Setup(p => p.EndMoment).Returns(expectedArray.Length);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(0);
             mock.As<IBinarySeismicFile>().Setup(p => p.HeaderMemorySize).Returns(0);
             mock.As<IBinarySeismicFile>().Setup(p => p.ChannelsCount).Returns(3);
             mock.Object._Path = path;
 
-            int[] actual = mock.Object.GetComponentSignal("Z");
+            int[] actualArray = mock.Object.GetComponentSignal("Z");
 
             File.Delete(path);
 
-            for (int i = 0; i < signalArr.Length; i++)
+            for (int i = 0; i < expectedArray.Length; i++)
             {
-                Assert.AreEqual(signalArr[i], actual[i]);
+                Assert.AreEqual(expectedArray[i], actualArray[i]);
             }
         }
 
