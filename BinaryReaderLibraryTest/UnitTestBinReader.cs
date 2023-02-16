@@ -308,7 +308,8 @@ namespace BinaryReaderLibraryTest
         [DataRow("gdf.hgf", false)]
         public void testIsBinaryFileAtPath(string path, bool result)
         {
-            File.Create(Path.GetTempPath() + path, 4096, FileOptions.DeleteOnClose);
+            string fullPath = Path.Combine(Path.GetTempPath(), path);
+            File.Create(fullPath, 4096, FileOptions.DeleteOnClose);
             var mock = Helpers.GetMockBinarySeismicFile();
 
             bool actual = mock.Object.IsBinaryFileAtPath(Path.GetTempPath() + path);
