@@ -463,8 +463,13 @@ namespace BinaryReaderLibraryTest
             {
                 using (var writer = new BinaryWriter(stream))
                 {
-                    for (int i = 0; i < random.Next(80000, 10000000); i++)
-                    { writer.Write(BitConverter.GetBytes((Int32)2)); ; }
+                    for (int i = 0; i < random.Next(20000, 4000000); i++)
+                    {
+                        for (int k = 0; k < 3; k++)
+                        {
+                            writer.Write(BitConverter.GetBytes((Int32)2));
+                        }                        
+                    }
                 }
             }
 
