@@ -709,14 +709,16 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(expected, actual);
         }
 
-        [DataRow(3, 2, 1000)]
-        [DataRow(4234, 434, 1000)]
-        [DataRow(1425344, 84534, 1000)]
+        [DataRow(3, 2)]
+        [DataRow(4234, 434)]
+        [DataRow(1425344, 84534)]
         [TestMethod]
-        public void testEndMoment(int sec, int startMoment, int frequency)
+        public void testEndMoment(int sec, int startMoment)
         {
+            int frequency = 1000;
+            int resampleParameter = 4;
             int expected = sec * frequency - startMoment;
-            expected = expected - (expected % 4);
+            expected = expected - (expected % resampleParameter);
             expected = expected + startMoment;
 
             DateTimeInterval recordDateTimeInterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(sec + sec));
@@ -726,7 +728,7 @@ namespace BinaryReaderLibraryTest
             mock.As<IBinarySeismicFile>().Setup(p => p.ReadDateTimeInterval).Returns(readDateTimeInterval);
             mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(recordDateTimeInterval);
             mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(startMoment);
-            mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(4);
+            mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(resampleParameter);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(frequency);
 
             double actual = mock.Object.EndMoment;
