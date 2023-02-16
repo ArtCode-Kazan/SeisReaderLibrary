@@ -343,14 +343,14 @@ namespace BinaryReaderLibraryTest
         [DataRow("gdf.6x")]
         [DataRow("fds/fsd/1fsd.sa")]
         [TestMethod]
-        public void testGetPath(string path)
+        public void testGetPath(string expectedPath)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
-            mock.Object._Path = path;
+            mock.Object._Path = expectedPath;
 
-            string actual = mock.Object.GetPath;
+            string actualPath = mock.Object.GetPath;
 
-            Assert.AreEqual(path, actual);
+            Assert.AreEqual(expectedPath, actualPath);
         }
 
         [DataRow(true)]
