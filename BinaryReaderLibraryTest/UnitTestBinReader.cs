@@ -312,7 +312,7 @@ namespace BinaryReaderLibraryTest
             File.Create(fullPath, 4096, FileOptions.DeleteOnClose);
             var mock = Helpers.GetMockBinarySeismicFile();
 
-            bool actual = mock.Object.IsBinaryFileAtPath(Path.GetTempPath() + path);
+            bool actual = mock.Object.IsBinaryFileAtPath(fullPath);
 
             Assert.AreEqual(result, actual);
         }
