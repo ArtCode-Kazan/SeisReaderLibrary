@@ -169,7 +169,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadBaikal7Header()
         {
-            var mock = new Mock<FileHeader>("123.10") { CallBase = true };
+            var mock = new Mock<FileHeader>(Helpers.SomePath) { CallBase = true };
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .Returns(1)
             .Returns(2)
@@ -177,7 +177,7 @@ namespace BinaryReaderLibraryTest
             .Returns((double)4.12312342543)
             .Returns((double)5.12312312543);
 
-            bool headerRead = mock.Object.ReadBaikal7Header("123.00");
+            bool headerRead = mock.Object.ReadBaikal7Header(Helpers.SomePath);
 
             Assert.AreEqual(1, mock.Object.channelCount);
             Assert.AreEqual(2, mock.Object.frequency);
