@@ -955,12 +955,12 @@ namespace BinaryReaderLibraryTest
                 expectedArray[i] = signalArr[i] - expectedArrayAvg;
             }
 
-            File.Delete(path);
-
             for (int i = 0; i < signalArr.Length; i++)
             {
                 Assert.AreEqual(expectedArray[i], actualArray[i]);
             }
+
+            File.Delete(path);
         }
     }
 }
