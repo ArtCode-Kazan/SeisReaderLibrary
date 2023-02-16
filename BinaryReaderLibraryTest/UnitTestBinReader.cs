@@ -313,14 +313,14 @@ namespace BinaryReaderLibraryTest
         [DataRow(50000, "13:53:20,000")]
         [DataRow(115851, "1 days 08:10:51,000")]
         [DataRow(82485484, "954 days 16:38:04,000")]
-        public void testFormattedDuration(int secondsAll, string expected)
+        public void testFormattedDuration(int secondsAll, string expectedFormat)
         {
             var mock = Helpers.GetMockBinaryFileInfo;
             mock.As<IBinaryFileInfo>().Setup(p => p.DurationInSeconds).Returns(secondsAll);
 
-            string actual = mock.Object.FormattedDuration;
+            string actualFormat = mock.Object.FormattedDuration;
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedFormat, actualFormat);
         }
 
         [TestMethod]
