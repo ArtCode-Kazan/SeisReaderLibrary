@@ -269,7 +269,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testDurationInSeconds(int seconds)
         {
-            DateTime startDate = new DateTime();
+            DateTime startDate = Helpers.NullDateTime;
             DateTime stopDate = startDate.AddSeconds(seconds);
             DateTimeInterval interval = new DateTimeInterval(startDate, stopDate);
             var mock = new Mock<BinaryFileInfo>(
