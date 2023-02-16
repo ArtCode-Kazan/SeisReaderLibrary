@@ -696,12 +696,10 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testRecordType()
         {
-            var mock = new Mock<BinarySeismicFile>("123.1", 1, false) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.1")).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(123);
-            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(123);
+            var mock = Helpers.getMockBinarySeismicFile();
+
             string actual = mock.Object.RecordType;
+
             Assert.AreEqual(Constants.ComponentsOrder, actual);
         }
 
