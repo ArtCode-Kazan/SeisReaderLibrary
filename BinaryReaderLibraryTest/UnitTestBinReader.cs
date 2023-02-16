@@ -39,9 +39,9 @@ namespace BinaryReaderLibraryTest
             get
             {
                 var mock = new Mock<BinaryFileInfo>(
-                    "",
-                    "",
-                    0,
+                    Helpers.SomePath,
+                    Constants.Baikal7Fmt,
+                    Helpers.NullDateTime,
                     new DateTimeInterval(new DateTime(), new DateTime()),
                     new Coordinate(0, 0)
                 )
