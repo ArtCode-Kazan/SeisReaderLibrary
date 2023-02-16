@@ -56,14 +56,6 @@ namespace BinaryReaderLibraryTest
             return mock;
         }
 
-        public static Random Random
-        {
-            get
-            {
-                return new Random();
-            }
-        }
-
         public static DateTime NullDateTime
         {
             get
@@ -434,12 +426,13 @@ namespace BinaryReaderLibraryTest
             string filename = "/testGetComponentSignal.binary";
             string path = Environment.CurrentDirectory + filename;
 
+            var random = new Random();
 
             using (var stream = File.Open(path, FileMode.Create))
             {
                 using (var writer = new BinaryWriter(stream))
                 {
-                    for (int i = 0; i < Helpers.Random.Next(80000, 10000000); i++)
+                    for (int i = 0; i < random.Next(80000, 10000000); i++)
                     { writer.Write(BitConverter.GetBytes((Int32)2)); ; }
                 }
             }
@@ -793,10 +786,12 @@ namespace BinaryReaderLibraryTest
             string filename = "/testGetComponentSignal.binary";
             string path = Environment.CurrentDirectory + filename;
 
+            var random = new Random();
+
             Int32[] signalArr = new Int32[10];
             for (int i = 0; i < signalArr.Length; i++)
             {
-                signalArr[i] = Helpers.Random.Next(-32768, 32768);
+                signalArr[i] = random.Next(-32768, 32768);
             }
 
             using (var stream = File.Open(path, FileMode.Create))
@@ -866,10 +861,11 @@ namespace BinaryReaderLibraryTest
             string path = Environment.CurrentDirectory + filename;
 
             Int32[] signalArr = new Int32[10000];
+            var random = new Random();
 
             for (int i = 0; i < signalArr.Length; i++)
             {
-                signalArr[i] = Helpers.Random.Next(-32768, 32768);
+                signalArr[i] = random.Next(-32768, 32768);
             }
 
             using (var stream = File.Open(path, FileMode.Create))
