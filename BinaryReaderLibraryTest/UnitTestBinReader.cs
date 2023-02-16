@@ -11,6 +11,7 @@ namespace BinaryReaderLibraryTest
     public class Helpers
     {
         public const string SomePath = "/some/path/some.file";
+        public const int ZeroResampleFrequency = 0;
         public static DateTime NullDateTime = new DateTime();
 
 
@@ -247,7 +248,14 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testName(string path, string expected)
         {
-            var mock = new Mock<BinaryFileInfo>(path, "", 0, new DateTimeInterval(new DateTime(), new DateTime()), new Coordinate(0, 0));
+            var mock = new Mock<BinaryFileInfo>(
+                path, 
+                Constants.Baikal7Fmt, 
+                Helpers.ZeroResampleFrequency, 
+                new DateTimeInterval(new DateTime(), 
+                new DateTime()), 
+                new Coordinate(0, 0)
+            );
 
             var actual = mock.Object.Name;
 
