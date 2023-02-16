@@ -944,16 +944,16 @@ namespace BinaryReaderLibraryTest
                 }
             }
 
-            int expectedArrayAvg = 0;
+            int expectedArraySum = 0;
             for (int i = 0; i < signalArr.Length; i++)
             {
-                expectedArrayAvg += signalArr[i];
+                expectedArraySum += signalArr[i];
             }
-            expectedArrayAvg = expectedArrayAvg / signalArr.Length;
+            expectedArraySum = expectedArraySum / signalArr.Length;
             int[] expectedArray = new int[signalArr.Length];
             for (int i = 0; i < expectedArray.Length; i++)
             {
-                expectedArray[i] = signalArr[i] - expectedArrayAvg;
+                expectedArray[i] = signalArr[i] - expectedArraySum;
             }
 
             for (int i = 0; i < signalArr.Length; i++)
