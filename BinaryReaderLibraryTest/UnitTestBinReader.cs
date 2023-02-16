@@ -73,83 +73,82 @@ namespace BinaryReaderLibraryTest
         [DataRow("long", 1)]
         [DataRow("string", 4)]
         public void testBinaryRead(string type, int count)
-        {
-            string filename = "/testGetComponentSignal.binary";
-            string path = Environment.CurrentDirectory + filename;
+        {            
+            string fullPath = Path.Combine(Path.GetTempPath(), Helpers.SomeFileName);            
 
-            var filehead = new FileHeader(path);
+            var filehead = new FileHeader(fullPath);
             dynamic actual;
 
             switch (type)
             {
                 case "uint16":
                     {
-                        using (var stream = File.Open(path, FileMode.Create))
+                        using (var stream = File.Open(fullPath, FileMode.Create))
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
                                 bw.Write(BitConverter.GetBytes((UInt16)1234), 0, 2);
                             }
                         }
-                        actual = filehead.BinaryRead(path, type, count, 0);
+                        actual = filehead.BinaryRead(fullPath, type, count, 0);
                         Assert.AreEqual((UInt16)1234, (UInt16)actual);
                         break;
                     }
                 case "uint32":
                     {
-                        using (var stream = File.Open(path, FileMode.Create))
+                        using (var stream = File.Open(fullPath, FileMode.Create))
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
                                 bw.Write(BitConverter.GetBytes((UInt32)1234), 0, 4);
                             }
                         }
-                        actual = filehead.BinaryRead(path, type, count, 0);
+                        actual = filehead.BinaryRead(fullPath, type, count, 0);
                         Assert.AreEqual((UInt32)1234, (UInt32)actual);
                         break;
                     }
                 case "double":
                     {
-                        using (var stream = File.Open(path, FileMode.Create))
+                        using (var stream = File.Open(fullPath, FileMode.Create))
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
                                 bw.Write(BitConverter.GetBytes((double)1234), 0, 8);
                             }
                         }
-                        actual = filehead.BinaryRead(path, type, count, 0);
+                        actual = filehead.BinaryRead(fullPath, type, count, 0);
                         Assert.AreEqual((double)1234, (double)actual);
                         break;
                     }
                 case "long":
                     {
-                        using (var stream = File.Open(path, FileMode.Create))
+                        using (var stream = File.Open(fullPath, FileMode.Create))
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
                                 bw.Write(BitConverter.GetBytes((ulong)1234), 0, 8);
                             }
                         }
-                        actual = filehead.BinaryRead(path, type, count, 0);
+                        actual = filehead.BinaryRead(fullPath, type, count, 0);
                         Assert.AreEqual((long)1234, (long)actual);
                         break;
                     }
                 case "string":
                     {
-                        using (var stream = File.Open(path, FileMode.Create))
+                        using (var stream = File.Open(fullPath, FileMode.Create))
                         {
                             using (var bw = new BinaryWriter(stream))
                             {
                                 bw.Write(Encoding.UTF8.GetBytes("1234"));
                             }
                         }
-                        actual = filehead.BinaryRead(path, type, count, 0);
+                        actual = filehead.BinaryRead(fullPath, type, count, 0);
                         Assert.AreEqual("1234", actual);
                         break;
                     }
             }
 
-            File.Delete(path);
+            File.Delete(fullPath);
         }
 
         [TestMethod]
