@@ -386,9 +386,9 @@ namespace BinaryReaderLibraryTest
         }
 
         [TestMethod]
-        [DataRow("00", "Baikal7")]
-        [DataRow("xx", "Baikal8")]
-        [DataRow("bin", "Sigma")]
+        [DataRow(Constants.Baikal7Extension, Constants.Baikal7Fmt)]
+        [DataRow(Constants.Baikal8Extension, Constants.Baikal8Fmt)]
+        [DataRow(Constants.SigmaExtension, Constants.SigmaFmt)]
         [DataRow("oo", null)]
         [DataRow("txt", null)]
         public void testFormatType(string extension, string expected)
