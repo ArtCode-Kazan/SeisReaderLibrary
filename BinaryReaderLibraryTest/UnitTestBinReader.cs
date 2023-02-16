@@ -55,6 +55,14 @@ namespace BinaryReaderLibraryTest
                     mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
                 return mock;            
         }
+
+        public static Random Random
+        {
+            get
+            {                
+                return new Random();
+            }
+        }        
     }
 
     [TestClass]
@@ -783,13 +791,11 @@ namespace BinaryReaderLibraryTest
         {
             string filename = "/testGetComponentSignal.binary";
             string path = Environment.CurrentDirectory + filename;
-
-            Random rnd = new Random();
+            
             Int32[] signalArr = new Int32[10000];
-
             for (int i = 0; i < signalArr.Length; i++)
             {
-                signalArr[i] = rnd.Next(-32768, 32768);
+                signalArr[i] = Helpers.Random.Next(-32768, 32768);
             }
 
             using (var stream = File.Open(path, FileMode.Create))
@@ -804,15 +810,12 @@ namespace BinaryReaderLibraryTest
                 }
             }
 
-            var mock = new Mock<BinarySeismicFile>(path, 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            var mock = Helpers.getMockBinarySeismicFile();            
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1);
-            mock.As<IBinarySeismicFile>().Setup(p => p.HeaderMemorySize).Returns(0);
             mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(0);
             mock.As<IBinarySeismicFile>().Setup(p => p.EndMoment).Returns(signalArr.Length);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(0);
-            mock.As<IBinarySeismicFile>().Setup(p => p.ChannelsCount).Returns(3);
+            mock.Object._Path = path;
 
             int[] actual = mock.Object.GetComponentSignal("Z");
 
