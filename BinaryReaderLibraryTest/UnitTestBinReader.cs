@@ -374,14 +374,14 @@ namespace BinaryReaderLibraryTest
         [DataRow("gdf/sdf/text.tst", "tst")]
         [DataRow("gdf.qwe", "qwe")]
         [TestMethod]
-        public void testFileExtension(string path, string ext)
+        public void testFileExtension(string path, string expected)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.GetPath).Returns(path);
 
             string actual = mock.Object.FileExtension;
 
-            Assert.AreEqual(ext, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
