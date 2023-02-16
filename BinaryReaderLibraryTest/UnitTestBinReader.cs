@@ -800,14 +800,14 @@ namespace BinaryReaderLibraryTest
         [DataRow(1000, 100, true)]
         [DataRow(1000, 98, false)]
         [TestMethod]
-        public void testIsCorrectResampleFrequency(int origin, int resample, bool expected)
+        public void testIsCorrectResampleFrequency(int origin, int resample, bool expectedCorrectResampleFrequency)
         {
             var mock = Helpers.GetMockBinarySeismicFile(Helpers.RemoveMethod.IsCorrectResampleFrequency);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
 
-            bool actual = mock.Object.IsCorrectResampleFrequency(resample);
+            bool actualCorrectResampleFrequency = mock.Object.IsCorrectResampleFrequency(resample);
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedCorrectResampleFrequency, actualCorrectResampleFrequency);
         }
 
         [DataRow(new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 2, new int[5] { 2, 4, 6, 8, 10 })]
