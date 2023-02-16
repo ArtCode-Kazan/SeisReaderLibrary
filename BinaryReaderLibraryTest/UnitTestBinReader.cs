@@ -643,11 +643,8 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testStartMoment(int sec, int freq)
         {
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
+            var mock = Helpers.getMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.ReadDateTimeInterval).Returns(new DateTimeInterval(new DateTime().AddSeconds(sec), new DateTime()));
-            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(freq);
 
             double actual = mock.Object.StartMoment;
