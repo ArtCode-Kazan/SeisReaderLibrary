@@ -440,16 +440,16 @@ namespace BinaryReaderLibraryTest
         [DataRow(3)]
         [DataRow(6)]
         [TestMethod]
-        public void testChannelsCount(int channelCount)
+        public void testChannelsCount(int expectedChannelCount)
         {
             var mockbsf = Helpers.GetMockBinarySeismicFile();
             var mockfh = Helpers.GetMockFileHeader;
-            mockfh.Object.channelCount = channelCount;
+            mockfh.Object.channelCount = expectedChannelCount;
             mockbsf.Object._FileHeader = mockfh.Object;
 
-            int actual = mockbsf.Object.ChannelsCount;
+            int actualChannelCount = mockbsf.Object.ChannelsCount;
 
-            Assert.AreEqual(channelCount, actual);
+            Assert.AreEqual(expectedChannelCount, actualChannelCount);
         }
 
         [TestMethod]
