@@ -814,17 +814,17 @@ namespace BinaryReaderLibraryTest
         [DataRow(new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 2, new int[4] { 2, 4, 6, 8 })]
         [DataRow(new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, new int[3] { 3, 6, 9 })]
         [TestMethod]
-        public void testResampling(int[] signal, int resampleParam, int[] expected)
+        public void testResampling(int[] signal, int resampleParam, int[] expectedSignal)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(0);
 
-            int[] actual = mock.Object.Resampling(signal, resampleParam);
+            int[] actualSignal = mock.Object.Resampling(signal, resampleParam);
 
-            for (int i = 0; i < expected.Length; i++)
+            for (int i = 0; i < expectedSignal.Length; i++)
             {
-                Assert.AreEqual(expected[i], actual[i]);
+                Assert.AreEqual(expectedSignal[i], actualSignal[i]);
             }
         }
 
