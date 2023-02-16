@@ -268,7 +268,7 @@ namespace BinaryReaderLibraryTest
         [DataRow("y543-0/g5/f", "f")]
         [DataRow("6hrte/3g/", "")]
         [TestMethod]
-        public void testName(string path, string expected)
+        public void testName(string path, string expectedName)
         {
             var mock = new Mock<BinaryFileInfo>(
                 path,
@@ -278,9 +278,9 @@ namespace BinaryReaderLibraryTest
                 new Coordinate(0, 0)
             );
 
-            var actual = mock.Object.Name;
+            var actualName = mock.Object.Name;
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedName, actualName);
         }
 
         [DataRow(0)]
