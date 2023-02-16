@@ -444,11 +444,7 @@ namespace BinaryReaderLibraryTest
             int acc = Convert.ToInt32(Math.Log10(freq));
             double btw = Convert.ToDouble(discreteCount) / freq;
             double expected = Math.Round(btw, acc);
-
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
+            var mock = Helpers.getMockBinarySeismicFile;
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(discreteCount);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(freq);
 
