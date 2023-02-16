@@ -289,10 +289,10 @@ namespace BinaryReaderLibraryTest
         [DataRow(74567456)]
         [DataRow(2147483647)]
         [TestMethod]
-        public void testDurationInSeconds(int seconds)
+        public void testDurationInSeconds(int expectedSeconds)
         {
             DateTime startDate = Helpers.NullDateTime;
-            DateTime stopDate = startDate.AddSeconds(seconds);
+            DateTime stopDate = startDate.AddSeconds(expectedSeconds);
             DateTimeInterval interval = new DateTimeInterval(startDate, stopDate);
             var mock = new Mock<BinaryFileInfo>(
                 Helpers.SomePath,
@@ -302,9 +302,9 @@ namespace BinaryReaderLibraryTest
                 new Coordinate(0, 0))
             { CallBase = true };
 
-            var actual = mock.Object.DurationInSeconds;
+            var actualSeconds = mock.Object.DurationInSeconds;
 
-            Assert.AreEqual(seconds, actual);
+            Assert.AreEqual(expectedSeconds, actualSeconds);
         }
 
         [TestMethod]
