@@ -200,7 +200,7 @@ namespace BinaryReaderLibraryTest
             .Returns((double)7.7469722438) // latitude
             .Returns((double)8.166847342); //longitude
 
-            bool headerRead = mock.Object.ReadBaikal8Header("123.00");
+            bool headerRead = mock.Object.ReadBaikal8Header(Helpers.SomePath);
 
             Assert.AreEqual(1, mock.Object.channelCount);
             Assert.AreEqual(1000, mock.Object.frequency);
