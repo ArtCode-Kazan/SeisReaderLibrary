@@ -721,18 +721,17 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testComponentsIndex()
         {
-            var componentsIndexes = new Dictionary<string, int>(); ;
-            componentsIndexes.Add("Z", 0);
-            componentsIndexes.Add("X", 1);
-            componentsIndexes.Add("Y", 2);
-
+            var expectedIndexes = new Dictionary<string, int>(); ;
+            expectedIndexes.Add("Z", 0);
+            expectedIndexes.Add("X", 1);
+            expectedIndexes.Add("Y", 2);
             var mock = Helpers.GetMockBinarySeismicFile();
 
-            var actual = mock.Object.ComponentsIndex;
+            var actualIndexes = mock.Object.ComponentsIndex;
 
-            Assert.AreEqual(componentsIndexes["Z"], actual["Z"]);
-            Assert.AreEqual(componentsIndexes["X"], actual["X"]);
-            Assert.AreEqual(componentsIndexes["Y"], actual["Y"]);
+            Assert.AreEqual(expectedIndexes["Z"], actualIndexes["Z"]);
+            Assert.AreEqual(expectedIndexes["X"], actualIndexes["X"]);
+            Assert.AreEqual(expectedIndexes["Y"], actualIndexes["Y"]);
         }
 
         [TestMethod]
