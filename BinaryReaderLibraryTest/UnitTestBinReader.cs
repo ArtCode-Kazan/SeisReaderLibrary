@@ -11,7 +11,9 @@ namespace BinaryReaderLibraryTest
     public class Helpers
     {
         public const string SomePath = "/some/path/some.file";
-        
+        public static DateTime NullDateTime = new DateTime();
+
+
         public enum RemoveMethod
         {
             None,
@@ -56,14 +58,6 @@ namespace BinaryReaderLibraryTest
             if (removedMethod != RemoveMethod.RecordDateTimeInterval)
                 mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(new DateTimeInterval(new DateTime(), new DateTime()));
             return mock;
-        }
-
-        public static DateTime NullDateTime
-        {
-            get
-            {
-                return new DateTime();
-            }
         }
     }
 
