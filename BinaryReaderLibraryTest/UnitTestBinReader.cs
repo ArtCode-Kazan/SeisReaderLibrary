@@ -671,7 +671,7 @@ namespace BinaryReaderLibraryTest
         [DataRow(123, 1234, 0)]
         [DataRow(4234, 434, 9)]
         [TestMethod]
-        public void testResampleParameter(int origin, int resample, int res)
+        public void testResampleParameter(int origin, int resample, int expected)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
@@ -679,18 +679,18 @@ namespace BinaryReaderLibraryTest
 
             double actual = mock.Object.ResampleParameter;
 
-            Assert.AreEqual(res, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [DataRow(3, 2)]
         [DataRow(4234, 434)]
         [DataRow(1425344, 84534)]
         [TestMethod]
-        public void testEndMoment(int sec, int startMom)
+        public void testEndMoment(int sec, int startMoment)
         {
-            int exp = sec * 1000 - startMom;
-            exp = exp - (exp % 4);
-            exp = exp + startMom;
+            int expected = sec * 1000 - startMoment;
+            expected = expected - (expected % 4);
+            expected = expected + startMoment;
 
             DateTimeInterval recordDateTimeInterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(sec + sec));
             DateTimeInterval readDateTimeInterval = new DateTimeInterval(Helpers.NullDateTime, Helpers.NullDateTime.AddSeconds(sec));
@@ -698,23 +698,24 @@ namespace BinaryReaderLibraryTest
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.ReadDateTimeInterval).Returns(readDateTimeInterval);
             mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(recordDateTimeInterval);
-            mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(startMom);
+            mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(startMoment);
             mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(4);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1000);
 
             double actual = mock.Object.EndMoment;
 
-            Assert.AreEqual(exp, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
         public void testRecordType()
         {
             var mock = Helpers.GetMockBinarySeismicFile();
+            string expected = Constants.ComponentsOrder;
 
             string actual = mock.Object.RecordType;
 
-            Assert.AreEqual(Constants.ComponentsOrder, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         [TestMethod]
