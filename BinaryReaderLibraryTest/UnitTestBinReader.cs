@@ -706,17 +706,14 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testComponentsIndex()
         {
-            var mock = new Mock<BinarySeismicFile>(@"C:\Windows\Temp\gdf.10", 1, true) { CallBase = true };
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(It.IsAny<string>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(It.IsAny<int>())).Returns(true);
-            mock.As<IBinarySeismicFile>().Setup(p => p.SecondsDuration).Returns(1);
-
-            var actual = mock.Object.ComponentsIndex;
-
             var componentsIndexes = new Dictionary<string, int>(); ;
             componentsIndexes.Add("Z", 0);
             componentsIndexes.Add("X", 1);
             componentsIndexes.Add("Y", 2);
+
+            var mock = Helpers.getMockBinarySeismicFile();
+
+            var actual = mock.Object.ComponentsIndex;            
 
             Assert.AreEqual(componentsIndexes["Z"], actual["Z"]);
             Assert.AreEqual(componentsIndexes["X"], actual["X"]);
