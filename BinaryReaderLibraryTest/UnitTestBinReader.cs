@@ -513,13 +513,12 @@ namespace BinaryReaderLibraryTest
         public void testCoordinate(double longitude, double latitude)
         {
             Coordinate expected = new Coordinate(longitude, latitude);
-
             var mockfh = Helpers.GetMockFileHeader;
             mockfh.Object.coordinate = expected;
-            var mock = Helpers.GetMockBinarySeismicFile();
-            mock.Object._FileHeader = mockfh.Object;
+            var mockbsf = Helpers.GetMockBinarySeismicFile();
+            mockbsf.Object._FileHeader = mockfh.Object;
 
-            var actual = mock.Object.Coordinate;
+            var actual = mockbsf.Object.Coordinate;
 
             Assert.AreEqual(expected.latitude, actual.latitude);
             Assert.AreEqual(expected.longitude, actual.longitude);
