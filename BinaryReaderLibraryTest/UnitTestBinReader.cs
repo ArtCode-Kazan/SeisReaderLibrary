@@ -407,11 +407,11 @@ namespace BinaryReaderLibraryTest
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.ChannelsCount).Returns(channelCount);
-            int expected = 120 + 72 * channelCount;
+            int expectedSize = 120 + 72 * channelCount;
 
-            int actual = mock.Object.HeaderMemorySize;
+            int actualSize = mock.Object.HeaderMemorySize;
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedSize, actualSize);
         }
 
         [DataRow(3)]
