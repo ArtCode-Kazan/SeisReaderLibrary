@@ -384,14 +384,14 @@ namespace BinaryReaderLibraryTest
         [DataRow(123)]
         [DataRow(321)]
         [TestMethod]
-        public void testResampleFrequency(int freq)
+        public void testResampleFrequency(int expectedFrequency)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
-            mock.Object._ResampleFrequency = freq;
+            mock.Object._ResampleFrequency = expectedFrequency;
 
-            int actual = mock.Object.ResampleFrequency;
+            int actualFrequency = mock.Object.ResampleFrequency;
 
-            Assert.AreEqual(freq, actual);
+            Assert.AreEqual(expectedFrequency, actualFrequency);
         }
 
         [DataRow("gdf/sdf/text.tst", "tst")]
