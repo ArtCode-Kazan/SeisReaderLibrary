@@ -329,15 +329,15 @@ namespace BinaryReaderLibraryTest
         [DataRow("gdf.00", true)]
         [DataRow("gdf.oo", false)]
         [DataRow("gdf.hgf", false)]
-        public void testIsBinaryFileAtPath(string path, bool result)
+        public void testIsBinaryFileAtPath(string path, bool expectedBool)
         {
             string fullPath = Path.Combine(Path.GetTempPath(), path);
             File.Create(fullPath, 4096, FileOptions.DeleteOnClose);
             var mock = Helpers.GetMockBinarySeismicFile();
 
-            bool actual = mock.Object.IsBinaryFileAtPath(fullPath);
+            bool actualBool = mock.Object.IsBinaryFileAtPath(fullPath);
 
-            Assert.AreEqual(result, actual);
+            Assert.AreEqual(expectedBool, actualBool);
         }
 
         [DataRow("gdf.6x")]
