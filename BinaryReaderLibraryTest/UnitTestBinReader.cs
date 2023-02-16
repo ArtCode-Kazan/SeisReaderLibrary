@@ -497,14 +497,14 @@ namespace BinaryReaderLibraryTest
         {
             int acc = Convert.ToInt32(Math.Log10(freq));
             double btw = Convert.ToDouble(discreteCount) / freq;
-            double expected = Math.Round(btw, acc);
+            double expectedSecondsDuration = Math.Round(btw, acc);
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(discreteCount);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(freq);
 
-            double actual = mock.Object.SecondsDuration;
+            double actualSecondsDuration = mock.Object.SecondsDuration;
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expectedSecondsDuration, actualSecondsDuration);
         }
 
         [DataRow(10432, 2314)]
