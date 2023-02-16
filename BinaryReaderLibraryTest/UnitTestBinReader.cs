@@ -753,8 +753,6 @@ namespace BinaryReaderLibraryTest
         public void testIsCorrectResampleFrequency(int origin, int resample, bool exp)
         {
             var mock = Helpers.getMockBinarySeismicFile(Helpers.RemoveMethod.IsCorrectResampleFrequency);
-            mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(4);
-            mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(1);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(origin);
 
             bool actual = mock.Object.IsCorrectResampleFrequency(resample);
