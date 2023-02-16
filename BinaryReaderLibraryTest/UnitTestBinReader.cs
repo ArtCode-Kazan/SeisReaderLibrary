@@ -10,6 +10,8 @@ namespace BinaryReaderLibraryTest
 {
     public class Helpers
     {
+        public const string SomePath = "/some/path/some.file";
+        
         public enum RemoveMethod
         {
             None,
@@ -22,7 +24,7 @@ namespace BinaryReaderLibraryTest
         {
             get
             {
-                var mock = new Mock<FileHeader>("123.00") { CallBase = true };
+                var mock = new Mock<FileHeader>(SomePath) { CallBase = true };
                 mock.As<IFileHeader>().Setup(p => p.ReadBaikal7Header(It.IsAny<string>())).Returns(true);
                 return mock;
             }
@@ -46,9 +48,9 @@ namespace BinaryReaderLibraryTest
 
         public static Mock<BinarySeismicFile> GetMockBinarySeismicFile(RemoveMethod removedMethod = RemoveMethod.None)
         {
-            var mock = new Mock<BinarySeismicFile>("123.10", 1, false) { CallBase = true };
+            var mock = new Mock<BinarySeismicFile>(SomePath, 1, false) { CallBase = true };
             if (removedMethod != RemoveMethod.IsBinaryFileAtPath)
-                mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath("123.10")).Returns(true);
+                mock.As<IBinarySeismicFile>().Setup(p => p.IsBinaryFileAtPath(SomePath)).Returns(true);
             if (removedMethod != RemoveMethod.IsCorrectResampleFrequency)
                 mock.As<IBinarySeismicFile>().Setup(p => p.IsCorrectResampleFrequency(1)).Returns(true);
             if (removedMethod != RemoveMethod.RecordDateTimeInterval)
