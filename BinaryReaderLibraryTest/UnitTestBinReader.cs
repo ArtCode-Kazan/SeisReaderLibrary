@@ -11,6 +11,7 @@ namespace BinaryReaderLibraryTest
     public class Helpers
     {
         public const string SomePath = "/some/path/some.file";
+        public const string SomeFileName = "some.file";
         public const int ZeroResampleFrequency = 0;
         public static DateTime NullDateTime = new DateTime();        
 
@@ -431,9 +432,8 @@ namespace BinaryReaderLibraryTest
 
         [TestMethod]
         public void testDiscreteAmount()
-        {
-            string filename = "/testGetComponentSignal.binary";
-            string path = Environment.CurrentDirectory + filename;
+        {            
+            string path = Path.Combine(Path.GetTempPath(), Helpers.SomeFileName);
 
             var random = new Random();
 
@@ -482,9 +482,9 @@ namespace BinaryReaderLibraryTest
         [DataRow(10432, 2314)]
         [DataRow(-14123, -54431)]
         [TestMethod]
-        public void testCoordinate(double longi, double lat)
+        public void testCoordinate(double longitude, double latitude)
         {
-            Coordinate expected = new Coordinate(longi, lat);
+            Coordinate expected = new Coordinate(longitude, latitude);
 
             var mockfh = Helpers.GetMockFileHeader;
             mockfh.Object.coordinate = expected;
