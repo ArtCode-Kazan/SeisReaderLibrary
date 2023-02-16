@@ -709,13 +709,13 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(expected, actual);
         }
 
-        [DataRow(3, 2)]
-        [DataRow(4234, 434)]
-        [DataRow(1425344, 84534)]
+        [DataRow(3, 2, 1000)]
+        [DataRow(4234, 434, 1000)]
+        [DataRow(1425344, 84534, 1000)]
         [TestMethod]
-        public void testEndMoment(int sec, int startMoment)
+        public void testEndMoment(int sec, int startMoment, int frequency)
         {
-            int expected = sec * 1000 - startMoment;
+            int expected = sec * frequency - startMoment;
             expected = expected - (expected % 4);
             expected = expected + startMoment;
 
@@ -727,7 +727,7 @@ namespace BinaryReaderLibraryTest
             mock.As<IBinarySeismicFile>().Setup(p => p.RecordDateTimeInterval).Returns(recordDateTimeInterval);
             mock.As<IBinarySeismicFile>().Setup(p => p.StartMoment).Returns(startMoment);
             mock.As<IBinarySeismicFile>().Setup(p => p.ResampleParameter).Returns(4);
-            mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(1000);
+            mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(frequency);
 
             double actual = mock.Object.EndMoment;
 
