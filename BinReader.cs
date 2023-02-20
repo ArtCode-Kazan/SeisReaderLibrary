@@ -722,8 +722,8 @@ namespace BinReader
                 return resampleSignalArray;
             }
 
-            Int32[] averagedSignalArray = resampleSignalArray;
-            int avgValue = Convert.ToInt32(Enumerable.Average(resampleSignalArray));
+            Int32[] averagedSignalArray = resampleSignalArray;            
+            int avgValue = (int)Math.Truncate(resampleSignalArray.Average());
 
             for (int i = 0; i < averagedSignalArray.Length; i++)
             {
