@@ -222,8 +222,8 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testReadSigmaHeader()
         {                        
-            string longitudeSource = "07919.53Z";
-            string latitudeSource = "6644.66X";
+            string longitudeSource = "07919.53N";
+            string latitudeSource = "6644.66E";
             string dateSource = "200221";
             string fullTimeSource = "001232";
             int year = 2000 + Convert.ToInt32(dateSource.Substring(0, 2));
