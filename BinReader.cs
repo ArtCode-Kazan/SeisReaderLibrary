@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using System.Runtime.Serialization;
-using System.IO.MemoryMappedFiles;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -8,217 +7,179 @@ using System.Linq;
 
 namespace BinReader
 {
-    public class FileHeader
+    public class Constants
     {
-        public static int channelCount;
-        public static int frequency;
-        public static DateTime datetimeStart;
-        public static double longitude;
-        public static double latitude;
-
-        public FileHeader(
-            int channelCount,
-            int frequency,
-            DateTime datetimeStart,
-            double longitude,
-            double latitude
-            )
-        {
-            FileHeader.channelCount = channelCount;
-            FileHeader.frequency = frequency;
-            FileHeader.datetimeStart = datetimeStart;
-            FileHeader.longitude = longitude;
-            FileHeader.latitude = latitude;
-        }
-    }
-    public class BinaryFileInfo
-    {
-        public static string path;
-        public static string formatType;
-        public static int frequency;
-        public static DateTime timeStart;
-        public static DateTime timeStop;
-        public static double longitude;
-        public static double latitude;
-
-        public BinaryFileInfo(
-            string path,
-            string formatType,
-            int frequency,
-            DateTime timeStart,
-            DateTime timeStop,
-            double longitude,
-            double latitude
-            )
-        {
-            BinaryFileInfo.path = path;
-            BinaryFileInfo.formatType = formatType;
-            BinaryFileInfo.frequency = frequency;
-            BinaryFileInfo.timeStart = timeStart;
-            BinaryFileInfo.timeStop = timeStop;
-            BinaryFileInfo.longitude = longitude;
-            BinaryFileInfo.latitude = latitude;
-        }
-        static public string name
-        {
-            get
-            {
-                return Path.GetFileName(BinaryFileInfo.path);
-            }
-        }
-        static public object GetShortInfo
-        {
-            get
-            {
-                return (path, formatType, frequency, timeStart, timeStop, longitude, latitude);
-            }
-        }
-        static public double DurationInSeconds
-        {
-            get
-            {
-                return BinaryFileInfo.timeStop.Subtract(BinaryFileInfo.timeStart).TotalSeconds;
-            }
-        }
-
-        static public string FormattedDuration
-        {
-            get
-            {
-                int secs = Convert.ToInt32(BinaryFileInfo.DurationInSeconds);
-                int days = secs / 24 * 3600;
-                int hours = (secs - days * 24 * 3600) / 3600;
-                int minutes = (secs - days * 24 * 3600 - hours * 3600) / 60;
-                double seconds = BinaryFileInfo.DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
-
-                return Operations.FormatDuration(days, hours, minutes, seconds);
-            }
-        }
-    }
-    public class Operations
-    {
-        public const string Baikal7Fmt = ".00";
-        public const string Baikal8Fmt = ".xx";
-        public const string SigmaFmt = ".bin";
-
+        public const string ComponentsOrder = "ZXY";
         public const int SigmaSecondsOffset = 2;
-        public static string ComponentsOrder = "ZXY";
+        public static DateTime Baikal7BaseDateTime = new DateTime(1980, 1, 1);
 
-        static public dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0)
+        public const string Baikal7Fmt = "Baikal7";
+        public const string Baikal8Fmt = "Baikal8";
+        public const string SigmaFmt = "Sigma";
+
+        public const string Baikal7Extension = "00";
+        public const string Baikal8Extension = "xx";
+        public const string SigmaExtension = "bin";
+
+        public static Dictionary<string, string> BinaryFileFormats
         {
-            FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            int size = (int)stream.Length;
-            byte[] data = new byte[size];
-            stream.Read(data, 0, 336);
-            var memoryStream = new MemoryStream(data, 0, 336);
-            memoryStream.Seek(SkippingBytes, SeekOrigin.Begin);
-            var reader = new BinaryReader(memoryStream);
-
-            int uInt16 = 0;
-            uint uInt32 = 0;
-            double dabl = 0;
-            ulong uInt64 = 0;
-            string stroke = "";
-            bool booling = false;
-
-            if (type == "uint16")
+            get
             {
-                uInt16 = reader.ReadUInt16();
-            }
-            else if (type == "uint32")
-            {
-                uInt32 = reader.ReadUInt32();
-            }
-            else if (type == "double")
-            {
-                dabl = reader.ReadDouble();
-            }
-            else if (type == "long")
-            {
-                uInt64 = reader.ReadUInt64();
-            }
-            else if (type == "string")
-            {
-                stroke = new string(reader.ReadChars(count));
-            }
-            else
-            {
-                booling = false;
-            }
-
-            stream.Close();
-            memoryStream.Close();
-            reader.Close();
-
-            if (type == "uint16")
-            {
-                return uInt16;
-            }
-            else if (type == "uint32")
-            {
-                return uInt32;
-            }
-            else if (type == "double")
-            {
-                return dabl;
-            }
-            else if (type == "long")
-            {
-                return uInt64;
-            }
-            else if (type == "string")
-            {
-                return stroke;
-            }
-            else
-            {
-                return booling;
+                var sensorExtension = new Dictionary<string, string>()
+                    {
+                        {Constants.Baikal7Fmt, Constants.Baikal7Extension},
+                        {Constants.Baikal8Fmt, Constants.Baikal8Extension},
+                        {Constants.SigmaFmt, Constants.SigmaExtension}
+                    };
+                return sensorExtension;
             }
         }
-        static public DateTime GetDatetimeStartBaikal7(ulong timeBegin)
+    }
+
+    public class Coordinate
+    {
+        public double longitude;
+        public double latitude;
+
+        public Coordinate(double longitude, double latitude)
         {
-            DateTime constDatetime = new DateTime(1980, 1, 1);
+            this.longitude = longitude;
+            this.latitude = latitude;
+        }
+    }
+
+    public class DateTimeInterval
+    {
+        public DateTime start;
+        public DateTime stop;
+
+        public DateTimeInterval(DateTime datetimeStart, DateTime datetimeStop)
+        {
+            this.start = datetimeStart;
+            this.stop = datetimeStop;
+        }
+    }
+
+    public interface IFileHeader
+    {
+        dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0);
+        DateTime GetDatetimeStartBaikal7(ulong timeBegin);
+        bool ReadBaikal7Header(string path);
+        bool ReadBaikal8Header(string path);
+        bool ReadSigmaHeader(string path);
+    }
+
+    public class FileHeader : IFileHeader
+    {
+        public int channelCount;
+        public int frequency;
+        public DateTime datetimeStart;
+        public Coordinate coordinate = new Coordinate(0, 0);
+
+        public FileHeader(string path)
+        {
+            string extension = Path.GetExtension(path).Substring(1);
+
+            if (Constants.BinaryFileFormats.ContainsValue(extension))
+            {
+                if (extension == Constants.Baikal7Extension)
+                {
+                    ReadBaikal7Header(path);
+                }
+                else if (extension == Constants.Baikal8Extension)
+                {
+                    ReadBaikal8Header(path);
+                }
+                else if (extension == Constants.SigmaExtension)
+                {
+                    ReadSigmaHeader(path);
+                }
+            }
+        }
+
+        public virtual dynamic BinaryRead(string path, string type, int count, int skippingBytes = 0)
+        {
+            dynamic returnValue;
+
+            using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                fileStream.Position = skippingBytes;
+
+                using (BinaryReader binReader = new BinaryReader(fileStream))
+                {
+                    switch (type)
+                    {
+                        case "uint16":
+                            returnValue = binReader.ReadUInt16();
+                            break;
+
+                        case "uint32":
+                            returnValue = binReader.ReadUInt32();
+                            break;
+
+                        case "double":
+                            returnValue = binReader.ReadDouble();
+                            break;
+
+                        case "long":
+                            returnValue = binReader.ReadUInt64();
+                            break;
+
+                        case "string":
+                            returnValue = new string(binReader.ReadChars(count));
+                            break;
+
+                        default:
+                            return null;
+                    }
+                }
+            }
+            return returnValue;
+        }
+
+        public virtual DateTime GetDatetimeStartBaikal7(ulong timeBegin)
+        {
             ulong seconds = timeBegin / 256000000;
-
-            return constDatetime.AddSeconds(seconds);
+            return Constants.Baikal7BaseDateTime.AddSeconds(seconds);
         }
-        static public object ReadBaikal7Header(string path)
-        {
-            int channelCount = BinaryRead(path, "uint16", 1, 0);
-            int frequency = BinaryRead(path, "uint16", 1, 22);
-            ulong timeBegin = BinaryRead(path, "long", 1, 104);
-            double longitude = BinaryRead(path, "double", 1, 80);
-            double latitude = BinaryRead(path, "double", 1, 72);
-            DateTime datetime = GetDatetimeStartBaikal7(timeBegin);
 
-            return new FileHeader(channelCount, frequency, datetime, longitude, latitude);
-        }
-        static public object ReadBaikal8Header(string path)
+        public virtual bool ReadBaikal7Header(string path)
         {
-            int channelCount = BinaryRead(path, "uint16", 1, 0);
-            int day = BinaryRead(path, "uint16", 1, 6);
-            int month = BinaryRead(path, "uint16", 1, 8);
-            int year = BinaryRead(path, "uint16", 1, 10);
-            double dt = BinaryRead(path, "double", 1, 48);
-            double seconds = BinaryRead(path, "double", 1, 56);
-            double latitude = BinaryRead(path, "double", 1, 72);
-            double longitude = BinaryRead(path, "double", 1, 80);
-            DateTime datetimeStart = new DateTime(year, month, day, 0, 0, 1).AddSeconds(seconds);
-            int frequency = Convert.ToInt16(1 / dt);
+            this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 0);
+            this.frequency = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 22);
+            ulong timeBegin = BinaryRead(path: path, type: "long", count: 1, skippingBytes: 104);
+            this.datetimeStart = GetDatetimeStartBaikal7(timeBegin);
+            this.coordinate.longitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 80), 6);
+            this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);
 
-            return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
+            return true;
         }
-        static public object ReadSigmaHeader(string path)
+
+        public virtual bool ReadBaikal8Header(string path)
         {
-            DateTime datetimeStart = new DateTime(1999, 1, 1);
-            double longitude = 0;
-            double latitude = 0;
-            int channelCount = BinaryRead(path, "uint16", 1, 12);
-            int frequency = BinaryRead(path, "uint16", 1, 24);
-            string latitudeSrc = BinaryRead(path, "string", 8, 40);
-            string longitudeSrc = BinaryRead(path, "string", 9, 48);
-            string dateSrc = Convert.ToString(BinaryRead(path, "uint32", 1, 60));
-            string timeSrc = Convert.ToString(BinaryRead(path, "uint32", 1, 64));
+            this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 0);
+            int day = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 6);
+            int month = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 8);
+            int year = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 10);
+            double dt = BinaryRead(path: path, type: "double", count: 1, skippingBytes: 48);
+            double seconds = BinaryRead(path: path, type: "double", count: 1, skippingBytes: 56);
+            this.coordinate.longitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 80), 6);
+            this.coordinate.latitude = Math.Round(BinaryRead(path: path, type: "double", count: 1, skippingBytes: 72), 6);
+            this.datetimeStart = new DateTime(year, month, day).AddSeconds(seconds);
+            this.frequency = Convert.ToInt16(1 / dt);
+
+            return true;
+        }
+
+        public virtual bool ReadSigmaHeader(string path)
+        {
+            this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 12);
+            this.frequency = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 24);
+            string latitudeSrc = BinaryRead(path: path, type: "string", count: 8, skippingBytes: 40);
+            string longitudeSrc = BinaryRead(path: path, type: "string", count: 9, skippingBytes: 48);
+            string dateSrc = Convert.ToString(BinaryRead(path: path, type: "uint32", count: 1, skippingBytes: 60));
+            string timeSrc = Convert.ToString(BinaryRead(path: path, type: "uint32", count: 1, skippingBytes: 64));
+
             timeSrc = timeSrc.PadLeft(6, '0');
             int year = 2000 + Convert.ToInt32(dateSrc.Substring(0, 2));
             int month = Convert.ToInt32(dateSrc.Substring(2, 2));
@@ -232,32 +193,173 @@ namespace BinReader
 
             try
             {
-                datetimeStart = new DateTime(year, month, day, hours, minutes, seconds);
+                this.datetimeStart = new DateTime(year, month, day, hours, minutes, seconds);
             }
             catch (Exception e)
             {
-
+                throw new InvalidDateTimeValue("Invalid start reading datetime: " + Convert.ToString(e));
             }
 
             try
             {
-                longitude = Math.Round((Convert.ToInt32(longitudeSrc.Substring(0, 3)) + Convert.ToDouble(longitudeSrc.Substring(3, 5), provider) / 60), 2);
-                latitude = Math.Round((Convert.ToInt32(latitudeSrc.Substring(0, 2)) + Convert.ToDouble(latitudeSrc.Substring(2, 4), provider) / 60), 2);
+                this.coordinate.longitude = Math.Round((Convert.ToInt32(longitudeSrc.Substring(0, 3)) + Convert.ToDouble(longitudeSrc.Substring(3, 5), provider) / 60), 2);
+                this.coordinate.latitude = Math.Round((Convert.ToInt32(latitudeSrc.Substring(0, 2)) + Convert.ToDouble(latitudeSrc.Substring(2, 4), provider) / 60), 2);
             }
             catch (Exception e)
             {
-
+                throw new InvalidCoordinates("Invalid coordinates: " + Convert.ToString(e));
             }
 
-            return new FileHeader(channelCount, frequency, datetimeStart, longitude, latitude);
+            return true;
         }
-        public static bool IsBinaryFileAtPath(string path)
+    }
+
+    public interface IBinaryFileInfo
+    {
+        string Name { get; }
+        double DurationInSeconds { get; }
+        string FormattedDuration { get; }
+    }
+
+    public class BinaryFileInfo : IBinaryFileInfo
+    {
+        public string path;
+        public string formatType;
+        public int frequency;
+        public DateTimeInterval datetimeInterval;
+        public Coordinate coordinate;
+
+        public BinaryFileInfo(
+            string path,
+            string formatType,
+            int frequency,
+            DateTimeInterval datetimeInterval,
+            Coordinate coordinate
+        )
+        {
+            this.path = path;
+            this.formatType = formatType;
+            this.frequency = frequency;
+            this.datetimeInterval = datetimeInterval;
+            this.coordinate = coordinate;
+        }
+
+        public string Name
+        {
+            get
+            {
+                return Path.GetFileName(this.path);
+            }
+        }
+
+        public virtual double DurationInSeconds
+        {
+            get
+            {
+                return this.datetimeInterval.stop.Subtract(this.datetimeInterval.start).TotalSeconds;
+            }
+        }
+
+        public virtual string FormattedDuration
+        {
+            get
+            {
+                string durationFormat;
+
+                int days = (int)(this.DurationInSeconds / (24 * 3600));
+                int hours = (int)((this.DurationInSeconds - days * 24 * 3600) / 3600);
+                int minutes = (int)((this.DurationInSeconds - days * 24 * 3600 - hours * 3600) / 60);
+                double seconds = this.DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
+
+                string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
+                string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
+                string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
+
+                if (days != 0)
+                {
+                    durationFormat = days + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
+                }
+                else
+                {
+                    durationFormat = hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
+                }
+                return durationFormat;
+            }
+        }
+    }
+
+    public interface IBinarySeismicFile
+    {
+        bool IsBinaryFileAtPath(string path);
+        string GetPath { get; }
+        bool IsUseAvgValues { get; }
+        int OriginFrequency { get; }
+        int ResampleFrequency { get; }
+        string FileExtension { get; }
+        string FormatType { get; }
+        int ChannelsCount { get; }
+        int HeaderMemorySize { get; }
+        int DiscreteAmount { get; }
+        double SecondsDuration { get; }
+        Coordinate Coordinate { get; }
+        DateTimeInterval OriginDateTimeInterval { get; }
+        DateTimeInterval RecordDateTimeInterval { get; }
+        DateTimeInterval ReadDateTimeInterval { get; set; }
+        int StartMoment { get; }
+        int ResampleParameter { get; }
+        int EndMoment { get; }
+        string RecordType { get; }
+        Dictionary<string, int> ComponentsIndex { get; }
+        BinaryFileInfo ShortFileInfo { get; }
+        bool IsCorrectResampleFrequency(int value);
+        Int32[] Resampling(Int32[] signal, int resampleParameter);
+        Int32[] GetComponentSignal(string componentName);
+        Int32[] ResampleSignal(Int32[] srcSignal);
+        Int32[] ReadSignal(string component = "Z");
+    }
+
+    public class BinarySeismicFile : IBinarySeismicFile
+    {
+        public string _Path;
+        public bool _IsUseAvgValues;
+        public FileHeader _FileHeader;
+        public DateTimeInterval _ReadDatetimeInterval;
+
+        public int _ResampleFrequency;
+        public bool _IsCorrectResampleFrequency;
+
+        public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
+        {
+            bool isPathCorrect = this.IsBinaryFileAtPath(filePath);
+
+            if (isPathCorrect == false)
+            {
+                throw new BadFilePath("Invalid path - {1}", _Path);
+            }
+
+            this._Path = filePath;
+            this._FileHeader = new FileHeader(this._Path);
+            this._IsUseAvgValues = isUseAvgValues;
+
+            if (this.IsCorrectResampleFrequency(resampleFrequency) == true)
+            {
+                this._ResampleFrequency = resampleFrequency;
+            }
+            else
+            {
+                throw new InvalidResampleFrequency();
+            }
+
+            this._ReadDatetimeInterval = this.RecordDateTimeInterval;
+        }
+
+        public virtual bool IsBinaryFileAtPath(string path)
         {
             if (File.Exists(path) == true)
             {
-                string extension = Path.GetExtension(path);
+                string extension = Path.GetExtension(path).Substring(1);
 
-                if (extension == Baikal7Fmt | extension == Baikal8Fmt | extension == SigmaFmt)
+                if (Constants.BinaryFileFormats.ContainsValue(extension))
                 {
                     return true;
                 }
@@ -266,525 +368,390 @@ namespace BinReader
                     return false;
                 }
             }
-
             else
             {
                 return false;
             }
         }
-        static public string FormatDuration(int days, int hours, int minutes, double seconds)
-        {
-            string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
-            string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
-            string secondsFmt = Convert.ToString(seconds).PadLeft(6, '0'); //THERE SHOULD BE f'{seconds:.3f}'
 
-            if (days != 0)
-            {
-                return Convert.ToString(days) + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
-            }
-
-            else
-            {
-                return hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
-            }
-        }
-    }
-
-    public class BinarySeismicFile
-    {
-        public string __Path;
-        public int __ResampleFrequency;
-        public bool __IsUseAvgValues;
-
-        public FileHeader __FileHeader;
-        public bool __IsCorrectResampleFrequency;
-        public string __UniqueFileName;
-        public DateTime __ReadDatetimeStart;
-        public DateTime __ReadDatetimeStop;
-
-        public Dictionary<string, string> BinaryFileFormats
+        public virtual string GetPath
         {
             get
             {
-                var indexes = new Dictionary<string, string>()
-                    {
-                        {"BAIKAL7_FMT", "BAIKAL7_EXTENSION"},
-                        {"BAIKAL8_FMT", "BAIKAL8_EXTENSION"},
-                        {"SIGMA_FMT", "SIGMA_EXTENSION"}
-                    };
-                return indexes;
+                return this._Path;
             }
         }
-        public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
-        {
-            bool isPathCorrect = Operations.IsBinaryFileAtPath(filePath);
-            if (isPathCorrect == false) { throw new BadFilePath("Invalid path - {1}", __Path); }
-            // full file path
-            __Path = filePath;
 
-            // header file data
-            __FileHeader = GetFileHeader;
-
-            // boolean-parameter for subtraction average values
-            __IsUseAvgValues = isUseAvgValues;
-
-            // resample frequency
-            if (IsCorrectResampleFrequency(resampleFrequency) == true)
-            {
-                __ResampleFrequency = resampleFrequency;
-            }
-            else { throw new InvalidResampleFrequency(); }
-
-            //this.__unique_file_name = this.__create_unique_file_name()
-
-            // date and time for start signal reading
-            __ReadDatetimeStart = new DateTime();
-            // date and time for end signal reading
-            __ReadDatetimeStop = new DateTime();
-        }
-
-        private string Path
+        public virtual bool IsUseAvgValues
         {
             get
             {
-                return __Path;
+                return this._IsUseAvgValues;
             }
         }
-        private FileHeader FileHeader
+
+        public virtual int OriginFrequency
         {
             get
             {
-                return FileHeader;
+                return this._FileHeader.frequency;
             }
         }
-        private bool IsUseAvgValues
+
+        public virtual int ResampleFrequency
         {
             get
             {
-                return __IsUseAvgValues;
-            }
-        }
-        private int OriginFrequency
-        {
-            get
-            {
-                return FileHeader.frequency;
-            }
-        }
-        private int ResampleFrequency
-        {
-            get
-            {
-                if (__ResampleFrequency == 0)
+                if (this._ResampleFrequency == 0)
                 {
-                    __ResampleFrequency = OriginFrequency;
+                    this._ResampleFrequency = this.OriginFrequency;
                 }
 
-                return __ResampleFrequency;
+                return this._ResampleFrequency;
             }
         }
-        private string FileExtension
+
+        public virtual string FileExtension
         {
             get
             {
-                return System.IO.Path.GetExtension(Path);
+                return Path.GetExtension(this.GetPath).Split('.')[1];
             }
         }
-        private string UniqueFileName
+
+        public virtual string FormatType
         {
             get
             {
-                return __UniqueFileName;
-            }
-        }
-        private string FormatType
-        {
-            get
-            {
-                foreach (var file in BinaryFileFormats)
+                foreach (var record in Constants.BinaryFileFormats)
                 {
-                    if (file.Value == FileExtension)
+                    if (record.Value == this.FileExtension)
                     {
-                        return file.Key;
+                        return record.Key;
                     }
                 }
 
                 return null;
             }
         }
-        private DateTime originDatetimeStart
-        {
-            get
-            {
-                return FileHeader.datetimeStart;
-            }
-        }
-        private int ChannelsCount
-        {
-            get
-            {
-                return FileHeader.channelCount;
-            }
-        }
-        private int HeaderMemorySize
-        {
-            get
-            {
-                int channelCount = ChannelsCount;
 
-                return 120 + 72 * channelCount;
-            }
-        }
-        private int DiscreteAmount
+        public virtual int ChannelsCount
         {
             get
             {
-                FileInfo file = new FileInfo(__Path);
+                return this._FileHeader.channelCount;
+            }
+        }
+
+        public virtual int HeaderMemorySize
+        {
+            get
+            {
+                return 120 + 72 * this.ChannelsCount;
+            }
+        }
+
+        public virtual int DiscreteAmount
+        {
+            get
+            {
+                FileInfo file = new FileInfo(this._Path);
                 long fileSize = file.Length;
-                int discreteAmount = Convert.ToInt32((fileSize - HeaderMemorySize) / (FileHeader.channelCount * 4));
-
+                int discreteAmount = Convert.ToInt32((fileSize - this.HeaderMemorySize) / (this._FileHeader.channelCount * sizeof(int)));
                 return discreteAmount;
             }
         }
-        private double SecondsDuration
+
+        public virtual double SecondsDuration
         {
             get
             {
-                int discreteCount = DiscreteAmount;
-                int freq = OriginFrequency;
+                int discreteCount = this.DiscreteAmount;
+                int freq = this.OriginFrequency;
                 int accuracy = Convert.ToInt32(Math.Log10(freq));
-                double deltaSeconds = Math.Round(Convert.ToDouble(discreteCount / freq), accuracy);
-
+                double deltaSeconds = Math.Round(Convert.ToDouble(Convert.ToDouble(discreteCount) / freq), accuracy);
                 return deltaSeconds;
             }
         }
-        public DateTime OriginDatetimeStop
+
+        public Coordinate Coordinate
         {
             get
             {
-                return originDatetimeStart.AddSeconds(SecondsDuration);
+                return this._FileHeader.coordinate;
             }
         }
-        public DateTime DatetimeStart
+
+        public virtual DateTimeInterval OriginDateTimeInterval
         {
             get
             {
-                if (FormatType == "SIGMA_FMT")
-                {
-                    return originDatetimeStart.AddSeconds(Operations.SigmaSecondsOffset);
-                }
+                return new DateTimeInterval(
+                    datetimeStart: this._FileHeader.datetimeStart,
+                    datetimeStop: this._FileHeader.datetimeStart.AddSeconds(this.SecondsDuration)
+                );
+            }
+        }
 
+        public virtual DateTimeInterval RecordDateTimeInterval
+        {
+            get
+            {
+                if (this.FormatType == Constants.SigmaFmt)
+                {
+                    return new DateTimeInterval(
+                        datetimeStart: this.OriginDateTimeInterval.start.AddSeconds(Constants.SigmaSecondsOffset),
+                        datetimeStop: this.OriginDateTimeInterval.start.AddSeconds(Constants.SigmaSecondsOffset + this.SecondsDuration)
+                    );
+                }
                 else
                 {
-                    return originDatetimeStart.AddSeconds(0);
+                    return new DateTimeInterval(
+                        datetimeStart: this.OriginDateTimeInterval.start,
+                        datetimeStop: this.OriginDateTimeInterval.start.AddSeconds(this.SecondsDuration)
+                    );
                 }
             }
         }
-        public DateTime DatetimeStop
-        {
-            get
-            {
-                return DatetimeStart.AddSeconds(SecondsDuration);
-            }
-        }
-        private double Longitude
-        {
-            get
-            {
-                return Math.Round(FileHeader.longitude, 6);
-            }
-        }
-        private double Latitude
-        {
-            get
-            {
-                return Math.Round(FileHeader.latitude, 6);
-            }
-        }
-        //WARNING! there are a datetime that need to be ...
-        private DateTime ReadDatetimeStart
-        {
-            get
-            {
-                if (__ReadDatetimeStart == new DateTime())
-                {
-                    __ReadDatetimeStart = DatetimeStart;
-                }
 
-                return __ReadDatetimeStart;
+        public virtual DateTimeInterval ReadDateTimeInterval
+        {
+            get
+            {
+                return this._ReadDatetimeInterval;
             }
+
             set
             {
-                DateTime datetime = new DateTime();
-                double dt1 = datetime.Subtract(DatetimeStart).TotalSeconds;
-                double dt2 = DatetimeStop.Subtract(datetime).TotalSeconds;
+                double dt1 = value.start.Subtract(this.RecordDateTimeInterval.start).TotalSeconds;
+                double dt2 = this.RecordDateTimeInterval.stop.Subtract(value.start).TotalSeconds;
 
                 if (dt1 >= 0 & dt2 > 0)
                 {
-                    __ReadDatetimeStart = datetime;
+                    this._ReadDatetimeInterval.start = value.start;
                 }
-
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid start reading datetime");
                 }
-            }
-        }
-        //WARNING! there are a datetime that need to be ...
-        private DateTime ReadDatetimeStop
-        {
-            get
-            {
-                if (__ReadDatetimeStop == new DateTime())
-                {
-                    __ReadDatetimeStop = DatetimeStop;
-                }
 
-                return __ReadDatetimeStop;
-            }
-            set
-            {
-                DateTime datetime = new DateTime();
-                double dt1 = datetime.Subtract(DatetimeStart).TotalSeconds;
-                double dt2 = DatetimeStop.Subtract(datetime).TotalSeconds;
+                dt1 = value.stop.Subtract(this.RecordDateTimeInterval.start).TotalSeconds;
+                dt2 = this.RecordDateTimeInterval.stop.Subtract(value.stop).TotalSeconds;
 
                 if (dt1 > 0 & dt2 >= 0)
                 {
-                    __ReadDatetimeStop = datetime;
+                    this._ReadDatetimeInterval.stop = value.stop;
                 }
-
                 else
                 {
                     throw new InvalidDateTimeValue("Invalid stop reading datetime");
                 }
             }
         }
-        private int StartMoment
+
+        public virtual int StartMoment
         {
             get
             {
-                TimeSpan dtDiff = ReadDatetimeStart.Subtract(DatetimeStart);
+                TimeSpan dtDiff = this.ReadDateTimeInterval.start.Subtract(this.RecordDateTimeInterval.start);
                 double dtSeconds = dtDiff.TotalSeconds;
-                return Convert.ToInt32(Math.Round(dtSeconds * OriginFrequency));
+                return Convert.ToInt32(Math.Round(dtSeconds * this.OriginFrequency));
             }
         }
-        private int EndMoment
+
+        public virtual int ResampleParameter
         {
             get
             {
-                double dt = ReadDatetimeStop.Subtract(DatetimeStart).TotalSeconds;
-                int discreetIndex = Convert.ToInt32(Math.Round(dt * OriginFrequency));
-                int signalLength = discreetIndex - StartMoment;
-                signalLength = signalLength - (signalLength % ResampleParameter);
-                discreetIndex = StartMoment + signalLength;
-                return discreetIndex;
-            }
-        }
-        //THERE MAY BE A PROBLEM WITH TYPE ADDUCTION
-        private int ResampleParameter
-        {
-            get
-            {
-                double division = OriginFrequency / ResampleFrequency;
+                double division = Convert.ToDouble(this.OriginFrequency / this.ResampleFrequency);
                 return Convert.ToInt32(Math.Floor(division));
             }
         }
-        private string RecordType
-        {
-            get
-            {
-                return Operations.ComponentsOrder;
-            }
-        }
-        public Dictionary<string, int> ComponentsIndex
-        {
-            get
-            {
-                var indexes = new Dictionary<string, int>()
-                    {
-                        {RecordType.Substring(0,1), 1},
-                        {RecordType.Substring(1,1), 2},
-                        {RecordType.Substring(2,1), 3}
-                    };
 
-                return indexes;
-            }
-        }
-        public object ShortFileInfo
+        public virtual int EndMoment
         {
             get
             {
-                return BinaryFileInfo.GetShortInfo;
+                double dt = this.ReadDateTimeInterval.stop.Subtract(this.RecordDateTimeInterval.start).TotalSeconds;
+                int discreetIndex = Convert.ToInt32(Math.Round(dt * this.OriginFrequency));
+                int signalLength = discreetIndex - this.StartMoment;
+                signalLength -= signalLength % this.ResampleParameter;
+                discreetIndex = this.StartMoment + signalLength;
+                return discreetIndex;
             }
         }
-        public dynamic GetFileHeader
-        {
-            get
-            {
-                string extension = System.IO.Path.GetExtension(__Path);
 
-                if (extension == Operations.Baikal7Fmt)
+        public virtual string RecordType
+        {
+            get
+            {
+                return Constants.ComponentsOrder;
+            }
+        }
+
+        public virtual Dictionary<string, int> ComponentsIndex
+        {
+            get
+            {
+                var componentsIndexes = new Dictionary<string, int>();
+
+                for (int i = 0; i < this.RecordType.Length; i++)
                 {
-                    return Operations.ReadBaikal7Header(__Path);
+                    componentsIndexes.Add(this.RecordType[i].ToString(), i);
                 }
 
-                else if (extension == Operations.Baikal8Fmt)
-                {
-                    return Operations.ReadBaikal8Header(__Path);
-                }
-
-                else if (extension == Operations.SigmaFmt)
-                {
-                    return Operations.ReadSigmaHeader(__Path);
-                }
-
-                else
-                    return null;
+                return componentsIndexes;
             }
         }
-        public bool IsCorrectResampleFrequency(int value)
+
+        public virtual BinaryFileInfo ShortFileInfo
         {
-            if (value < 0)
+            get
+            {
+                return new BinaryFileInfo(
+                    path: this.GetPath,
+                    formatType: this.FormatType,
+                    frequency: this.OriginFrequency,
+                    datetimeInterval: this.RecordDateTimeInterval,
+                    coordinate: this.Coordinate
+                );
+            }
+        }
+
+        public virtual bool IsCorrectResampleFrequency(int frequency)
+        {
+            if (frequency < 0)
             {
                 return false;
             }
-
-            else if (value == 0)
+            else if (frequency == 0)
             {
                 return true;
             }
-
             else
             {
-                if (OriginFrequency % value == 0)
+                if (this.OriginFrequency % frequency == 0)
                 {
                     return true;
                 }
-
                 else
                 {
                     return false;
                 }
             }
         }
-        public dynamic Resampling(Int32[] signal, int ResampleParameter)
+
+        public virtual Int32[] Resampling(Int32[] signal, int resampleParameter)
         {
             int discreteAmount = signal.GetLength(0);
-            int ResampleDiscreteAmount = (discreteAmount - (discreteAmount % ResampleParameter)) / ResampleParameter;
-            Int32[] ResampleSignal = new int[ResampleDiscreteAmount];
+            int resampleDiscreteAmount = (discreteAmount - (discreteAmount % resampleParameter)) / resampleParameter;
+            Int32[] resampleSignal = new int[resampleDiscreteAmount];
 
-            for (int i = 0; i < ResampleDiscreteAmount; i++)
+            for (int i = 0; i < resampleDiscreteAmount; i++)
             {
                 int sum = 0;
-                for (int j = i * ResampleParameter; j < (i + 1) * ResampleParameter; j++)
+                for (int j = i * resampleParameter; j < (i + 1) * resampleParameter; j++)
                 {
-                    sum += signal[i];
-                }
-                int sum_val = sum;
-                ResampleSignal[i] = sum_val;
+                    sum += signal[j];
+                }                
+                resampleSignal[i] = sum / resampleParameter;
             }
 
-            return ResampleSignal;
+            return resampleSignal;
         }
-        //def __create_unique_file_name(self) -> str:
-        //return '{}.{}'.format(uuid.uuid4().hex, self.file_extension)
-        public dynamic GetComponentSignal(string componentName = "Y")
+
+        public virtual Int32[] GetComponentSignal(string componentName)
         {
             int columnIndex;
 
-            if (ChannelsCount == 3)
+            if (this.ChannelsCount == this.ComponentsIndex.Count)
             {
-                ComponentsIndex.TryGetValue(componentName, out columnIndex);
+                this.ComponentsIndex.TryGetValue(componentName, out columnIndex);
             }
-
             else
             {
-                ComponentsIndex.TryGetValue(componentName, out columnIndex);
-                columnIndex = columnIndex + 3;
+                this.ComponentsIndex.TryGetValue(componentName, out columnIndex);
+                columnIndex += this.ComponentsIndex.Count;
             }
 
-            int skipDataSize = 4 * ChannelsCount * StartMoment;
-            int offsetSize = HeaderMemorySize + skipDataSize + columnIndex * 4;
-            int stridesSize = 4 * ChannelsCount;
-            int signalSize = EndMoment - StartMoment;
+            int skipDataSize = sizeof(int) * this.ChannelsCount * this.StartMoment;
+            int offsetSize = this.HeaderMemorySize + skipDataSize + columnIndex * sizeof(int);
+            int stridesSize = sizeof(int) * this.ChannelsCount;
+            int signalSize = this.EndMoment - this.StartMoment;
 
-            //signal_array = np.ndarray(signal_size, buffer = mm, dtype = np.int32, offset = offset_size, strides = strides_size).copy()
+            Int32[] intArray = new Int32[signalSize];
 
-            FileStream fileStream = new FileStream(Path, FileMode.Open, FileAccess.Read);
-            MemoryMappedFile memoryMappedFile = MemoryMappedFile.CreateFromFile(
-                fileStream: fileStream,
-                mapName: "mn",
-                capacity: 0,
-                access: MemoryMappedFileAccess.Read,
-                inheritability: HandleInheritability.None,
-                leaveOpen: false
-                );
-
-            byte[] byteArray = new byte[signalSize];
-            byte[] byteArrayClip = new byte[signalSize / stridesSize];
-            Int32[] intArray = new int[byteArrayClip.Length / 4];
-
-            if (offsetSize < 0)
+            using (FileStream fileStream = new FileStream(this.GetPath, FileMode.Open, FileAccess.Read))
             {
-                return intArray;
+                fileStream.Position = offsetSize;
+
+                using (BinaryReader binreader = new BinaryReader(fileStream))
+                {
+                    for (int i = 0; i < intArray.Length; i++)
+                    {
+                        intArray[i] = binreader.ReadInt32();
+                        fileStream.Seek(stridesSize - sizeof(int), SeekOrigin.Current);
+                    }
+                }
             }
-
-            MemoryMappedViewStream memoryMappedViewStream = memoryMappedFile.CreateViewStream(offsetSize, signalSize, MemoryMappedFileAccess.Read);
-            memoryMappedViewStream.Read(byteArray, 0, signalSize);
-
-            for (int i = 0; i < (signalSize / stridesSize / 4); i++)
-            {
-                byteArrayClip[i * 4] = byteArray[i * stridesSize];
-                byteArrayClip[i * 4 + 1] = byteArray[i * stridesSize + 1];
-                byteArrayClip[i * 4 + 2] = byteArray[i * stridesSize + 2];
-                byteArrayClip[i * 4 + 3] = byteArray[i * stridesSize + 3];
-            }
-
-            for (int i = 0; i < intArray.Length / 4; i++)
-            {
-                Int32 currentSignal = BitConverter.ToInt32(byteArrayClip, i * 4);
-                intArray[i] = currentSignal;
-            }
-
-            fileStream.Close();
-            memoryMappedViewStream.Close();
-            memoryMappedFile.Dispose();
-
             return intArray;
         }
-        public dynamic ResampleSignal(Int32[] SrcSignal)
-        {
-            if (ResampleParameter == 1)
-                return SrcSignal;
 
-            return Resampling(SrcSignal, ResampleParameter);
+        public virtual Int32[] ResampleSignal(Int32[] srcSignal)
+        {
+            if (this.ResampleParameter == 1)
+            {
+                return srcSignal;
+            }
+            return this.Resampling(srcSignal, this.ResampleParameter);
         }
-        public dynamic ReadSignal(string component = "Z")
+
+        public virtual Int32[] ReadSignal(string component = "Z")
         {
             component = component.ToUpper();
 
-            if (ComponentsIndex.ContainsKey(component) == false)
+            if (this.ComponentsIndex.ContainsKey(component) == false)
             {
                 throw new InvalidComponentName("{1} not found", component);
             }
 
-            Int32[] SignalArray = GetComponentSignal(component);
-            Int32[] ResampleSignalArray = ResampleSignal(SignalArray);
+            Int32[] signalArray = this.GetComponentSignal(component);
+            Int32[] resampleSignalArray = this.ResampleSignal(signalArray);
 
-            if (IsUseAvgValues == false)
+            if (this.IsUseAvgValues == false)
             {
-                return ResampleSignalArray;
+                return resampleSignalArray;
             }
 
-            Int32[] AveragedSignalArray = ResampleSignalArray;
-            int avgValue = Convert.ToInt32(Enumerable.Average(ResampleSignalArray));
+            Int32[] averagedSignalArray = resampleSignalArray;            
+            int avgValue = (int)Math.Truncate(resampleSignalArray.Average());
 
-            for (int i = 0; i < AveragedSignalArray.Length; i++)
+            for (int i = 0; i < averagedSignalArray.Length; i++)
             {
-                AveragedSignalArray[i] = AveragedSignalArray[i] - avgValue;
+                averagedSignalArray[i] = averagedSignalArray[i] - avgValue;
             }
 
-            return AveragedSignalArray;
+            return averagedSignalArray;
+        }
+    }
+
+    [Serializable]
+    internal class InvalidCoordinates : Exception
+    {
+        public InvalidCoordinates()
+        {
+        }
+
+        public InvalidCoordinates(string message) : base(message)
+        {
+        }
+
+        public InvalidCoordinates(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        protected InvalidCoordinates(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 
@@ -829,7 +796,7 @@ namespace BinReader
     }
 
     [Serializable]
-    internal class BadFilePath : Exception
+    public class BadFilePath : Exception
     {
         private string v;
         private string file_path;
