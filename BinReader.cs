@@ -651,10 +651,9 @@ namespace BinReader
                 int sum = 0;
                 for (int j = i * resampleParameter; j < (i + 1) * resampleParameter; j++)
                 {
-                    sum += signal[i];
-                }
-                int sum_val = sum;
-                resampleSignal[i] = sum_val;
+                    sum += signal[j];
+                }                
+                resampleSignal[i] = sum / resampleParameter;
             }
 
             return resampleSignal;

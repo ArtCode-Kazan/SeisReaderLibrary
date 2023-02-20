@@ -809,9 +809,10 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(expectedCorrectResampleFrequency, actualCorrectResampleFrequency);
         }
 
-        [DataRow(new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 2, new int[5] { 2, 4, 6, 8, 10 })]
-        [DataRow(new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 2, new int[4] { 2, 4, 6, 8 })]
-        [DataRow(new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, new int[3] { 3, 6, 9 })]
+        [DataRow(new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 2, new int[5] { 1, 3, 5, 7, 9 })]
+        [DataRow(new int[6] { 1, 3, 4, 8, 10, 12 }, 2, new int[3] { 2, 6, 11 })]
+        [DataRow(new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 2, new int[4] { 1, 3, 5, 7 })]
+        [DataRow(new int[9] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, new int[3] { 2, 5, 8 })]
         [TestMethod]
         public void testResampling(int[] signal, int resampleParam, int[] expectedSignal)
         {
