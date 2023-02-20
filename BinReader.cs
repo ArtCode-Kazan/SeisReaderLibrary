@@ -179,6 +179,7 @@ namespace BinReader
             string longitudeSrc = BinaryRead(path: path, type: "string", count: 9, skippingBytes: 48);
             string dateSrc = Convert.ToString(BinaryRead(path: path, type: "uint32", count: 1, skippingBytes: 60));
             string timeSrc = Convert.ToString(BinaryRead(path: path, type: "uint32", count: 1, skippingBytes: 64));
+
             timeSrc = timeSrc.PadLeft(6, '0');
             int year = 2000 + Convert.ToInt32(dateSrc.Substring(0, 2));
             int month = Convert.ToInt32(dateSrc.Substring(2, 2));
