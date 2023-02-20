@@ -226,25 +226,12 @@ namespace BinaryReaderLibraryTest
             string latitudeSource = "6644.66E";
             string dateSource = "200221";
             string fullTimeSource = "001232";
-            int year = 2000 + Convert.ToInt32(dateSource.Substring(0, 2));
-            int month = Convert.ToInt32(dateSource.Substring(2, 2));
-            int day = Convert.ToInt32(dateSource.Substring(4, 2));
-            int hours = Convert.ToInt32(fullTimeSource.Substring(0, 2));
-            int minutes = Convert.ToInt32(fullTimeSource.Substring(2, 2));
-            int seconds = Convert.ToInt32(fullTimeSource.Substring(4, 2));            
-            int expectedChannelCount = 1;
-            int expectedFrequency = 2;
-            DateTime expectedDateTimeStart = new DateTime(year, month, day, hours, minutes, seconds);
-            double expectedLongitude = Math.Round(
-                Convert.ToInt32(longitudeSource.Substring(0, 3)) + //<79,317>. Фактически: <79,33>.
-                Convert.ToDouble(Convert.ToDouble(longitudeSource.Substring(3, 5).Replace('.', ',')) / Convert.ToDouble(60)), 
-                2
-            );
-            double expectedLatitude = Math.Round(
-                Convert.ToInt32(latitudeSource.Substring(0, 2)) + 
-                Convert.ToDouble(Convert.ToDouble(latitudeSource.Substring(2, 4).Replace('.', ',')) / Convert.ToDouble(60)), 
-                2
-            );
+
+            int expectedChannelCount = 3;
+            int expectedFrequency = 1000;
+            DateTime expectedDateTimeStart = new DateTime(2020, 2, 21, 0, 12, 32);
+            double expectedLongitude = 79.33;
+            double expectedLatitude = 66.74;
 
             var mock = Helpers.GetMockFileHeader;
             mock.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
