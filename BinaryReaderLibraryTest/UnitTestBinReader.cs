@@ -482,9 +482,9 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         public void testSecondsDuration(int discreteCount, int freq)
         {
-            int acc = Convert.ToInt32(Math.Log10(freq));
-            double btw = Convert.ToDouble(discreteCount) / freq;
-            double expectedSecondsDuration = Math.Round(btw, acc);
+            int accuracy = Convert.ToInt32(Math.Log10(freq));
+            double rawSecondsDuration = Convert.ToDouble(discreteCount) / freq;
+            double expectedSecondsDuration = Math.Round(rawSecondsDuration, accuracy);
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.As<IBinarySeismicFile>().Setup(p => p.DiscreteAmount).Returns(discreteCount);
             mock.As<IBinarySeismicFile>().Setup(p => p.OriginFrequency).Returns(freq);
