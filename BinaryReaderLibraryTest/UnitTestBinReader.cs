@@ -173,7 +173,7 @@ namespace BinaryReaderLibraryTest
             int expectedFrequency = 2;
             DateTime expectedDateTimeStart = Constants.Baikal7BaseDateTime;
             double expectedLongitude = 4.123123;
-            double expectedLatitude = 4.123123;
+            double expectedLatitude = 7.654456;
 
             var actual = new Mock<FileHeader>(Helpers.SomePath) { CallBase = true };
             actual.SetupSequence(f => f.BinaryRead(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
