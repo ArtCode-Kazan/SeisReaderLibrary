@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace BinReader
