@@ -1,10 +1,6 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using System;
+﻿using System.Text;
 using BinReader;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using Moq;
 
 namespace BinaryReaderLibraryTest
 {
@@ -319,11 +315,11 @@ namespace BinaryReaderLibraryTest
         public void testIsBinaryFileAtPath(string path, bool expectedBinary)
         {
             string fullPath = Path.Combine(Path.GetTempPath(), path);
-            File.Create(fullPath, 4096, FileOptions.DeleteOnClose);
+            var file = File.Create(fullPath, 4096, FileOptions.DeleteOnClose);
             var mock = Helpers.GetMockBinarySeismicFile();
 
             bool actualBinary = mock.Object.IsBinaryFileAtPath(fullPath);
-
+            file.Close();
             Assert.AreEqual(expectedBinary, actualBinary);
         }
 
