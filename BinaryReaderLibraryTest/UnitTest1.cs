@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using BinReader;
@@ -182,7 +182,7 @@ namespace BinaryReaderLibraryTest
             .Returns((ulong)0)
             .Returns(expectedLongitude)
             .Returns(expectedLatitude);
-            actual.Object.ReadBaikal7Header(Helpers.SomePath);           
+            actual.Object.ReadBaikal7Header(Helpers.SomePath);
 
             Assert.AreEqual(expectedChannelCount, actual.Object.channelCount);
             Assert.AreEqual(expectedFrequency, actual.Object.frequency);
@@ -221,7 +221,7 @@ namespace BinaryReaderLibraryTest
 
         [TestMethod]
         public void testReadSigmaHeader()
-        {                        
+        {
             string longitudeSource = "07919.53N";
             string latitudeSource = "6644.66E";
             string dateSource = "200221";
@@ -455,7 +455,7 @@ namespace BinaryReaderLibraryTest
                         for (int k = 0; k < 3; k++)
                         {
                             writer.Write(BitConverter.GetBytes((Int32)2));
-                        }                        
+                        }
                     }
                 }
             }
@@ -470,7 +470,7 @@ namespace BinaryReaderLibraryTest
 
             FileInfo file = new FileInfo(path);
             long fileSize = file.Length;
-            int expectedDiscreteAmount = (int)((fileSize - mockBinarySeismicFile.Object.HeaderMemorySize) / (3 * sizeof(int)));            
+            int expectedDiscreteAmount = (int)((fileSize - mockBinarySeismicFile.Object.HeaderMemorySize) / (3 * sizeof(int)));
 
             Assert.AreEqual(expectedDiscreteAmount, actualDiscreteAmount);
 
@@ -850,7 +850,7 @@ namespace BinaryReaderLibraryTest
             mock.Object._Path = path;
 
             int[] actualArray = mock.Object.GetComponentSignal("Z");
-            
+
             for (int i = 0; i < expectedArray.Length; i++)
             {
                 Assert.AreEqual(expectedArray[i], actualArray[i]);
