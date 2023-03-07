@@ -47,7 +47,6 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="package.json" />
-    <None Include="pre-commit" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

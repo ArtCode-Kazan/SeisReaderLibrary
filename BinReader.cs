@@ -1,22 +1,48 @@
-﻿using System.Globalization;
-using System.Runtime.Serialization;
-using System.Collections.Generic;
+﻿// ***********************************************************************
+// Assembly         : BinReader
+// Author           : Fotuka
+// Created          : 03-06-2023
+//
+// Last Modified By : user
+// Last Modified On : 03-06-2023
+// ***********************************************************************
+// <copyright file="BinReader.cs" company="ArtCode">
+//     Copyright ©  2022
+// </copyright>
+// <summary></summary>
+// ***********************************************************************
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace BinReader
 {
     public class Constants
     {
+        /// <summary>
+        /// The order of components which shows how channels wrote to the file.
+        /// </summary>
         public const string ComponentsOrder = "ZXY";
+        /// <summary>
+        /// The offset which sigma files must have.
+        /// </summary>
         public const int SigmaSecondsOffset = 2;
+        /// <summary>
+        /// The baikal7 base date time, used to calculate real DateTime of baikal files.
+        /// </summary>
         public static DateTime Baikal7BaseDateTime = new DateTime(1980, 1, 1);
-
+        /// <summary>
+        /// The names for binary seismic files.
+        /// </summary>
         public const string Baikal7Fmt = "Baikal7";
         public const string Baikal8Fmt = "Baikal8";
         public const string SigmaFmt = "Sigma";
-
+        /// <summary>
+        /// The extensions which binary seismic files could have.
+        /// </summary>
         public const string Baikal7Extension = "00";
         public const string Baikal8Extension = "xx";
         public const string SigmaExtension = "bin";
@@ -36,11 +62,19 @@ namespace BinReader
         }
     }
 
+    /// <summary>
+    /// Class Coordinate, which contains 2 axis coordinates for work with maps.
+    /// </summary>
     public class Coordinate
     {
         public double longitude;
         public double latitude;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Coordinate"/> class.
+        /// </summary>
+        /// <param name="longitude">The current longitude.</param>
+        /// <param name="latitude">The current latitude.</param>
         public Coordinate(double longitude, double latitude)
         {
             this.longitude = longitude;
@@ -48,11 +82,19 @@ namespace BinReader
         }
     }
 
+    /// <summary>
+    /// Class DateTimeInterval, which contains 2 datetimes for work with seismic files.
+    /// </summary>
     public class DateTimeInterval
     {
         public DateTime start;
         public DateTime stop;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DateTimeInterval"/> class.
+        /// </summary>
+        /// <param name="datetimeStart">The first datetime which meaning start.</param>
+        /// <param name="datetimeStop">The second datetime which meaning end or stop.</param>
         public DateTimeInterval(DateTime datetimeStart, DateTime datetimeStop)
         {
             this.start = datetimeStart;
@@ -69,6 +111,11 @@ namespace BinReader
         bool ReadSigmaHeader(string path);
     }
 
+    /// <summary>
+    /// Class FileHeader, which describes header information of binary seicmic file.
+    /// Implements the <see cref="BinReader.IFileHeader" />
+    /// </summary>
+    /// <seealso cref="BinReader.IFileHeader" />
     public class FileHeader : IFileHeader
     {
         public int channelCount;
@@ -76,6 +123,10 @@ namespace BinReader
         public DateTime datetimeStart;
         public Coordinate coordinate = new Coordinate(0, 0);
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileHeader"/> class.
+        /// </summary>
+        /// <param name="path">Path to the binary seismic file.</param>
         public FileHeader(string path)
         {
             string extension = Path.GetExtension(path).Substring(1);
@@ -90,13 +141,22 @@ namespace BinReader
                 {
                     ReadBaikal8Header(path);
                 }
-                else if (extension == Constants.SigmaExtension)
+                else
                 {
+
                     ReadSigmaHeader(path);
                 }
             }
         }
 
+        /// <summary>
+        /// Binaries the read.
+        /// </summary>
+        /// <param name="path">Path to the binary seismic file.</param>
+        /// <param name="type">The type of data stored in memory, which need to read.</param>
+        /// <param name="count">The count of data that need to read.</param>
+        /// <param name="skippingBytes">Amount of bytes that need to skeep before reading.</param>
+        /// <returns>dynamic.</returns>
         public virtual dynamic BinaryRead(string path, string type, int count, int skippingBytes = 0)
         {
             dynamic returnValue;
@@ -137,12 +197,22 @@ namespace BinReader
             return returnValue;
         }
 
+        /// <summary>
+        /// Gets the datetime start baikal7.
+        /// </summary>
+        /// <param name="timeBegin">The number stored in Baikal7 file of time begin.</param>
+        /// <returns>The real DateTime of Baikal7.</returns>
         public virtual DateTime GetDatetimeStartBaikal7(ulong timeBegin)
         {
             ulong seconds = timeBegin / 256000000;
             return Constants.Baikal7BaseDateTime.AddSeconds(seconds);
         }
 
+        /// <summary>
+        /// Reads the Baikal7 header information, that binary seismic file contains.
+        /// </summary>
+        /// <param name="path">Path to the binary seismic file.</param>
+        /// <returns>Writes information to class fields and returns <c>true</c></returns>
         public virtual bool ReadBaikal7Header(string path)
         {
             this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 0);
@@ -155,6 +225,11 @@ namespace BinReader
             return true;
         }
 
+        /// <summary>
+        /// Reads the Baikal7 header information, that binary seismic file contains.
+        /// </summary>
+        /// <param name="path">Path to the binary seismic file.</param>
+        /// <returns>Writes information to class fields and returns <c>true</c></returns>
         public virtual bool ReadBaikal8Header(string path)
         {
             this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 0);
@@ -171,6 +246,13 @@ namespace BinReader
             return true;
         }
 
+        /// <summary>
+        /// Reads the Sigma header information, that binary seismic file contains.
+        /// </summary>
+        /// <param name="path">Path to the binary seismic file.</param>
+        /// <returns>Writes information to class fields and returns <c>true</c></returns>
+        /// <exception cref="BinReader.InvalidDateTimeValue">Invalid start reading datetime: " + Convert.ToString(e)</exception>
+        /// <exception cref="BinReader.InvalidCoordinates">Invalid coordinates: " + Convert.ToString(e)</exception>
         public virtual bool ReadSigmaHeader(string path)
         {
             this.channelCount = BinaryRead(path: path, type: "uint16", count: 1, skippingBytes: 12);
@@ -221,6 +303,11 @@ namespace BinReader
         string FormattedDuration { get; }
     }
 
+    /// <summary>
+    /// Class BinaryFileInfo, stores information about binary seismic file.
+    /// Implements the <see cref="BinReader.IBinaryFileInfo" />
+    /// </summary>
+    /// <seealso cref="BinReader.IBinaryFileInfo" />
     public class BinaryFileInfo : IBinaryFileInfo
     {
         public string path;
@@ -229,6 +316,14 @@ namespace BinReader
         public DateTimeInterval datetimeInterval;
         public Coordinate coordinate;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BinaryFileInfo"/> class.
+        /// </summary>
+        /// <param name="path">Path to the binary seismic file.</param>
+        /// <param name="formatType">Type of the format.</param>
+        /// <param name="frequency">The frequency.</param>
+        /// <param name="datetimeInterval">The DateTime interval.</param>
+        /// <param name="coordinate">The coordinateы.</param>
         public BinaryFileInfo(
             string path,
             string formatType,
@@ -244,6 +339,10 @@ namespace BinReader
             this.coordinate = coordinate;
         }
 
+        /// <summary>
+        /// Gets the name of binary seismic file.
+        /// </summary>
+        /// <value>File name</value>
         public string Name
         {
             get
@@ -252,6 +351,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the duration from start to stop in seconds.
+        /// </summary>
+        /// <value>The duration in seconds.</value>
         public virtual double DurationInSeconds
         {
             get
@@ -260,6 +363,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the string formatted duration from start to stop in seconds.
+        /// </summary>
+        /// <value>The string with formatted duration.</value>
         public virtual string FormattedDuration
         {
             get
@@ -318,6 +425,11 @@ namespace BinReader
         Int32[] ReadSignal(string component = "Z");
     }
 
+    /// <summary>
+    /// Class BinarySeismicFile, describes binary seismic files and has methods for interact with data from him.
+    /// Implements the <see cref="BinReader.IBinarySeismicFile" />
+    /// </summary>
+    /// <seealso cref="BinReader.IBinarySeismicFile" />
     public class BinarySeismicFile : IBinarySeismicFile
     {
         public string _Path;
@@ -328,6 +440,14 @@ namespace BinReader
         public int _ResampleFrequency;
         public bool _IsCorrectResampleFrequency;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BinarySeismicFile"/> class.
+        /// </summary>
+        /// <param name="filePath">Path to the binary seismic file.</param>
+        /// <param name="resampleFrequency">The frequency that need to be in output</param>
+        /// <param name="isUseAvgValues">if set to <c>true</c> average value of full signal subtract.</param>
+        /// <exception cref="BinReader.BadFilePath">Invalid path - {1}</exception>
+        /// <exception cref="BinReader.InvalidResampleFrequency"></exception>
         public BinarySeismicFile(string filePath, int resampleFrequency = 0, bool isUseAvgValues = false)
         {
             bool isPathCorrect = this.IsBinaryFileAtPath(filePath);
@@ -353,6 +473,11 @@ namespace BinReader
             this._ReadDatetimeInterval = this.RecordDateTimeInterval;
         }
 
+        /// <summary>
+        /// Determines whether [is binary file at path] [the specified path].
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns><c>true</c> if [is binary file at path] [the specified path]; otherwise, <c>false</c>.</returns>
         public virtual bool IsBinaryFileAtPath(string path)
         {
             if (File.Exists(path) == true)
@@ -374,6 +499,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the absolute path to binary seismic file.
+        /// </summary>
+        /// <value>The path.</value>
         public virtual string GetPath
         {
             get
@@ -382,6 +511,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is use average values.
+        /// </summary>
+        /// <value><c>true</c> if this instance is use average values; otherwise, <c>false</c>.</value>
         public virtual bool IsUseAvgValues
         {
             get
@@ -390,6 +523,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the origin frequency.
+        /// </summary>
+        /// <value>The origin frequency.</value>
         public virtual int OriginFrequency
         {
             get
@@ -398,6 +535,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the resample frequency.
+        /// </summary>
+        /// <value>The resample frequency.</value>
         public virtual int ResampleFrequency
         {
             get
@@ -410,7 +551,10 @@ namespace BinReader
                 return this._ResampleFrequency;
             }
         }
-
+        /// <summary>
+        /// Gets the file extension.
+        /// </summary>
+        /// <value>The file extension.</value>
         public virtual string FileExtension
         {
             get
@@ -418,7 +562,10 @@ namespace BinReader
                 return Path.GetExtension(this.GetPath).Split('.')[1];
             }
         }
-
+        /// <summary>
+        /// Gets the type of the format.
+        /// </summary>
+        /// <value>The type of the format.</value>
         public virtual string FormatType
         {
             get
@@ -435,6 +582,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the channels count.
+        /// </summary>
+        /// <value>The channels count.</value>
         public virtual int ChannelsCount
         {
             get
@@ -443,6 +594,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the size of the header in memory.
+        /// </summary>
+        /// <value>The amount of bytes.</value>
         public virtual int HeaderMemorySize
         {
             get
@@ -451,6 +606,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the discrete amount of signal which varies from frequency and duration.
+        /// </summary>
+        /// <value>The discrete amount.</value>
         public virtual int DiscreteAmount
         {
             get
@@ -462,6 +621,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the seconds duration of signal which varies from frequency and duration.
+        /// </summary>
+        /// <value>The seconds amount.</value>
         public virtual double SecondsDuration
         {
             get
@@ -474,6 +637,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the coordinate.
+        /// </summary>
+        /// <value>The coordinate.</value>
         public Coordinate Coordinate
         {
             get
@@ -482,6 +649,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the default origin DateTime interval.
+        /// </summary>
+        /// <value>The DateTime interval.</value>
         public virtual DateTimeInterval OriginDateTimeInterval
         {
             get
@@ -493,6 +664,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets DateTime interval with sigma offset correction.
+        /// </summary>
+        /// <value>The DateTime interval.</value>
         public virtual DateTimeInterval RecordDateTimeInterval
         {
             get
@@ -514,6 +689,12 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets or sets the read DateTime interval.
+        /// </summary>
+        /// <value>The DateTime interval.</value>
+        /// <exception cref="BinReader.InvalidDateTimeValue">Invalid start reading datetime</exception>
+        /// <exception cref="BinReader.InvalidDateTimeValue">Invalid stop reading datetime</exception>
         public virtual DateTimeInterval ReadDateTimeInterval
         {
             get
@@ -549,6 +730,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the amount of discretes from zero to current read DateTime start.
+        /// </summary>
+        /// <value>The amount of discrete</value>
         public virtual int StartMoment
         {
             get
@@ -559,6 +744,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the resample parameter.
+        /// </summary>
+        /// <value>The resample parameter.</value>
         public virtual int ResampleParameter
         {
             get
@@ -568,6 +757,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the amount of discretes from current read DateTime start to current read DateTime stop.
+        /// </summary>
+        /// <value>The amount of discrete</value>
         public virtual int EndMoment
         {
             get
@@ -581,6 +774,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the type of the record.
+        /// </summary>
+        /// <value>The type of the record.</value>
         public virtual string RecordType
         {
             get
@@ -589,6 +786,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the index of the signal components.
+        /// </summary>
+        /// <value>The index of the components.</value>
         public virtual Dictionary<string, int> ComponentsIndex
         {
             get
@@ -604,6 +805,11 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the short binary seismis file information.
+        /// </summary>
+        /// <value>BinaryFileInfo, short file information</value>
+        /// <seealso cref="BinReader.BinaryFileInfo" />
         public virtual BinaryFileInfo ShortFileInfo
         {
             get
@@ -618,6 +824,11 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Determines whether [is correct resample frequency] [the specified frequency].
+        /// </summary>
+        /// <param name="frequency">The checked frequency.</param>
+        /// <returns><c>true</c> if [is correct resample frequency] [the specified frequency]; otherwise, <c>false</c>.</returns>
         public virtual bool IsCorrectResampleFrequency(int frequency)
         {
             if (frequency < 0)
@@ -641,6 +852,12 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Resamplings the specified signal.
+        /// </summary>
+        /// <param name="signal">The raw signal.</param>
+        /// <param name="resampleParameter">The resample parameter.</param>
+        /// <returns>Resampled Int32 array from origin with resample parameter</returns>
         public virtual Int32[] Resampling(Int32[] signal, int resampleParameter)
         {
             int discreteAmount = signal.GetLength(0);
@@ -653,13 +870,18 @@ namespace BinReader
                 for (int j = i * resampleParameter; j < (i + 1) * resampleParameter; j++)
                 {
                     sum += signal[j];
-                }                
+                }
                 resampleSignal[i] = sum / resampleParameter;
             }
 
             return resampleSignal;
         }
 
+        /// <summary>
+        /// Gets the signal of specified component.
+        /// </summary>
+        /// <param name="componentName">Name of the component that need to read</param>
+        /// <returns>Int32 signal array</returns>
         public virtual Int32[] GetComponentSignal(string componentName)
         {
             int columnIndex;
@@ -697,6 +919,11 @@ namespace BinReader
             return intArray;
         }
 
+        /// <summary>
+        /// Resamples the signal.
+        /// </summary>
+        /// <param name="srcSignal">The source signal.</param>
+        /// <returns>Resampled signal</returns>
         public virtual Int32[] ResampleSignal(Int32[] srcSignal)
         {
             if (this.ResampleParameter == 1)
@@ -706,6 +933,12 @@ namespace BinReader
             return this.Resampling(srcSignal, this.ResampleParameter);
         }
 
+        /// <summary>
+        /// Massive method to reads the specified signal.
+        /// </summary>
+        /// <param name="component">The component that need to read</param>
+        /// <returns>Signal array</returns>
+        /// <exception cref="BinReader.InvalidComponentName">{1} not found</exception>
         public virtual Int32[] ReadSignal(string component = "Z")
         {
             component = component.ToUpper();
@@ -723,7 +956,7 @@ namespace BinReader
                 return resampleSignalArray;
             }
 
-            Int32[] averagedSignalArray = resampleSignalArray;            
+            Int32[] averagedSignalArray = resampleSignalArray;
             int avgValue = (int)Math.Truncate(resampleSignalArray.Average());
 
             for (int i = 0; i < averagedSignalArray.Length; i++)
@@ -735,119 +968,239 @@ namespace BinReader
         }
     }
 
+    /// <summary>
+    /// Class InvalidCoordinates.
+    /// Implements the <see cref="Exception" />
+    /// </summary>
+    /// <seealso cref="Exception" />
     [Serializable]
     internal class InvalidCoordinates : Exception
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidCoordinates"/> class.
+        /// </summary>
         public InvalidCoordinates()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidCoordinates"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение, описывающее ошибку.</param>
         public InvalidCoordinates(string message) : base(message)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidCoordinates"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке, указывающее причину создания исключения.</param>
+        /// <param name="innerException">Исключение, вызвавшее текущее исключение, или пустая ссылка (<see langword="Nothing" /> в Visual Basic), если внутреннее исключение не задано.</param>
         public InvalidCoordinates(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidCoordinates"/> class.
+        /// </summary>
+        /// <param name="info">Объект <see cref="T:System.Runtime.Serialization.SerializationInfo" />, хранящий сериализованные данные объекта, относящиеся к выдаваемому исключению.</param>
+        /// <param name="context">Объект <see cref="T:System.Runtime.Serialization.StreamingContext" />, содержащий контекстные сведения об источнике или назначении.</param>
         protected InvalidCoordinates(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
 
+    /// <summary>
+    /// Class InvalidDateTimeValue.
+    /// Implements the <see cref="Exception" />
+    /// </summary>
+    /// <seealso cref="Exception" />
     [Serializable]
     internal class InvalidDateTimeValue : Exception
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidDateTimeValue"/> class.
+        /// </summary>
         public InvalidDateTimeValue()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidDateTimeValue"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение, описывающее ошибку.</param>
         public InvalidDateTimeValue(string message) : base(message)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidDateTimeValue"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке, указывающее причину создания исключения.</param>
+        /// <param name="innerException">Исключение, вызвавшее текущее исключение, или пустая ссылка (<see langword="Nothing" /> в Visual Basic), если внутреннее исключение не задано.</param>
         public InvalidDateTimeValue(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidDateTimeValue"/> class.
+        /// </summary>
+        /// <param name="info">Объект <see cref="T:System.Runtime.Serialization.SerializationInfo" />, хранящий сериализованные данные объекта, относящиеся к выдаваемому исключению.</param>
+        /// <param name="context">Объект <see cref="T:System.Runtime.Serialization.StreamingContext" />, содержащий контекстные сведения об источнике или назначении.</param>
         protected InvalidDateTimeValue(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
 
+    /// <summary>
+    /// Class InvalidResampleFrequency.
+    /// Implements the <see cref="Exception" />
+    /// </summary>
+    /// <seealso cref="Exception" />
     [Serializable]
     internal class InvalidResampleFrequency : Exception
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidResampleFrequency"/> class.
+        /// </summary>
         public InvalidResampleFrequency()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidResampleFrequency"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение, описывающее ошибку.</param>
         public InvalidResampleFrequency(string message) : base(message)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidResampleFrequency"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке, указывающее причину создания исключения.</param>
+        /// <param name="innerException">Исключение, вызвавшее текущее исключение, или пустая ссылка (<see langword="Nothing" /> в Visual Basic), если внутреннее исключение не задано.</param>
         public InvalidResampleFrequency(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidResampleFrequency"/> class.
+        /// </summary>
+        /// <param name="info">Объект <see cref="T:System.Runtime.Serialization.SerializationInfo" />, хранящий сериализованные данные объекта, относящиеся к выдаваемому исключению.</param>
+        /// <param name="context">Объект <see cref="T:System.Runtime.Serialization.StreamingContext" />, содержащий контекстные сведения об источнике или назначении.</param>
         protected InvalidResampleFrequency(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
 
+    /// <summary>
+    /// Class BadFilePath.
+    /// Implements the <see cref="Exception" />
+    /// </summary>
+    /// <seealso cref="Exception" />
     [Serializable]
     public class BadFilePath : Exception
     {
         private string v;
         private string file_path;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
+        /// </summary>
         public BadFilePath()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение, описывающее ошибку.</param>
         public BadFilePath(string message) : base(message)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
+        /// </summary>
+        /// <param name="v">The v.</param>
+        /// <param name="file_path">The file path.</param>
         public BadFilePath(string v, string file_path)
         {
             this.v = v;
             this.file_path = file_path;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке, указывающее причину создания исключения.</param>
+        /// <param name="innerException">Исключение, вызвавшее текущее исключение, или пустая ссылка (<see langword="Nothing" /> в Visual Basic), если внутреннее исключение не задано.</param>
         public BadFilePath(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
+        /// </summary>
+        /// <param name="info">Объект <see cref="T:System.Runtime.Serialization.SerializationInfo" />, хранящий сериализованные данные объекта, относящиеся к выдаваемому исключению.</param>
+        /// <param name="context">Объект <see cref="T:System.Runtime.Serialization.StreamingContext" />, содержащий контекстные сведения об источнике или назначении.</param>
         protected BadFilePath(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
 
+    /// <summary>
+    /// Class InvalidComponentName.
+    /// Implements the <see cref="Exception" />
+    /// </summary>
+    /// <seealso cref="Exception" />
     [Serializable]
     internal class InvalidComponentName : Exception
     {
         private string v;
         private string component;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidComponentName"/> class.
+        /// </summary>
         public InvalidComponentName()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidComponentName"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение, описывающее ошибку.</param>
         public InvalidComponentName(string message) : base(message)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidComponentName"/> class.
+        /// </summary>
+        /// <param name="v">The v.</param>
+        /// <param name="component">The component.</param>
         public InvalidComponentName(string v, string component)
         {
             this.v = v;
             this.component = component;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidComponentName"/> class.
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке, указывающее причину создания исключения.</param>
+        /// <param name="innerException">Исключение, вызвавшее текущее исключение, или пустая ссылка (<see langword="Nothing" /> в Visual Basic), если внутреннее исключение не задано.</param>
         public InvalidComponentName(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidComponentName"/> class.
+        /// </summary>
+        /// <param name="info">Объект <see cref="T:System.Runtime.Serialization.SerializationInfo" />, хранящий сериализованные данные объекта, относящиеся к выдаваемому исключению.</param>
+        /// <param name="context">Объект <see cref="T:System.Runtime.Serialization.StreamingContext" />, содержащий контекстные сведения об источнике или назначении.</param>
         protected InvalidComponentName(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
