@@ -47,6 +47,20 @@ namespace BinReader
         }
     }
 
+    public class BinaryNameInfo
+    {
+        public int StationNumber { get; set; }
+        public string Sensor { get; set; }
+        public string Registrator { get; set; }
+
+        public BinaryNameInfo(int stationNumber, string sensor, string registrator)
+        {
+            StationNumber = stationNumber;
+            Sensor = sensor;
+            Registrator = registrator;
+        }
+    }
+
     public class BinaryRecordFileInfo
     {
         public int Frequency { get; set; }
@@ -54,10 +68,8 @@ namespace BinReader
         public string OriginName { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
-        public int StationNumber { get; set; }
-        public string Sensor { get; set; }
-        public string Registrator { get; set; }
         public string Path { get; set; }
+        public BinaryNameInfo BinaryNameInfo { get; set; }
 
         public BinaryRecordFileInfo(
             int frequency,
@@ -65,10 +77,8 @@ namespace BinReader
             string originName,
             DateTime startTime,
             DateTime stopTime,
-            int stationNumber,
-            string sensor,
-            string registrator,
-            string path
+            string path,
+            BinaryNameInfo binaryNameInfo
         )
         {
             this.Frequency = frequency;
@@ -76,10 +86,8 @@ namespace BinReader
             this.OriginName = originName;
             this.StartTime = startTime;
             this.StopTime = stopTime;
-            this.StationNumber = stationNumber;
-            this.Sensor = sensor;
-            this.Registrator = registrator;
             this.Path = path;
+            this.BinaryNameInfo = binaryNameInfo;
         }
     }
 }

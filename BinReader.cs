@@ -445,18 +445,12 @@ namespace BinReader
                 string extension = Path.GetExtension(path).Substring(1);
 
                 if (Constants.BinaryFileFormats.ContainsValue(extension))
-                {
                     return true;
-                }
                 else
-                {
                     return false;
-                }
             }
             else
-            {
                 return false;
-            }
         }
 
         /// <summary>
@@ -511,6 +505,7 @@ namespace BinReader
                 return this._ResampleFrequency;
             }
         }
+
         /// <summary>
         /// Gets the file extension.
         /// </summary>
@@ -522,6 +517,7 @@ namespace BinReader
                 return Path.GetExtension(this.GetPath).Split('.')[1];
             }
         }
+
         /// <summary>
         /// Gets the type of the format.
         /// </summary>
