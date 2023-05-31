@@ -946,5 +946,108 @@ namespace BinaryReaderLibraryTest
 
             File.Delete(path);
         }
+
+        [TestMethod]
+        [DataRow("C://MockDirectory/001_22-05-01_12-07-50_registrator_sensor.xx", true)]
+        [DataRow("C://MockDirectory/001_22-05-01_12-07-50_registrator_sensor.bin", true)]
+        [DataRow("C://MockDirectory/001_22-05-01_12-07-50_registrator_sensor.00", true)]
+        [DataRow("C://MockDirectory/001_22-05-01_12-07-50_registrator.00", true)]
+        [DataRow("C://MockDirectory/001_22-05-01_12-07-50_registrator_sensor_.xx", false)]
+        [DataRow("C://MockDirectory/001_22-05-01_12-07-50_registrator_sensor.xb", false)]
+        public void IsFileNameContainsInfoTest(string path, bool expected)
+        {
+            var mock = Helpers.GetMockBinarySeismicFile();
+            bool actual = mock.Object.IsFileNameContainsInfo(path);
+            Assert.AreEqual(actual, expected);
+        }
+
+        [TestMethod]
+        [DataRow("C://MockDirectory/00/001_22-05-01_12-07-50_registrator_sensor.00", 1, "registrator", "sensor")]
+        [DataRow("C://MockDirectory/002_22-05-01_12-07-50_qwert_asd.bin", 2, "qwert", "asd")]
+        [DataRow("C://MockDirectory/999_22-05-01_12-07-50_asdf123.xx", 999, "asdf123", "asdf123")]
+        [DataRow("C://MockDirectory/123_22-05-01_12-07-50_123321_sensor.bin", 123, "123321", "sensor")]
+        [DataRow("C://MockDirectory/542_22-05-01_12-07-50_456mnb.xx", 542, "456mnb", "456mnb")]
+        public void GetBinaryNameInfoTest(string path, int expectedNumber, string expectedRegistrator, string expectedSensor)
+        {
+            var mock = Helpers.GetMockBinarySeismicFile();
+            mock.Setup(p => p.GetPath).Returns(path);
+            BinaryNameInfo binaryNameInfo = mock.Object.GetBinaryNameInfo();
+            Assert.AreEqual(binaryNameInfo.Sensor, expectedSensor);
+            Assert.AreEqual(binaryNameInfo.Registrator, expectedRegistrator);
+            Assert.AreEqual(binaryNameInfo.StationNumber, expectedNumber);
+        }
+
+        [TestMethod]
+        [DataRow("C://MockDirectory/text_22-05-01_12-07-50_registrator_sensor.00")]
+        public void GetBinaryNameInfoExceptionTest(string path)
+        {
+            var mock = Helpers.GetMockBinarySeismicFile();
+            mock.Setup(p => p.GetPath).Returns(path);
+
+            bool isException = false;
+            try
+            {
+                mock.Object.GetBinaryNameInfo();
+            }
+            catch (InvalidDataException)
+            {
+                isException = true;
+            }
+
+            Assert.AreEqual(isException, true);
+        }
+
+        [TestMethod]
+        public void GetBinaryInfoTest()
+        {
+            string path = "gwerol/egokpr.ge";
+            int frequency = 1234;
+            int discreteCount = 434523452;
+            string originName = Path.GetFileName(path);
+            DateTime startTime = new DateTime(1, 2, 3, 4, 5, 6);
+            DateTime stopTime = new DateTime(1, 2, 3, 5, 6, 7);
+            int stationNumber = 312;
+            string sensor = "rghpwt";
+            string registrator = "gsdfrtew";
+
+            var mock = Helpers.GetMockBinarySeismicFile();
+            mock.Setup(p => p.OriginFrequency).Returns(frequency);
+            mock.Setup(p => p.DiscreteAmount).Returns(discreteCount);
+            mock.Setup(p => p.OriginDateTimeInterval).Returns(new DateTimeInterval(startTime, stopTime));
+            mock.Setup(p => p.GetPath).Returns(path);
+            mock.Setup(p => p.IsFileNameContainsInfo(It.IsAny<string>())).Returns(true);
+            mock.Setup(p => p.GetBinaryNameInfo()).Returns(new BinaryNameInfo(stationNumber, sensor, registrator));
+            BinaryRecordFileInfo actualBinaryInfo = mock.Object.GetBinaryRecordFileInfo();
+
+            Assert.AreEqual(actualBinaryInfo.Path, path);
+            Assert.AreEqual(actualBinaryInfo.Frequency, frequency);
+            Assert.AreEqual(actualBinaryInfo.DiscreteCount, discreteCount);
+            Assert.AreEqual(actualBinaryInfo.OriginName, originName);
+            Assert.AreEqual(actualBinaryInfo.StartTime, startTime);
+            Assert.AreEqual(actualBinaryInfo.StopTime, stopTime);
+            Assert.AreEqual(actualBinaryInfo.BinaryNameInfo.StationNumber, stationNumber);
+            Assert.AreEqual(actualBinaryInfo.BinaryNameInfo.Sensor, sensor);
+            Assert.AreEqual(actualBinaryInfo.BinaryNameInfo.Registrator, registrator);
+        }
+
+        [TestMethod]
+        public void GetBinaryInfoExceptionTest()
+        {
+            string path = "gwerol/egokpr.ge";
+            var mock = Helpers.GetMockBinarySeismicFile();
+            mock.Setup(p => p.IsFileNameContainsInfo(It.IsAny<string>())).Returns(false);
+            bool isException = false;
+
+            try
+            {
+                BinaryRecordFileInfo actualBinaryInfo = mock.Object.GetBinaryRecordFileInfo();
+            }
+            catch (FileFormatException)
+            {
+                isException = true;
+            }
+
+            Assert.AreEqual(isException, true);
+        }
     }
 }
