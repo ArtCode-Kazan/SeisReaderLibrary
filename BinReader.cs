@@ -453,6 +453,13 @@ namespace BinReader
                 return false;
         }
 
+        public virtual bool IsFileNameContainsInfo(string fileName)
+        {
+            if (!Constants.BinaryFileFormats.ContainsValue(Path.GetExtension(fileName).Substring(1)) || !fileName.Contains("_"))
+                return false;
+            return fileName.Split('_').Length == 5 || fileName.Split('_').Length == 4;
+        }
+
         /// <summary>
         /// Gets the absolute path to binary seismic file.
         /// </summary>
@@ -778,6 +785,48 @@ namespace BinReader
                     coordinate: this.Coordinate
                 );
             }
+        }
+
+        public virtual BinaryNameInfo GetBinaryNameInfo()
+        {
+            string[] fileNameSplits;
+            int number = 0;
+            string registrator = "";
+            string sensor = "";
+
+            string fileName = Path.GetFileName(this.GetPath);
+            fileNameSplits = fileName.Split('_');
+
+            if (!Int32.TryParse(fileNameSplits[0], out number))
+                throw new InvalidDataException();
+
+            if (fileNameSplits.Length == 5)
+            {
+                registrator = fileNameSplits[3];
+                sensor = fileNameSplits[4].Split('.')[0];
+            }
+            if (fileNameSplits.Length == 4)
+            {
+                registrator = fileNameSplits[3].Split('.')[0];
+                sensor = registrator;
+            }
+            return new BinaryNameInfo(number, sensor, registrator);
+        }
+
+        public virtual BinaryRecordFileInfo GetBinaryRecordFileInfo()
+        {
+            if (!this.IsFileNameContainsInfo(Path.GetFileName(this.GetPath)))
+                throw new FileFormatException();
+            BinaryRecordFileInfo binRecord = new BinaryRecordFileInfo(
+                frequency: this.OriginFrequency,
+                discreteCount: this.DiscreteAmount,
+                originName: Path.GetFileName(this.GetPath),
+                startTime: this.OriginDateTimeInterval.start,
+                stopTime: this.OriginDateTimeInterval.stop,
+                path: this.GetPath,
+                binaryNameInfo: GetBinaryNameInfo()
+            );
+            return binRecord;
         }
 
         /// <summary>
