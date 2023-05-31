@@ -454,18 +454,6 @@ namespace BinReader
         }
 
         /// <summary>
-        /// Determines whether [is name contains information] [the specified filename].
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns><c>true</c> if [is name contains information] [the specified filename]; otherwise, <c>false</c>.</returns>
-        public virtual bool IsFileNameContainsInfo(string fileName)
-        {
-            if (!Constants.BinaryFileFormats.ContainsValue(Path.GetExtension(fileName).Substring(1)) || !fileName.Contains("_"))
-                return false;
-            return fileName.Split('_').Length == 5 || fileName.Split('_').Length == 4;
-        }
-
-        /// <summary>
         /// Gets the absolute path to binary seismic file.
         /// </summary>
         /// <value>The path.</value>
@@ -798,27 +786,25 @@ namespace BinReader
         /// <value>BinaryNameInfo, information in the file name</value>
         public virtual BinaryNameInfo GetBinaryNameInfo()
         {
-            string[] fileNameSplits;
-            int number = 0;
-            string registrator = "";
-            string sensor = "";
-
             string fileName = Path.GetFileName(this.GetPath);
-            fileNameSplits = fileName.Split('_');
+            string[] fileNameSplits = fileName.Split('_');
+            string sensor;
+            string registrator;
 
-            if (!Int32.TryParse(fileNameSplits[0], out number))
-                throw new InvalidDataException();
-
+            if (!Int32.TryParse(fileNameSplits[0], out int number))
+                return null;
             if (fileNameSplits.Length == 5)
             {
                 registrator = fileNameSplits[3];
                 sensor = fileNameSplits[4].Split('.')[0];
             }
-            if (fileNameSplits.Length == 4)
+            else if (fileNameSplits.Length == 4)
             {
                 registrator = fileNameSplits[3].Split('.')[0];
                 sensor = registrator;
             }
+            else
+                return null;
             return new BinaryNameInfo(number, sensor, registrator);
         }
 
@@ -828,9 +814,7 @@ namespace BinReader
         /// <value>GetBinaryRecordFileInfo, information of the binary file</value>
         public virtual BinaryRecordFileInfo GetBinaryRecordFileInfo()
         {
-            if (!this.IsFileNameContainsInfo(Path.GetFileName(this.GetPath)))
-                throw new FileFormatException();
-            BinaryRecordFileInfo binRecord = new BinaryRecordFileInfo(
+            BinaryRecordFileInfo fileInfo = new BinaryRecordFileInfo(
                 frequency: this.OriginFrequency,
                 discreteCount: this.DiscreteAmount,
                 originName: Path.GetFileName(this.GetPath),
@@ -839,7 +823,7 @@ namespace BinReader
                 path: this.GetPath,
                 binaryNameInfo: GetBinaryNameInfo()
             );
-            return binRecord;
+            return fileInfo;
         }
 
         /// <summary>
