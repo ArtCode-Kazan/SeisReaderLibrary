@@ -47,102 +47,39 @@ namespace BinReader
         }
     }
 
-    public interface IBinaryFileInfo
+    public class BinaryRecordFileInfo
     {
-        string Name { get; }
-        double DurationInSeconds { get; }
-        string FormattedDuration { get; }
-    }
+        public int Frequency { get; set; }
+        public int DiscreteCount { get; set; }
+        public string OriginName { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime StopTime { get; set; }
+        public int StationNumber { get; set; }
+        public string Sensor { get; set; }
+        public string Registrator { get; set; }
+        public string Path { get; set; }
 
-    /// <summary>
-    /// Class BinaryFileInfo, stores information about binary seismic file.
-    /// Implements the <see cref="BinReader.IBinaryFileInfo" />
-    /// </summary>
-    /// <seealso cref="BinReader.IBinaryFileInfo" />
-    public class BinaryFileInfo : IBinaryFileInfo
-    {
-        public string path;
-        public string formatType;
-        public int frequency;
-        public DateTimeInterval datetimeInterval;
-        public Coordinate coordinate;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BinaryFileInfo"/> class.
-        /// </summary>
-        /// <param name="path">Path to the binary seismic file.</param>
-        /// <param name="formatType">Type of the format.</param>
-        /// <param name="frequency">The frequency.</param>
-        /// <param name="datetimeInterval">The DateTime interval.</param>
-        /// <param name="coordinate">The coordinateы.</param>
-        public BinaryFileInfo(
-            string path,
-            string formatType,
+        public BinaryRecordFileInfo(
             int frequency,
-            DateTimeInterval datetimeInterval,
-            Coordinate coordinate
+            int discreteCount,
+            string originName,
+            DateTime startTime,
+            DateTime stopTime,
+            int stationNumber,
+            string sensor,
+            string registrator,
+            string path
         )
         {
-            this.path = path;
-            this.formatType = formatType;
-            this.frequency = frequency;
-            this.datetimeInterval = datetimeInterval;
-            this.coordinate = coordinate;
-        }
-
-        /// <summary>
-        /// Gets the name of binary seismic file.
-        /// </summary>
-        /// <value>File name</value>
-        public string Name
-        {
-            get
-            {
-                return Path.GetFileName(this.path);
-            }
-        }
-
-        /// <summary>
-        /// Gets the duration from start to stop in seconds.
-        /// </summary>
-        /// <value>The duration in seconds.</value>
-        public virtual double DurationInSeconds
-        {
-            get
-            {
-                return this.datetimeInterval.stop.Subtract(this.datetimeInterval.start).TotalSeconds;
-            }
-        }
-
-        /// <summary>
-        /// Gets the string formatted duration from start to stop in seconds.
-        /// </summary>
-        /// <value>The string with formatted duration.</value>
-        public virtual string FormattedDuration
-        {
-            get
-            {
-                string durationFormat;
-
-                int days = (int)(this.DurationInSeconds / (24 * 3600));
-                int hours = (int)((this.DurationInSeconds - days * 24 * 3600) / 3600);
-                int minutes = (int)((this.DurationInSeconds - days * 24 * 3600 - hours * 3600) / 60);
-                double seconds = this.DurationInSeconds - days * 24 * 3600 - hours * 3600 - minutes * 60;
-
-                string hoursFmt = Convert.ToString(hours).PadLeft(2, '0');
-                string minutesFmt = Convert.ToString(minutes).PadLeft(2, '0');
-                string secondsFmt = string.Format("{0:f3}", seconds).PadLeft(6, '0');
-
-                if (days != 0)
-                {
-                    durationFormat = days + " days " + hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
-                }
-                else
-                {
-                    durationFormat = hoursFmt + ":" + minutesFmt + ":" + secondsFmt;
-                }
-                return durationFormat;
-            }
+            this.Frequency = frequency;
+            this.DiscreteCount = discreteCount;
+            this.OriginName = originName;
+            this.StartTime = startTime;
+            this.StopTime = stopTime;
+            this.StationNumber = stationNumber;
+            this.Sensor = sensor;
+            this.Registrator = registrator;
+            this.Path = path;
         }
     }
 }
