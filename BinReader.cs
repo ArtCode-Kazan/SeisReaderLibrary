@@ -62,46 +62,6 @@ namespace BinReader
         }
     }
 
-    /// <summary>
-    /// Class Coordinate, which contains 2 axis coordinates for work with maps.
-    /// </summary>
-    public class Coordinate
-    {
-        public double longitude;
-        public double latitude;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Coordinate"/> class.
-        /// </summary>
-        /// <param name="longitude">The current longitude.</param>
-        /// <param name="latitude">The current latitude.</param>
-        public Coordinate(double longitude, double latitude)
-        {
-            this.longitude = longitude;
-            this.latitude = latitude;
-        }
-    }
-
-    /// <summary>
-    /// Class DateTimeInterval, which contains 2 datetimes for work with seismic files.
-    /// </summary>
-    public class DateTimeInterval
-    {
-        public DateTime start;
-        public DateTime stop;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DateTimeInterval"/> class.
-        /// </summary>
-        /// <param name="datetimeStart">The first datetime which meaning start.</param>
-        /// <param name="datetimeStop">The second datetime which meaning end or stop.</param>
-        public DateTimeInterval(DateTime datetimeStart, DateTime datetimeStop)
-        {
-            this.start = datetimeStart;
-            this.stop = datetimeStop;
-        }
-    }
-
     public interface IFileHeader
     {
         dynamic BinaryRead(string path, string type, int count, int SkippingBytes = 0);
@@ -485,18 +445,12 @@ namespace BinReader
                 string extension = Path.GetExtension(path).Substring(1);
 
                 if (Constants.BinaryFileFormats.ContainsValue(extension))
-                {
                     return true;
-                }
                 else
-                {
                     return false;
-                }
             }
             else
-            {
                 return false;
-            }
         }
 
         /// <summary>
@@ -551,6 +505,7 @@ namespace BinReader
                 return this._ResampleFrequency;
             }
         }
+
         /// <summary>
         /// Gets the file extension.
         /// </summary>
@@ -562,6 +517,7 @@ namespace BinReader
                 return Path.GetExtension(this.GetPath).Split('.')[1];
             }
         }
+
         /// <summary>
         /// Gets the type of the format.
         /// </summary>
@@ -822,6 +778,52 @@ namespace BinReader
                     coordinate: this.Coordinate
                 );
             }
+        }
+
+        /// <summary>
+        /// Gets the information that filename contain.
+        /// </summary>
+        /// <value>BinaryNameInfo, information in the file name</value>
+        public virtual BinaryNameInfo GetBinaryNameInfo()
+        {
+            string fileName = Path.GetFileName(this.GetPath);
+            string[] fileNameSplits = fileName.Split('_');
+            string sensor;
+            string registrator;
+
+            if (!Int32.TryParse(fileNameSplits[0], out int number))
+                return null;
+            if (fileNameSplits.Length == 5)
+            {
+                registrator = fileNameSplits[3];
+                sensor = fileNameSplits[4].Split('.')[0];
+            }
+            else if (fileNameSplits.Length == 4)
+            {
+                registrator = fileNameSplits[3].Split('.')[0];
+                sensor = registrator;
+            }
+            else
+                return null;
+            return new BinaryNameInfo(number, sensor, registrator);
+        }
+
+        /// <summary>
+        /// Gets the record with binary seismic info.
+        /// </summary>
+        /// <value>GetBinaryRecordFileInfo, information of the binary file</value>
+        public virtual BinaryRecordFileInfo GetBinaryRecordFileInfo()
+        {
+            BinaryRecordFileInfo fileInfo = new BinaryRecordFileInfo(
+                frequency: this.OriginFrequency,
+                discreteCount: this.DiscreteAmount,
+                originName: Path.GetFileName(this.GetPath),
+                startTime: this.OriginDateTimeInterval.start,
+                stopTime: this.OriginDateTimeInterval.stop,
+                path: this.GetPath,
+                binaryNameInfo: GetBinaryNameInfo()
+            );
+            return fileInfo;
         }
 
         /// <summary>
