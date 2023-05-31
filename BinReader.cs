@@ -150,7 +150,7 @@ namespace BinReader
         }
 
         /// <summary>
-        /// Binaries the read.
+        /// Read digit from binary file bytes.
         /// </summary>
         /// <param name="path">Path to the binary seismic file.</param>
         /// <param name="type">The type of data stored in memory, which need to read.</param>
