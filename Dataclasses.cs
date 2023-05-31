@@ -47,6 +47,9 @@ namespace BinReader
         }
     }
 
+    /// <summary>
+    /// Class BinaryNameInfo, which contains information from binary file name.
+    /// </summary>
     public class BinaryNameInfo
     {
         public int StationNumber { get; set; }
@@ -61,6 +64,9 @@ namespace BinReader
         }
     }
 
+    /// <summary>
+    /// Class BinaryRecordFileInfo, which contains record with information about binary seismic file.
+    /// </summary>
     public class BinaryRecordFileInfo
     {
         public int Frequency { get; set; }

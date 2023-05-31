@@ -453,6 +453,11 @@ namespace BinReader
                 return false;
         }
 
+        /// <summary>
+        /// Determines whether [is name contains information] [the specified filename].
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns><c>true</c> if [is name contains information] [the specified filename]; otherwise, <c>false</c>.</returns>
         public virtual bool IsFileNameContainsInfo(string fileName)
         {
             if (!Constants.BinaryFileFormats.ContainsValue(Path.GetExtension(fileName).Substring(1)) || !fileName.Contains("_"))
@@ -787,6 +792,10 @@ namespace BinReader
             }
         }
 
+        /// <summary>
+        /// Gets the information that filename contain.
+        /// </summary>
+        /// <value>BinaryNameInfo, information in the file name</value>
         public virtual BinaryNameInfo GetBinaryNameInfo()
         {
             string[] fileNameSplits;
@@ -813,6 +822,10 @@ namespace BinReader
             return new BinaryNameInfo(number, sensor, registrator);
         }
 
+        /// <summary>
+        /// Gets the record with binary seismic info.
+        /// </summary>
+        /// <value>GetBinaryRecordFileInfo, information of the binary file</value>
         public virtual BinaryRecordFileInfo GetBinaryRecordFileInfo()
         {
             if (!this.IsFileNameContainsInfo(Path.GetFileName(this.GetPath)))
