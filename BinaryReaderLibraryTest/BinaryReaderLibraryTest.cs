@@ -957,7 +957,7 @@ namespace BinaryReaderLibraryTest
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.Setup(p => p.GetPath).Returns(path);
-            BinaryNameInfo binaryNameInfo = mock.Object.GetBinaryNameInfo();
+            NameInfo binaryNameInfo = mock.Object.GetBinaryNameInfo();
             Assert.AreEqual(binaryNameInfo.Sensor, expectedSensor);
             Assert.AreEqual(binaryNameInfo.Registrator, expectedRegistrator);
             Assert.AreEqual(binaryNameInfo.StationNumber, expectedNumber);
@@ -971,7 +971,7 @@ namespace BinaryReaderLibraryTest
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.Setup(p => p.GetPath).Returns(path);
-            BinaryNameInfo binaryNameInfo = mock.Object.GetBinaryNameInfo();
+            NameInfo binaryNameInfo = mock.Object.GetBinaryNameInfo();
             Assert.AreEqual(binaryNameInfo, null);
         }
 
@@ -1002,7 +1002,7 @@ namespace BinaryReaderLibraryTest
                 return;
             }
             else
-                mock.Setup(p => p.GetBinaryNameInfo()).Returns(new BinaryNameInfo(stationNumber, sensor, registrator));
+                mock.Setup(p => p.GetBinaryNameInfo()).Returns(new NameInfo(stationNumber, sensor, registrator));
             actualBinaryInfo = mock.Object.GetBinaryRecordFileInfo();
             Assert.AreEqual(actualBinaryInfo.Path, path);
             Assert.AreEqual(actualBinaryInfo.Frequency, frequency);
