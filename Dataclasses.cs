@@ -75,7 +75,7 @@ namespace BinReader
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
         public string Path { get; set; }
-        public NameInfo BinaryNameInfo { get; set; }
+        public NameInfo NameInfo { get; set; }
 
         public BinaryRecordFileInfo(
             int frequency,
@@ -84,7 +84,7 @@ namespace BinReader
             DateTime startTime,
             DateTime stopTime,
             string path,
-            NameInfo binaryNameInfo
+            NameInfo nameInfo
         )
         {
             this.Frequency = frequency;
@@ -93,7 +93,7 @@ namespace BinReader
             this.StartTime = startTime;
             this.StopTime = stopTime;
             this.Path = path;
-            this.BinaryNameInfo = binaryNameInfo;
+            this.NameInfo = nameInfo;
         }
     }
 }

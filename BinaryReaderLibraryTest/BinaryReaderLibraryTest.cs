@@ -998,7 +998,7 @@ namespace BinaryReaderLibraryTest
             if (isNullTest)
             {
                 mock.Setup(p => p.GetBinaryNameInfo()).Returns(value: null);
-                Assert.AreEqual(mock.Object.GetBinaryRecordFileInfo().BinaryNameInfo, null);
+                Assert.AreEqual(mock.Object.GetBinaryRecordFileInfo().NameInfo, null);
                 return;
             }
             else
@@ -1010,9 +1010,9 @@ namespace BinaryReaderLibraryTest
             Assert.AreEqual(actualBinaryInfo.OriginName, originName);
             Assert.AreEqual(actualBinaryInfo.StartTime, startTime);
             Assert.AreEqual(actualBinaryInfo.StopTime, stopTime);
-            Assert.AreEqual(actualBinaryInfo.BinaryNameInfo.StationNumber, stationNumber);
-            Assert.AreEqual(actualBinaryInfo.BinaryNameInfo.Sensor, sensor);
-            Assert.AreEqual(actualBinaryInfo.BinaryNameInfo.Registrator, registrator);
+            Assert.AreEqual(actualBinaryInfo.NameInfo.StationNumber, stationNumber);
+            Assert.AreEqual(actualBinaryInfo.NameInfo.Sensor, sensor);
+            Assert.AreEqual(actualBinaryInfo.NameInfo.Registrator, registrator);
         }
     }
 }

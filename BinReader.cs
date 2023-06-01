@@ -821,7 +821,7 @@ namespace BinReader
                 startTime: this.OriginDateTimeInterval.start,
                 stopTime: this.OriginDateTimeInterval.stop,
                 path: this.GetPath,
-                binaryNameInfo: GetBinaryNameInfo()
+                nameInfo: GetBinaryNameInfo()
             );
             return fileInfo;
         }
