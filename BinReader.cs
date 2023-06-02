@@ -414,7 +414,7 @@ namespace BinReader
 
             if (isPathCorrect == false)
             {
-                throw new ArgumentException();
+                throw new FileFormatException();
             }
 
             this._Path = filePath;
