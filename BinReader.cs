@@ -783,8 +783,8 @@ namespace BinReader
         /// <summary>
         /// Gets the information that filename contain.
         /// </summary>
-        /// <value>BinaryNameInfo, information in the file name</value>
-        public virtual NameInfo GetBinaryNameInfo()
+        /// <value>NameInfo, information in the file name</value>
+        public virtual NameInfo GetNameInfo()
         {
             string fileName = Path.GetFileName(this.GetPath);
             string[] fileNameSplits = fileName.Split('_');
@@ -821,7 +821,7 @@ namespace BinReader
                 startTime: this.OriginDateTimeInterval.start,
                 stopTime: this.OriginDateTimeInterval.stop,
                 path: this.GetPath,
-                nameInfo: GetBinaryNameInfo()
+                nameInfo: GetNameInfo()
             );
             return fileInfo;
         }

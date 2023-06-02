@@ -953,26 +953,26 @@ namespace BinaryReaderLibraryTest
         [DataRow("C://MockDirectory/999_22-05-01_12-07-50_asdf123.xx", 999, "asdf123", "asdf123")]
         [DataRow("C://MockDirectory/123_22-05-01_12-07-50_123321_sensor.bin", 123, "123321", "sensor")]
         [DataRow("C://MockDirectory/542_22-05-01_12-07-50_456mnb.xx", 542, "456mnb", "456mnb")]
-        public void GetBinaryNameInfoTest(string path, int expectedNumber, string expectedRegistrator, string expectedSensor)
+        public void GetNameInfoTest(string path, int expectedNumber, string expectedRegistrator, string expectedSensor)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.Setup(p => p.GetPath).Returns(path);
-            NameInfo binaryNameInfo = mock.Object.GetBinaryNameInfo();
-            Assert.AreEqual(binaryNameInfo.Sensor, expectedSensor);
-            Assert.AreEqual(binaryNameInfo.Registrator, expectedRegistrator);
-            Assert.AreEqual(binaryNameInfo.StationNumber, expectedNumber);
+            NameInfo nameInfo = mock.Object.GetNameInfo();
+            Assert.AreEqual(nameInfo.Sensor, expectedSensor);
+            Assert.AreEqual(nameInfo.Registrator, expectedRegistrator);
+            Assert.AreEqual(nameInfo.StationNumber, expectedNumber);
         }
 
         [TestMethod]
         [DataRow("C://MockDirectory/00/0fsd01_22-05-01_12-07-50_registrator_sensor.00", 1, "registrator", "sensor")]
         [DataRow("C://MockDirectory/002_22-05-01_12-07-50_qw_ert_asd.bin", 2, "qwert", "asd")]
         [DataRow("C://MockDirectory/999_22-05-01_12-07-50asdf123.xx", 999, "asdf123", "asdf123")]
-        public void GetBinaryNameInfoNullTest(string path, int expectedNumber, string expectedRegistrator, string expectedSensor)
+        public void GetNameInfoNullTest(string path, int expectedNumber, string expectedRegistrator, string expectedSensor)
         {
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.Setup(p => p.GetPath).Returns(path);
-            NameInfo binaryNameInfo = mock.Object.GetBinaryNameInfo();
-            Assert.AreEqual(binaryNameInfo, null);
+            NameInfo nameInfo = mock.Object.GetNameInfo();
+            Assert.AreEqual(nameInfo, null);
         }
 
         [TestMethod]
@@ -997,12 +997,12 @@ namespace BinaryReaderLibraryTest
             mock.Setup(p => p.GetPath).Returns(path);
             if (isNullTest)
             {
-                mock.Setup(p => p.GetBinaryNameInfo()).Returns(value: null);
+                mock.Setup(p => p.GetNameInfo()).Returns(value: null);
                 Assert.AreEqual(mock.Object.GetBinaryRecordFileInfo().NameInfo, null);
                 return;
             }
             else
-                mock.Setup(p => p.GetBinaryNameInfo()).Returns(new NameInfo(stationNumber, sensor, registrator));
+                mock.Setup(p => p.GetNameInfo()).Returns(new NameInfo(stationNumber, sensor, registrator));
             actualBinaryInfo = mock.Object.GetBinaryRecordFileInfo();
             Assert.AreEqual(actualBinaryInfo.Path, path);
             Assert.AreEqual(actualBinaryInfo.Frequency, frequency);
