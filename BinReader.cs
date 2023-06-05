@@ -811,10 +811,10 @@ namespace BinReader
         /// <summary>
         /// Gets the record with binary seismic info.
         /// </summary>
-        /// <value>GetBinaryRecordFileInfo, information of the binary file</value>
-        public virtual BinaryRecordFileInfo GetBinaryRecordFileInfo()
+        /// <value>RecordFileInfo, information of the binary file</value>
+        public virtual RecordFileInfo GetRecordFileInfo()
         {
-            BinaryRecordFileInfo fileInfo = new BinaryRecordFileInfo(
+            RecordFileInfo fileInfo = new RecordFileInfo(
                 frequency: this.OriginFrequency,
                 discreteCount: this.DiscreteAmount,
                 originName: Path.GetFileName(this.GetPath),

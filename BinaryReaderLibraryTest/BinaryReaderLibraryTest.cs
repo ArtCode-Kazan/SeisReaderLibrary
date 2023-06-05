@@ -978,7 +978,7 @@ namespace BinaryReaderLibraryTest
         [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
-        public void GetBinaryRecordFileInfoTest(bool isNullTest)
+        public void GetRecordFileInfoTest(bool isNullTest)
         {
             string path = "gwerol/egokpr.ge";
             int frequency = 1234;
@@ -989,7 +989,7 @@ namespace BinaryReaderLibraryTest
             int stationNumber = 312;
             string sensor = "rghpwt";
             string registrator = "gsdfrtew";
-            BinaryRecordFileInfo actualBinaryInfo;
+            RecordFileInfo actualBinaryInfo;
             var mock = Helpers.GetMockBinarySeismicFile();
             mock.Setup(p => p.OriginFrequency).Returns(frequency);
             mock.Setup(p => p.DiscreteAmount).Returns(discreteCount);
@@ -998,12 +998,12 @@ namespace BinaryReaderLibraryTest
             if (isNullTest)
             {
                 mock.Setup(p => p.GetNameInfo()).Returns(value: null);
-                Assert.AreEqual(mock.Object.GetBinaryRecordFileInfo().NameInfo, null);
+                Assert.AreEqual(mock.Object.GetRecordFileInfo().NameInfo, null);
                 return;
             }
             else
                 mock.Setup(p => p.GetNameInfo()).Returns(new NameInfo(stationNumber, sensor, registrator));
-            actualBinaryInfo = mock.Object.GetBinaryRecordFileInfo();
+            actualBinaryInfo = mock.Object.GetRecordFileInfo();
             Assert.AreEqual(actualBinaryInfo.Path, path);
             Assert.AreEqual(actualBinaryInfo.Frequency, frequency);
             Assert.AreEqual(actualBinaryInfo.DiscreteCount, discreteCount);

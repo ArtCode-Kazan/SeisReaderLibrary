@@ -65,9 +65,9 @@ namespace BinReader
     }
 
     /// <summary>
-    /// Class BinaryRecordFileInfo, which contains record with information about binary seismic file.
+    /// Class RecordFileInfo, which contains record with information about binary seismic file.
     /// </summary>
-    public class BinaryRecordFileInfo
+    public class RecordFileInfo
     {
         public int Frequency { get; set; }
         public int DiscreteCount { get; set; }
@@ -77,7 +77,7 @@ namespace BinReader
         public string Path { get; set; }
         public NameInfo NameInfo { get; set; }
 
-        public BinaryRecordFileInfo(
+        public RecordFileInfo(
             int frequency,
             int discreteCount,
             string originName,
