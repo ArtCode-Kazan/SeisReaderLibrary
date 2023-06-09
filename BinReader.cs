@@ -414,7 +414,7 @@ namespace BinReader
 
             if (isPathCorrect == false)
             {
-                throw new BadFilePath("Invalid path - {1}", _Path);
+                throw new FileFormatException();
             }
 
             this._Path = filePath;
@@ -783,8 +783,8 @@ namespace BinReader
         /// <summary>
         /// Gets the information that filename contain.
         /// </summary>
-        /// <value>BinaryNameInfo, information in the file name</value>
-        public virtual BinaryNameInfo GetBinaryNameInfo()
+        /// <value>NameInfo, information in the file name</value>
+        public virtual NameInfo GetNameInfo()
         {
             string fileName = Path.GetFileName(this.GetPath);
             string[] fileNameSplits = fileName.Split('_');
@@ -805,23 +805,23 @@ namespace BinReader
             }
             else
                 return null;
-            return new BinaryNameInfo(number, sensor, registrator);
+            return new NameInfo(number, sensor, registrator);
         }
 
         /// <summary>
         /// Gets the record with binary seismic info.
         /// </summary>
-        /// <value>GetBinaryRecordFileInfo, information of the binary file</value>
-        public virtual BinaryRecordFileInfo GetBinaryRecordFileInfo()
+        /// <value>RecordFileInfo, information of the binary file</value>
+        public virtual RecordFileInfo GetRecordFileInfo()
         {
-            BinaryRecordFileInfo fileInfo = new BinaryRecordFileInfo(
+            RecordFileInfo fileInfo = new RecordFileInfo(
                 frequency: this.OriginFrequency,
                 discreteCount: this.DiscreteAmount,
                 originName: Path.GetFileName(this.GetPath),
                 startTime: this.OriginDateTimeInterval.start,
                 stopTime: this.OriginDateTimeInterval.stop,
                 path: this.GetPath,
-                binaryNameInfo: GetBinaryNameInfo()
+                nameInfo: GetNameInfo()
             );
             return fileInfo;
         }
@@ -1092,62 +1092,6 @@ namespace BinReader
         /// <param name="info">Объект <see cref="T:System.Runtime.Serialization.SerializationInfo" />, хранящий сериализованные данные объекта, относящиеся к выдаваемому исключению.</param>
         /// <param name="context">Объект <see cref="T:System.Runtime.Serialization.StreamingContext" />, содержащий контекстные сведения об источнике или назначении.</param>
         protected InvalidResampleFrequency(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Class BadFilePath.
-    /// Implements the <see cref="Exception" />
-    /// </summary>
-    /// <seealso cref="Exception" />
-    [Serializable]
-    public class BadFilePath : Exception
-    {
-        private string v;
-        private string file_path;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
-        /// </summary>
-        public BadFilePath()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
-        /// </summary>
-        /// <param name="message">Сообщение, описывающее ошибку.</param>
-        public BadFilePath(string message) : base(message)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
-        /// </summary>
-        /// <param name="v">The v.</param>
-        /// <param name="file_path">The file path.</param>
-        public BadFilePath(string v, string file_path)
-        {
-            this.v = v;
-            this.file_path = file_path;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
-        /// </summary>
-        /// <param name="message">Сообщение об ошибке, указывающее причину создания исключения.</param>
-        /// <param name="innerException">Исключение, вызвавшее текущее исключение, или пустая ссылка (<see langword="Nothing" /> в Visual Basic), если внутреннее исключение не задано.</param>
-        public BadFilePath(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BadFilePath"/> class.
-        /// </summary>
-        /// <param name="info">Объект <see cref="T:System.Runtime.Serialization.SerializationInfo" />, хранящий сериализованные данные объекта, относящиеся к выдаваемому исключению.</param>
-        /// <param name="context">Объект <see cref="T:System.Runtime.Serialization.StreamingContext" />, содержащий контекстные сведения об источнике или назначении.</param>
-        protected BadFilePath(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

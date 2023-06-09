@@ -50,13 +50,13 @@ namespace BinReader
     /// <summary>
     /// Class BinaryNameInfo, which contains information from binary file name.
     /// </summary>
-    public class BinaryNameInfo
+    public class NameInfo
     {
         public int StationNumber { get; set; }
         public string Sensor { get; set; }
         public string Registrator { get; set; }
 
-        public BinaryNameInfo(int stationNumber, string sensor, string registrator)
+        public NameInfo(int stationNumber, string sensor, string registrator)
         {
             StationNumber = stationNumber;
             Sensor = sensor;
@@ -65,9 +65,9 @@ namespace BinReader
     }
 
     /// <summary>
-    /// Class BinaryRecordFileInfo, which contains record with information about binary seismic file.
+    /// Class RecordFileInfo, which contains record with information about binary seismic file.
     /// </summary>
-    public class BinaryRecordFileInfo
+    public class RecordFileInfo
     {
         public int Frequency { get; set; }
         public int DiscreteCount { get; set; }
@@ -75,16 +75,16 @@ namespace BinReader
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
         public string Path { get; set; }
-        public BinaryNameInfo BinaryNameInfo { get; set; }
+        public NameInfo NameInfo { get; set; }
 
-        public BinaryRecordFileInfo(
+        public RecordFileInfo(
             int frequency,
             int discreteCount,
             string originName,
             DateTime startTime,
             DateTime stopTime,
             string path,
-            BinaryNameInfo binaryNameInfo
+            NameInfo nameInfo
         )
         {
             this.Frequency = frequency;
@@ -93,7 +93,7 @@ namespace BinReader
             this.StartTime = startTime;
             this.StopTime = stopTime;
             this.Path = path;
-            this.BinaryNameInfo = binaryNameInfo;
+            this.NameInfo = nameInfo;
         }
     }
 }
